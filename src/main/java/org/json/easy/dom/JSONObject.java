@@ -8,27 +8,12 @@ import org.json.easy.serialization.JSONType;
 /**
  * Represents JSON object
  */
-public final class JSONObject
+public class JSONObject
 {
 	/**
 	 * Contains a reference to global empty object
 	 */
-	private static JSONObject empty = null;
-	
-	/**
-	 * Returns a reference to global empty JSON object
-	 * 
-	 * @return Reference to global empty JSON object
-	 */
-	public static JSONObject emptyObject()
-	{
-		if (empty == null)
-		{
-			empty = new JSONObject();
-		}
-		
-		return empty;
-	}
+	public static final JSONObject EMPTY = new JSONObject();
 	
 	/**
 	 * Contains object values
@@ -138,7 +123,7 @@ public final class JSONObject
 	 * @param fieldType The type of the field to get, use null or JSONType.None value if type doesn't matter
 	 * @return Field value, or null JSON value if the field doesn't exist or has different type
 	 */
-	public JSONValue getField(String fieldName, JSONType fieldType)
+	public final JSONValue getField(String fieldName, JSONType fieldType)
 	{
 		JSONValue val = values.get(fieldName);
 		
@@ -147,7 +132,7 @@ public final class JSONObject
 			return val;
 		}
 		
-		return JSONNullValue.get();
+		return JSONNullValue.NULL;
 	}
 	
 	/**
@@ -168,7 +153,7 @@ public final class JSONObject
 	 * @param fieldType Type of the field to check, use null or JSONType.None value if type doesn't matter
 	 * @return True if the field exists, false otherwise
 	 */
-	public boolean hasField(String fieldName, JSONType fieldType)
+	public final boolean hasField(String fieldName, JSONType fieldType)
 	{
 		boolean res = values.containsKey(fieldName);
 		
@@ -205,14 +190,14 @@ public final class JSONObject
 	 * @param value Value to set, null will be converted to JSON null value
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, JSONValue value)
+	public final boolean setField(String fieldName, JSONValue value)
 	{
-		if (fieldName == null || fieldName.isBlank() || this == emptyObject())
+		if (fieldName == null || fieldName.isBlank() || this == EMPTY)
 		{
 			return false;
 		}
 		
-		values.put(fieldName, value == null ? JSONNullValue.get() : value);
+		values.put(fieldName, value == null ? JSONNullValue.NULL : value);
 		return true;
 	}
 	
@@ -221,7 +206,7 @@ public final class JSONObject
 	 *
 	 * @param fieldName Name of the field to remove
 	 */
-	public void removeField(String fieldName)
+	public final void removeField(String fieldName)
 	{
 		values.remove(fieldName);
 	}
@@ -246,7 +231,7 @@ public final class JSONObject
 	 */
 	public boolean setField(String fieldName, boolean value)
 	{
-		return setField(fieldName, value ? JSONBooleanValue.getTrue() : JSONBooleanValue.getFalse());
+		return setField(fieldName, value ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE);
 	}
 	
 	/**
@@ -258,7 +243,7 @@ public final class JSONObject
 	 */
 	public boolean setField(String fieldName, Boolean value)
 	{
-		return setField(fieldName, value == null || !value ? JSONBooleanValue.getFalse() : JSONBooleanValue.getTrue());
+		return setField(fieldName, value == null || !value ? JSONBooleanValue.FALSE : JSONBooleanValue.TRUE);
 	}
 	
 	/**
@@ -329,7 +314,7 @@ public final class JSONObject
 	public JSONValue[] getArrayField(String fieldName)
 	{
 		JSONValue[] res = getField(fieldName, JSONType.ARRAY).asArray();
-		return res == null ? JSONArrayValue.emptyArray() : res;
+		return res == null ? JSONArrayValue.EMPTY : res;
 	}
 	
 	/**
@@ -353,7 +338,7 @@ public final class JSONObject
 	public JSONObject getObjectField(String fieldName)
 	{
 		JSONObject res = getField(fieldName, JSONType.OBJECT).asObject();
-		return res == null ? emptyObject() : res;
+		return res == null ? EMPTY : res;
 	}
 	
 	/**

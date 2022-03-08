@@ -10,42 +10,12 @@ public class JSONBooleanValue extends JSONValue
 	/**
 	 * Contains a reference to global true object
 	 */
-	private static JSONBooleanValue globalTrue = null;
+	public static final JSONBooleanValue TRUE = new JSONBooleanValue(true);
 	
 	/**
 	 * Contains a reference to global false object
 	 */
-	private static JSONBooleanValue globalFalse = null;
-	
-	/**
-	 * Returns a reference to global true object
-	 * 
-	 * @return Reference to global true object
-	 */
-	public static JSONBooleanValue getTrue()
-	{
-		if (globalTrue == null)
-		{
-			globalTrue = new JSONBooleanValue(true);
-		}
-		
-		return globalTrue;
-	}
-	
-	/**
-	 * Returns a reference to global false object
-	 * 
-	 * @return Reference to global false object
-	 */
-	public static JSONBooleanValue getFalse()
-	{
-		if (globalFalse == null)
-		{
-			globalFalse = new JSONBooleanValue(false);
-		}
-		
-		return globalFalse;
-	}
+	public static final JSONBooleanValue FALSE = new JSONBooleanValue(false);
 	
 	/**
 	 * Contains the value

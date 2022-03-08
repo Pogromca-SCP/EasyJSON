@@ -12,7 +12,7 @@ class JSONValueTest
 	void testValueEquals()
 	{
 		JSONValue[] values = { new JSONBooleanValue(false), new JSONNumberValue(115.4), new JSONNullValue(), new JSONArrayValue(null),
-				new JSONStringValue("testing"), new JSONObjectValue(JSONObject.emptyObject()), new JSONStringValue("test")};
+				new JSONStringValue("testing"), new JSONObjectValue(JSONObject.EMPTY), new JSONStringValue("test")};
 		
 		for (JSONValue val : values)
 		{
@@ -38,8 +38,8 @@ class JSONValueTest
 		Assertions.assertEquals(false, val.asBoolean());
 		Assertions.assertEquals(0.0, val.asNumber());
 		Assertions.assertEquals("", val.asString());
-		Assertions.assertArrayEquals(JSONArrayValue.emptyArray(), val.asArray());
-		Assertions.assertEquals(JSONObject.emptyObject(), val.asObject());
+		Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+		Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
 	}
 
 	@Test
@@ -65,8 +65,8 @@ class JSONValueTest
 			Assertions.assertEquals(v, val.asBoolean());
 			Assertions.assertEquals(v ? 1.0 : 0.0, val.asNumber());
 			Assertions.assertEquals(Boolean.toString(v), val.asString());
-			Assertions.assertArrayEquals(JSONArrayValue.emptyArray(), val.asArray());
-			Assertions.assertEquals(JSONObject.emptyObject(), val.asObject());
+			Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
 	
@@ -93,8 +93,8 @@ class JSONValueTest
 			Assertions.assertEquals(v != 0.0, val.asBoolean());
 			Assertions.assertEquals(v, val.asNumber());
 			Assertions.assertEquals(Double.toString(v), val.asString());
-			Assertions.assertArrayEquals(JSONArrayValue.emptyArray(), val.asArray());
-			Assertions.assertEquals(JSONObject.emptyObject(), val.asObject());
+			Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
 	
@@ -129,8 +129,8 @@ class JSONValueTest
 			
 			Assertions.assertEquals(num, val.asNumber());
 			Assertions.assertEquals(v, val.asString());
-			Assertions.assertArrayEquals(JSONArrayValue.emptyArray(), val.asArray());
-			Assertions.assertEquals(JSONObject.emptyObject(), val.asObject());
+			Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
 	
@@ -139,9 +139,9 @@ class JSONValueTest
 	{	
 		JSONValue[][] values = {
 				null,
-				JSONArrayValue.emptyArray(),
+				JSONArrayValue.EMPTY,
 				{ new JSONBooleanValue(false), new JSONNumberValue(115.4) },
-				{ new JSONNullValue(), new JSONArrayValue(null), new JSONStringValue("testing"), null, new JSONObjectValue(JSONObject.emptyObject())}
+				{ new JSONNullValue(), new JSONArrayValue(null), new JSONStringValue("testing"), null, new JSONObjectValue(JSONObject.EMPTY)}
 		};
 		
 		for (JSONValue[] v : values)
@@ -150,7 +150,7 @@ class JSONValueTest
 			
 			if (v == null)
 			{
-				v = JSONArrayValue.emptyArray();
+				v = JSONArrayValue.EMPTY;
 			}
 			
 			Assertions.assertEquals(Arrays.hashCode(v), val.hashCode());
@@ -163,7 +163,7 @@ class JSONValueTest
 			Assertions.assertEquals(0.0, val.asNumber());
 			Assertions.assertEquals("", val.asString());
 			Assertions.assertArrayEquals(v, val.asArray());
-			Assertions.assertEquals(JSONObject.emptyObject(), val.asObject());
+			Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
 	
@@ -172,10 +172,10 @@ class JSONValueTest
 	{
 		HashMap<String, JSONValue> map = new HashMap<String, JSONValue>();
 		map.put("null", null);
-		map.put("bool", JSONBooleanValue.getFalse());
+		map.put("bool", JSONBooleanValue.FALSE);
 		map.put("test", new JSONStringValue("test"));
 		map.put("34", new JSONNumberValue(34));
-		JSONObject[] values = { null, JSONObject.emptyObject(), new JSONObject(), new JSONObject(map)};
+		JSONObject[] values = { null, JSONObject.EMPTY, new JSONObject(), new JSONObject(map)};
 		
 		for (JSONObject v : values)
 		{
@@ -183,7 +183,7 @@ class JSONValueTest
 			
 			if (v == null)
 			{
-				v = JSONObject.emptyObject();
+				v = JSONObject.EMPTY;
 			}
 			
 			Assertions.assertEquals(v.hashCode(), val.hashCode());
@@ -195,7 +195,7 @@ class JSONValueTest
 			Assertions.assertEquals(false, val.asBoolean());
 			Assertions.assertEquals(0.0, val.asNumber());
 			Assertions.assertEquals("", val.asString());
-			Assertions.assertArrayEquals(JSONArrayValue.emptyArray(), val.asArray());
+			Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
 			Assertions.assertEquals(v, val.asObject());
 		}
 	}

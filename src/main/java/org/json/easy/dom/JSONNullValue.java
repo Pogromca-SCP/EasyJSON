@@ -10,22 +10,7 @@ public class JSONNullValue extends JSONValue
 	/**
 	 * Contains a reference to global null object
 	 */
-	private static JSONNullValue global = null;
-	
-	/**
-	 * Returns a reference to global null object
-	 * 
-	 * @return Reference to global null object
-	 */
-	public static JSONNullValue get()
-	{
-		if (global == null)
-		{
-			global = new JSONNullValue();
-		}
-		
-		return global;
-	}
+	public static final JSONNullValue NULL = new JSONNullValue();
 	
 	/**
 	 * Creates new null value

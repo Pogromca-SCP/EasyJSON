@@ -127,7 +127,7 @@ public abstract class JSONValue
 	 */
 	public JSONValue[] asArray()
 	{
-		return JSONArrayValue.emptyArray();
+		return JSONArrayValue.EMPTY;
 	}
 	
 	/**
@@ -137,6 +137,6 @@ public abstract class JSONValue
 	 */
 	public JSONObject asObject()
 	{
-		return JSONObject.emptyObject();
+		return JSONObject.EMPTY;
 	}
 }

@@ -11,22 +11,7 @@ public class JSONArrayValue extends JSONValue
 	/**
 	 * Contains a reference to global empty array
 	 */
-	private static JSONValue[] empty = null;
-	
-	/**
-	 * Returns a reference to global empty array
-	 * 
-	 * @return Reference to global empty array
-	 */
-	public static JSONValue[] emptyArray()
-	{
-		if (empty == null)
-		{
-			empty = new JSONValue[0];
-		}
-		
-		return empty;
-	}
+	public static final JSONValue[] EMPTY = new JSONValue[0];
 	
 	/**
 	 * Contains the value
@@ -41,7 +26,7 @@ public class JSONArrayValue extends JSONValue
 	public JSONArrayValue(JSONValue[] val)
 	{
 		type = JSONType.ARRAY;
-		value = val == null ? emptyArray() : val;
+		value = val == null ? EMPTY : val;
 	}
 	
 	/**

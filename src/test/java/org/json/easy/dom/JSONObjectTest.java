@@ -12,11 +12,11 @@ class JSONObjectTest
 	{
 		HashMap<String, JSONValue> map = new HashMap<String, JSONValue>();
 		HashMap<String, JSONValue> empty = new HashMap<String, JSONValue>();
-		map.put("bool", JSONBooleanValue.getTrue());
-		map.put("null", JSONNullValue.get());
+		map.put("bool", JSONBooleanValue.TRUE);
+		map.put("null", JSONNullValue.NULL);
 		map.put("test", new JSONStringValue("testing"));
 		JSONObject obj = new JSONObject(map);
-		JSONObject emptyObj = JSONObject.emptyObject();
+		JSONObject emptyObj = JSONObject.EMPTY;
 		Assertions.assertEquals(map.hashCode(), obj.hashCode());
 		Assertions.assertEquals(empty.hashCode(), emptyObj.hashCode());
 		Assertions.assertEquals(map.toString(), obj.toString());
@@ -33,7 +33,7 @@ class JSONObjectTest
 	@Test
 	void testEmptyObject()
 	{
-		JSONObject obj = JSONObject.emptyObject();
+		JSONObject obj = JSONObject.EMPTY;
 		Assertions.assertEquals(0, obj.size());
 		obj.setField("test", true);
 		obj.setField("true", true);
@@ -48,26 +48,26 @@ class JSONObjectTest
 	void testObjectOperations()
 	{
 		JSONObject obj = new JSONObject();
-		obj.setField("true", JSONBooleanValue.getTrue());
+		obj.setField("true", JSONBooleanValue.TRUE);
 		Assertions.assertEquals(true, obj.hasField("true", JSONType.BOOLEAN));
 		Assertions.assertEquals(true, obj.hasField("true"));
 		Assertions.assertEquals(false, obj.hasField("true", JSONType.OBJECT));
 		Assertions.assertEquals(true, obj.getBooleanField("true"));
 		Assertions.assertEquals(false, obj.getBooleanField("bruh"));
-		Assertions.assertEquals(JSONBooleanValue.getTrue(), obj.getField("true", JSONType.BOOLEAN));
-		Assertions.assertEquals(JSONBooleanValue.getTrue(), obj.getField("true"));
-		Assertions.assertEquals(JSONNullValue.get(), obj.getField("true", JSONType.NUMBER));
-		Assertions.assertEquals(JSONNullValue.get(), obj.getField("bruh"));
+		Assertions.assertEquals(JSONBooleanValue.TRUE, obj.getField("true", JSONType.BOOLEAN));
+		Assertions.assertEquals(JSONBooleanValue.TRUE, obj.getField("true"));
+		Assertions.assertEquals(JSONNullValue.NULL, obj.getField("true", JSONType.NUMBER));
+		Assertions.assertEquals(JSONNullValue.NULL, obj.getField("bruh"));
 		obj.removeField("true");
-		Assertions.assertEquals(JSONNullValue.get(), obj.getField("true"));
+		Assertions.assertEquals(JSONNullValue.NULL, obj.getField("true"));
 		Assertions.assertEquals(false, obj.hasField("true"));
 		obj.setField("", (JSONValue) null);
 		Assertions.assertEquals(false, obj.hasField(""));
-		obj.setField("   \t", JSONNullValue.get());
+		obj.setField("   \t", JSONNullValue.NULL);
 		Assertions.assertEquals(false, obj.hasField("   \t"));
 		obj.setField("null", (JSONValue) null);
-		Assertions.assertEquals(JSONNullValue.get(), obj.getField("null"));
-		obj.setField(null, JSONNullValue.get());
+		Assertions.assertEquals(JSONNullValue.NULL, obj.getField("null"));
+		obj.setField(null, JSONNullValue.NULL);
 		Assertions.assertEquals(false, obj.hasField(null));
 	}
 }

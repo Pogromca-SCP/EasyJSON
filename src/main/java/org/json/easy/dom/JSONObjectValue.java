@@ -20,7 +20,7 @@ public class JSONObjectValue extends JSONValue
 	public JSONObjectValue(JSONObject val)
 	{
 		type = JSONType.OBJECT;
-		value = val == null ? JSONObject.emptyObject() : val;
+		value = val == null ? JSONObject.EMPTY : val;
 	}
 	
 	/**
