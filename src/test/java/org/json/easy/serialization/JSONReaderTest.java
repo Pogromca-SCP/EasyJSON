@@ -100,7 +100,7 @@ class JSONReaderTest
 		obj.setField("number", 15);
 		
 		JSONValue[] expected = { new JSONNumberValue(-34.2), JSONNullValue.NULL, new JSONArrayValue(inner), new JSONStringValue("Bottom TEXT"),
-				new JSONObjectValue(obj), new JSONNumberValue(45), JSONBooleanValue.FALSE };
+				new JSONObjectValue(obj), new JSONNumberValue(0e45), JSONBooleanValue.FALSE };
 		
 		testTemplate("samples/BigArray.json", "BigArrayTest", expected, JSONObject.EMPTY);
 	}
