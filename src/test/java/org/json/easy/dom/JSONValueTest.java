@@ -1,10 +1,11 @@
 package org.json.easy.dom;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import org.json.easy.serialization.JSONType;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class JSONValueTest
 {
@@ -19,8 +20,8 @@ class JSONValueTest
 			for (JSONValue v : values)
 			{
 				boolean tmp = val.equals(v);
-				Assertions.assertEquals(val == v, tmp);
-				Assertions.assertEquals(tmp, v.equals(val));
+				assertEquals(val == v, tmp);
+				assertEquals(tmp, v.equals(val));
 			}
 		}
 	}
@@ -29,17 +30,17 @@ class JSONValueTest
 	void testNullValue()
 	{
 		JSONNullValue val = new JSONNullValue();
-		Assertions.assertEquals(0, val.hashCode());
-		Assertions.assertEquals("null", val.toString());
+		assertEquals(0, val.hashCode());
+		assertEquals("null", val.toString());
 		
-		Assertions.assertEquals(JSONType.NULL, val.getType());
-		Assertions.assertEquals(true, val.isNull());
+		assertEquals(JSONType.NULL, val.getType());
+		assertEquals(true, val.isNull());
 		
-		Assertions.assertEquals(false, val.asBoolean());
-		Assertions.assertEquals(0.0, val.asNumber());
-		Assertions.assertEquals("", val.asString());
-		Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
-		Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
+		assertEquals(false, val.asBoolean());
+		assertEquals(0.0, val.asNumber());
+		assertEquals("", val.asString());
+		assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+		assertEquals(JSONObject.EMPTY, val.asObject());
 	}
 
 	@Test
@@ -56,17 +57,17 @@ class JSONValueTest
 				v = false;
 			}
 			
-			Assertions.assertEquals(Boolean.hashCode(v), val.hashCode());
-			Assertions.assertEquals(Boolean.toString(v), val.toString());
+			assertEquals(Boolean.hashCode(v), val.hashCode());
+			assertEquals(Boolean.toString(v), val.toString());
 			
-			Assertions.assertEquals(JSONType.BOOLEAN, val.getType());
-			Assertions.assertEquals(false, val.isNull());
+			assertEquals(JSONType.BOOLEAN, val.getType());
+			assertEquals(false, val.isNull());
 			
-			Assertions.assertEquals(v, val.asBoolean());
-			Assertions.assertEquals(v ? 1.0 : 0.0, val.asNumber());
-			Assertions.assertEquals(Boolean.toString(v), val.asString());
-			Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
-			Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
+			assertEquals(v, val.asBoolean());
+			assertEquals(v ? 1.0 : 0.0, val.asNumber());
+			assertEquals(Boolean.toString(v), val.asString());
+			assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
 	
@@ -84,17 +85,17 @@ class JSONValueTest
 				v = 0.0;
 			}
 			
-			Assertions.assertEquals(Double.hashCode(v), val.hashCode());
-			Assertions.assertEquals(Double.toString(v), val.toString());
+			assertEquals(Double.hashCode(v), val.hashCode());
+			assertEquals(Double.toString(v), val.toString());
 			
-			Assertions.assertEquals(JSONType.NUMBER, val.getType());
-			Assertions.assertEquals(false, val.isNull());
+			assertEquals(JSONType.NUMBER, val.getType());
+			assertEquals(false, val.isNull());
 			
-			Assertions.assertEquals(v != 0.0, val.asBoolean());
-			Assertions.assertEquals(v, val.asNumber());
-			Assertions.assertEquals(Double.toString(v), val.asString());
-			Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
-			Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
+			assertEquals(v != 0.0, val.asBoolean());
+			assertEquals(v, val.asNumber());
+			assertEquals(Double.toString(v), val.asString());
+			assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
 	
@@ -112,13 +113,13 @@ class JSONValueTest
 				v = "";
 			}
 			
-			Assertions.assertEquals(v.hashCode(), val.hashCode());
-			Assertions.assertEquals(v, val.toString());
+			assertEquals(v.hashCode(), val.hashCode());
+			assertEquals(v, val.toString());
 			
-			Assertions.assertEquals(JSONType.STRING, val.getType());
-			Assertions.assertEquals(false, val.isNull());
+			assertEquals(JSONType.STRING, val.getType());
+			assertEquals(false, val.isNull());
 			
-			Assertions.assertEquals(Boolean.parseBoolean(v), val.asBoolean());
+			assertEquals(Boolean.parseBoolean(v), val.asBoolean());
 			double num = 0.0;
 			
 			try
@@ -127,10 +128,10 @@ class JSONValueTest
 			}
 			catch (NumberFormatException n) {}
 			
-			Assertions.assertEquals(num, val.asNumber());
-			Assertions.assertEquals(v, val.asString());
-			Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
-			Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
+			assertEquals(num, val.asNumber());
+			assertEquals(v, val.asString());
+			assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
 	
@@ -153,17 +154,17 @@ class JSONValueTest
 				v = JSONArrayValue.EMPTY;
 			}
 			
-			Assertions.assertEquals(Arrays.hashCode(v), val.hashCode());
-			Assertions.assertEquals(Arrays.toString(v), val.toString());
+			assertEquals(Arrays.hashCode(v), val.hashCode());
+			assertEquals(Arrays.toString(v), val.toString());
 			
-			Assertions.assertEquals(JSONType.ARRAY, val.getType());
-			Assertions.assertEquals(false, val.isNull());
+			assertEquals(JSONType.ARRAY, val.getType());
+			assertEquals(false, val.isNull());
 			
-			Assertions.assertEquals(false, val.asBoolean());
-			Assertions.assertEquals(0.0, val.asNumber());
-			Assertions.assertEquals("", val.asString());
-			Assertions.assertArrayEquals(v, val.asArray());
-			Assertions.assertEquals(JSONObject.EMPTY, val.asObject());
+			assertEquals(false, val.asBoolean());
+			assertEquals(0.0, val.asNumber());
+			assertEquals("", val.asString());
+			assertArrayEquals(v, val.asArray());
+			assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
 	
@@ -186,17 +187,17 @@ class JSONValueTest
 				v = JSONObject.EMPTY;
 			}
 			
-			Assertions.assertEquals(v.hashCode(), val.hashCode());
-			Assertions.assertEquals(v.toString(), val.toString());
+			assertEquals(v.hashCode(), val.hashCode());
+			assertEquals(v.toString(), val.toString());
 			
-			Assertions.assertEquals(JSONType.OBJECT, val.getType());
-			Assertions.assertEquals(false, val.isNull());
+			assertEquals(JSONType.OBJECT, val.getType());
+			assertEquals(false, val.isNull());
 			
-			Assertions.assertEquals(false, val.asBoolean());
-			Assertions.assertEquals(0.0, val.asNumber());
-			Assertions.assertEquals("", val.asString());
-			Assertions.assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
-			Assertions.assertEquals(v, val.asObject());
+			assertEquals(false, val.asBoolean());
+			assertEquals(0.0, val.asNumber());
+			assertEquals("", val.asString());
+			assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			assertEquals(v, val.asObject());
 		}
 	}
 }

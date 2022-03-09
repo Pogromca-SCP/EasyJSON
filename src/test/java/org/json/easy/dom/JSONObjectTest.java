@@ -2,8 +2,9 @@ package org.json.easy.dom;
 
 import org.junit.jupiter.api.Test;
 import java.util.HashMap;
-import org.junit.jupiter.api.Assertions;
 import org.json.easy.serialization.JSONType;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class JSONObjectTest
 {
@@ -17,31 +18,31 @@ class JSONObjectTest
 		map.put("test", new JSONStringValue("testing"));
 		JSONObject obj = new JSONObject(map);
 		JSONObject emptyObj = JSONObject.EMPTY;
-		Assertions.assertEquals(map.hashCode(), obj.hashCode());
-		Assertions.assertEquals(empty.hashCode(), emptyObj.hashCode());
-		Assertions.assertEquals(map.toString(), obj.toString());
-		Assertions.assertEquals(empty.toString(), emptyObj.toString());
-		Assertions.assertEquals(map.size(), obj.size());
-		Assertions.assertEquals(empty.size(), emptyObj.size());
+		assertEquals(map.hashCode(), obj.hashCode());
+		assertEquals(empty.hashCode(), emptyObj.hashCode());
+		assertEquals(map.toString(), obj.toString());
+		assertEquals(empty.toString(), emptyObj.toString());
+		assertEquals(map.size(), obj.size());
+		assertEquals(empty.size(), emptyObj.size());
 		JSONObject copy = new JSONObject(obj);
-		Assertions.assertEquals(copy.equals(obj), obj.equals(copy));
-		Assertions.assertEquals(obj.size(), copy.size());
-		Assertions.assertEquals(obj.hashCode(), copy.hashCode());
-		Assertions.assertEquals(obj.toString(), copy.toString());
+		assertEquals(copy.equals(obj), obj.equals(copy));
+		assertEquals(obj.size(), copy.size());
+		assertEquals(obj.hashCode(), copy.hashCode());
+		assertEquals(obj.toString(), copy.toString());
 	}
 	
 	@Test
 	void testEmptyObject()
 	{
 		JSONObject obj = JSONObject.EMPTY;
-		Assertions.assertEquals(0, obj.size());
+		assertEquals(0, obj.size());
 		obj.setField("test", true);
 		obj.setField("true", true);
 		obj.setField("null", true);
-		Assertions.assertEquals(0, obj.size());
-		Assertions.assertEquals(false, obj.hasField("test"));
-		Assertions.assertEquals(false, obj.hasField("true"));
-		Assertions.assertEquals(false, obj.hasField("null"));
+		assertEquals(0, obj.size());
+		assertEquals(false, obj.hasField("test"));
+		assertEquals(false, obj.hasField("true"));
+		assertEquals(false, obj.hasField("null"));
 	}
 	
 	@Test
@@ -49,25 +50,25 @@ class JSONObjectTest
 	{
 		JSONObject obj = new JSONObject();
 		obj.setField("true", JSONBooleanValue.TRUE);
-		Assertions.assertEquals(true, obj.hasField("true", JSONType.BOOLEAN));
-		Assertions.assertEquals(true, obj.hasField("true"));
-		Assertions.assertEquals(false, obj.hasField("true", JSONType.OBJECT));
-		Assertions.assertEquals(true, obj.getBooleanField("true"));
-		Assertions.assertEquals(false, obj.getBooleanField("bruh"));
-		Assertions.assertEquals(JSONBooleanValue.TRUE, obj.getField("true", JSONType.BOOLEAN));
-		Assertions.assertEquals(JSONBooleanValue.TRUE, obj.getField("true"));
-		Assertions.assertEquals(JSONNullValue.NULL, obj.getField("true", JSONType.NUMBER));
-		Assertions.assertEquals(JSONNullValue.NULL, obj.getField("bruh"));
+		assertEquals(true, obj.hasField("true", JSONType.BOOLEAN));
+		assertEquals(true, obj.hasField("true"));
+		assertEquals(false, obj.hasField("true", JSONType.OBJECT));
+		assertEquals(true, obj.getBooleanField("true"));
+		assertEquals(false, obj.getBooleanField("bruh"));
+		assertEquals(JSONBooleanValue.TRUE, obj.getField("true", JSONType.BOOLEAN));
+		assertEquals(JSONBooleanValue.TRUE, obj.getField("true"));
+		assertEquals(JSONNullValue.NULL, obj.getField("true", JSONType.NUMBER));
+		assertEquals(JSONNullValue.NULL, obj.getField("bruh"));
 		obj.removeField("true");
-		Assertions.assertEquals(JSONNullValue.NULL, obj.getField("true"));
-		Assertions.assertEquals(false, obj.hasField("true"));
+		assertEquals(JSONNullValue.NULL, obj.getField("true"));
+		assertEquals(false, obj.hasField("true"));
 		obj.setField("", (JSONValue) null);
-		Assertions.assertEquals(false, obj.hasField(""));
+		assertEquals(false, obj.hasField(""));
 		obj.setField("   \t", JSONNullValue.NULL);
-		Assertions.assertEquals(false, obj.hasField("   \t"));
+		assertEquals(false, obj.hasField("   \t"));
 		obj.setField("null", (JSONValue) null);
-		Assertions.assertEquals(JSONNullValue.NULL, obj.getField("null"));
+		assertEquals(JSONNullValue.NULL, obj.getField("null"));
 		obj.setField(null, JSONNullValue.NULL);
-		Assertions.assertEquals(false, obj.hasField(null));
+		assertEquals(false, obj.hasField(null));
 	}
 }

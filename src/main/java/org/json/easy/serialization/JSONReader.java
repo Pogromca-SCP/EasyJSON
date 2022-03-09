@@ -1,16 +1,17 @@
 package org.json.easy.serialization;
 
-import java.io.Reader;
 import java.util.Stack;
-import org.json.easy.util.ValueWrapper;
 import java.io.PushbackReader;
+import java.io.Reader;
 import java.io.IOException;
+import java.util.Map;
+import java.util.AbstractMap;
 
 /**
  * Reader wrapper for reading JSON data
  */
 public class JSONReader implements AutoCloseable
-{
+{	
 	/**
 	 * Contains a table that converts JSON Token to JSON Notation, provide a token as an index in order to convert it
 	 */
@@ -28,16 +29,6 @@ public class JSONReader implements AutoCloseable
 		JSONNotation.BOOLEAN,
 		JSONNotation.NULL
 	};
-	
-	/**
-	 * Creates new JSON reader and wraps provided reader
-	 * 
-	 * @param reader Reader to wrap
-	 */
-	public static JSONReader create(Reader reader)
-	{
-		return new JSONReader(reader);
-	}
 	
 	/**
 	 * Checks whether the character is a line break
@@ -113,7 +104,7 @@ public class JSONReader implements AutoCloseable
 	/**
 	 * Contains current JSON Token
 	 */
-	private ValueWrapper<JSONToken> currentToken;
+	private JSONToken currentToken;
 	
 	/**
 	 * Contains data stream to read
@@ -131,7 +122,7 @@ public class JSONReader implements AutoCloseable
 	private int characterNumber;
 	
 	/**
-	 * Tells whether or not the reading of a root object is finished
+	 * Tells whether or not the reading of the root object is finished
 	 */
 	private boolean finishedReadingRootObject;
 	
@@ -166,7 +157,7 @@ public class JSONReader implements AutoCloseable
 	protected JSONReader()
 	{
 		parseState = new Stack<JSONType>();
-		currentToken = new ValueWrapper<JSONToken>(JSONToken.NONE);
+		currentToken = JSONToken.NONE;
 		stream = null;
 		lineNumber = 1;
 		characterNumber = 0;
@@ -183,7 +174,7 @@ public class JSONReader implements AutoCloseable
 	 * 
 	 * @param reader Reader to wrap
 	 */
-	protected JSONReader(Reader reader)
+	public JSONReader(Reader reader)
 	{
 		this();
 		
@@ -255,57 +246,50 @@ public class JSONReader implements AutoCloseable
 			{
 				stream.close();
 			}
-			catch (IOException i) {}
+			catch (IOException i)
+			{
+				errorMessage = "IOException occured while closing";
+			}
 			
 			stream = null;
 		}
 	}
 	
 	/**
-	 * Parses next element
+	 * Parses next JSON notation element
 	 * 
-	 * @param notation Notation to set while reading
-	 * @return True if parsed successfully, false otherwise
+	 * @return A map entry containing a boolean key which tells if the reading can continue and parsed notation element type value which can be null
 	 */
-	public final boolean readNext(ValueWrapper<JSONNotation> notation)
+	public final Map.Entry<Boolean, JSONNotation> readNext()
 	{
-		if (notation == null)
-		{
-			notation = new ValueWrapper<JSONNotation>();
-		}
-		
 		if (errorMessage != null && !errorMessage.isEmpty())
 		{
-			notation.value = JSONNotation.ERROR;
-			return false;
+			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.FALSE, JSONNotation.ERROR);
 		}
 
 		if (stream == null)
 		{
-			notation.value = JSONNotation.ERROR;
 			setErrorMessage("Null stream error");
-			return true;
+			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.TRUE, JSONNotation.ERROR);
 		}
 
 		boolean atEndOfStream = isAtEnd();
 
 		if (atEndOfStream && !finishedReadingRootObject)
 		{
-			notation.value = JSONNotation.ERROR;
-			setErrorMessage("Improperly formatted error");
-			return true;
+			setErrorMessage("Improperly formatted input");
+			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.TRUE, JSONNotation.ERROR);
 		}
 
 		if (finishedReadingRootObject && !atEndOfStream)
 		{
-			notation.value = JSONNotation.ERROR;
-			setErrorMessage("Unexpected additional input error");
-			return true;
+			setErrorMessage("Unexpected additional input");
+			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.TRUE, JSONNotation.ERROR);
 		}
 
 		if (atEndOfStream)
 		{
-			return false;
+			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.FALSE, null);
 		}
 		
 		boolean readWasSuccess = false;
@@ -323,31 +307,28 @@ public class JSONReader implements AutoCloseable
 			switch (currentState)
 			{
 				case ARRAY:
-					readWasSuccess = readNextArrayValue(currentToken);
+					readWasSuccess = readNextArrayValue();
 					break;
 				case OBJECT:
-					readWasSuccess = readNextObjectValue(currentToken);
+					readWasSuccess = readNextObjectValue();
 					break;
 				default:
-					readWasSuccess = readStart(currentToken);
-					break;
+					readWasSuccess = readStart();
 			}
 		}
-		while (readWasSuccess && currentToken.value == JSONToken.NONE);
+		while (readWasSuccess && currentToken == JSONToken.NONE);
 		
-		notation.value = TOKEN_TO_NOTATION_TABLE[currentToken.value.ordinal()];
+		JSONNotation notation = TOKEN_TO_NOTATION_TABLE[currentToken.ordinal()];
 		finishedReadingRootObject = parseState.isEmpty();
 
-		if (!readWasSuccess || notation.value == JSONNotation.ERROR)
+		if (!readWasSuccess || notation == JSONNotation.ERROR)
 		{
-			notation.value = JSONNotation.ERROR;
-
 			if (errorMessage == null || errorMessage.isEmpty())
 			{
 				setErrorMessage("Unknown error");
 			}
 
-			return true;
+			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.TRUE, JSONNotation.ERROR);
 		}
 
 		if (finishedReadingRootObject && !isAtEnd())
@@ -355,7 +336,7 @@ public class JSONReader implements AutoCloseable
 			parseWhiteSpace();
 		}
 
-		return readWasSuccess;
+		return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(readWasSuccess, notation);
 	}
 	
 	/**
@@ -393,16 +374,16 @@ public class JSONReader implements AutoCloseable
 	private boolean readUntilMatching(JSONNotation expectedNotation)
 	{
 		int scopeCount = 0;
-		ValueWrapper<JSONNotation> notation = new ValueWrapper<JSONNotation>();
+		Map.Entry<Boolean, JSONNotation> readResult;
 
-		while (readNext(notation))
+		while ((readResult = readNext()).getKey())
 		{
-			if (scopeCount == 0 && notation.value == expectedNotation)
+			if (scopeCount == 0 && readResult.getValue() == expectedNotation)
 			{
 				return true;
 			}
 
-			switch (notation.value)
+			switch (readResult.getValue())
 			{
 				case OBJECT_START:
 				case ARRAY_START:
@@ -424,20 +405,19 @@ public class JSONReader implements AutoCloseable
 	/**
 	 * Parses a start of an object or array
 	 * 
-	 * @param token Token to set while reading
 	 * @return True if parsed successfully, false otherwise
 	 */
-	private boolean readStart(ValueWrapper<JSONToken> token)
+	private boolean readStart()
 	{
 		parseWhiteSpace();
-		token.value = JSONToken.NONE;
+		currentToken = nextToken();
 
-		if (!nextToken(token))
+		if (currentToken == JSONToken.NONE)
 		{
 			return false;
 		}
 
-		if (token.value != JSONToken.CURLY_OPEN && token.value != JSONToken.SQUARE_OPEN)
+		if (currentToken != JSONToken.CURLY_OPEN && currentToken != JSONToken.SQUARE_OPEN)
 		{
 			setErrorMessage("Open Curly or Square Brace token expected");
 			return false;
@@ -449,102 +429,94 @@ public class JSONReader implements AutoCloseable
 	/**
 	 * Parses next object value
 	 * 
-	 * @param token Token to set while reading
 	 * @return True if parsed successfully, false otherwise
 	 */
-	private boolean readNextObjectValue(ValueWrapper<JSONToken> token)
+	private boolean readNextObjectValue()
 	{
-		boolean commaPrepend = token.value != JSONToken.CURLY_OPEN;
-		token.value = JSONToken.NONE;
+		boolean useComma = currentToken != JSONToken.CURLY_OPEN;
+		currentToken = nextToken();
 
-		if (!nextToken(token))
+		if (currentToken == JSONToken.NONE)
 		{
 			return false;
 		}
 
-		if (token.value == JSONToken.CURLY_CLOSE)
+		if (currentToken == JSONToken.CURLY_CLOSE)
 		{
 			return true;
 		}
 		
-		if (commaPrepend)
+		if (useComma)
 		{
-			if (token.value != JSONToken.COMMA)
+			if (currentToken != JSONToken.COMMA)
 			{
 				setErrorMessage("Comma token expected");
 				return false;
 			}
 
-			token.value = JSONToken.NONE;
+			currentToken = nextToken();
 
-			if (!nextToken(token))
+			if (currentToken == JSONToken.NONE)
 			{
 				return false;
 			}
 		}
 
-		if (token.value != JSONToken.STRING)
+		if (currentToken != JSONToken.STRING)
 		{
 			setErrorMessage("String token expected");
 			return false;
 		}
 
 		identifier = stringValue;
-		token.value = JSONToken.NONE;
+		currentToken = nextToken();
 
-		if (!nextToken(token))
+		if (currentToken == JSONToken.NONE)
 		{
 			return false;
 		}
 
-		if (token.value != JSONToken.COLON)
+		if (currentToken != JSONToken.COLON)
 		{
 			setErrorMessage("Colon token expected");
 			return false;
 		}
 
-		token.value = JSONToken.NONE;
-
-		if (!nextToken(token))
-		{
-			return false;
-		}
-
-		return true;
+		currentToken = nextToken();
+		return currentToken != JSONToken.NONE;
 	}
 	
 	/**
-	 * Parses next object value
+	 * Parses next array value
 	 * 
-	 * @param token Token to set while reading
 	 * @return True if parsed successfully, false otherwise
 	 */
-	private boolean readNextArrayValue(ValueWrapper<JSONToken> token)
+	private boolean readNextArrayValue()
 	{
-		boolean commaPrepend = token.value != JSONToken.SQUARE_OPEN;
-		token.value = JSONToken.NONE;
+		boolean useComma = currentToken != JSONToken.SQUARE_OPEN;
+		currentToken = nextToken();
 
-		if (!nextToken(token))
+		if (currentToken == JSONToken.NONE)
 		{
 			return false;
 		}
 
-		if (token.value == JSONToken.SQUARE_CLOSE)
+		if (currentToken == JSONToken.SQUARE_CLOSE)
 		{
 			return true;
 		}
 		
-		if (commaPrepend)
+		if (useComma)
 		{
-			if (token.value != JSONToken.COMMA)
+			if (currentToken != JSONToken.COMMA)
 			{
 				setErrorMessage("Comma token expected");
 				return false;
 			}
 
-			token.value = JSONToken.NONE;
+			currentToken = nextToken();
 
-			if (!nextToken(token))
+			if (currentToken == JSONToken.NONE)
 			{
 				return false;
 			}
@@ -556,15 +528,13 @@ public class JSONReader implements AutoCloseable
 	/**
 	 * Parses next JSON token
 	 * 
-	 * @param token Token to set while reading
-	 * @return True if parsed successfully, false otherwise
+	 * @return Parsed token type
 	 */
-	private boolean nextToken(ValueWrapper<JSONToken> token)
+	private JSONToken nextToken()
 	{
-		char ch;
-		
-		while ((ch = read()) != -1)
-		{
+		while (!isAtEnd())
+		{	
+			char ch = read();
 			++characterNumber;
 
 			if (ch == '\0')
@@ -584,60 +554,54 @@ public class JSONReader implements AutoCloseable
 				{
 					if (!parseNumberToken(ch))
 					{
-						return false;
+						return JSONToken.NONE;
 					}
 
-					token.value = JSONToken.NUMBER;
-					return true;
+					return JSONToken.NUMBER;
 				}
 
 				switch (ch)
 				{
 					case '{':
-						token.value = JSONToken.CURLY_OPEN;
 						parseState.push(JSONType.OBJECT);
-						return true;
+						return JSONToken.CURLY_OPEN;
 					case '}':
-						token.value = JSONToken.CURLY_CLOSE;
 						parseState.pop();
-						return true;
+						return JSONToken.CURLY_CLOSE;
 					case '[':
-						token.value = JSONToken.SQUARE_OPEN;
 						parseState.push(JSONType.ARRAY);
-						return true;
+						return JSONToken.SQUARE_OPEN;
 					case ']':
-						token.value = JSONToken.SQUARE_CLOSE;
 						parseState.pop();
-						return true;
+						return JSONToken.SQUARE_CLOSE;
 					case ':':
-						token.value = JSONToken.COLON;
-						return true;
+						return JSONToken.COLON;
 					case ',':
-						token.value = JSONToken.COMMA;
-						return true;
+						return JSONToken.COMMA;
 					case '\"':
 						if (!parseStringToken())
 						{
-							return false;
+							return JSONToken.NONE;
 						}
 
-						token.value = JSONToken.STRING;
-						return true;
+						return JSONToken.STRING;
 					case 't':
 					case 'T':
 					case 'f':
 					case 'F':
 					case 'n':
 					case 'N':
-						StringBuilder test = new StringBuilder();
-						test.append(ch);
+						StringBuilder sb = new StringBuilder();
+						sb.append(ch);
 
-						while ((ch = read()) != -1)
+						while (!isAtEnd())
 						{
+							ch = read();
+							
 							if (isLetter(ch))
 							{
 								++characterNumber;
-								test.append(ch);
+								sb.append(ch);
 							}
 							else
 							{
@@ -646,39 +610,36 @@ public class JSONReader implements AutoCloseable
 							}
 						}
 						
-						String testString = test.toString();
+						String test = sb.toString();
 						
-						if (testString.equalsIgnoreCase("false"))
+						if (test.equalsIgnoreCase("false"))
 						{
 							booleanValue = false;
-							token.value = JSONToken.FALSE;
-							return true;
+							return JSONToken.FALSE;
 						}
 
-						if (testString.equalsIgnoreCase("true"))
+						if (test.equalsIgnoreCase("true"))
 						{
 							booleanValue = true;
-							token.value = JSONToken.TRUE;
-							return true;
+							return JSONToken.TRUE;
 						}
 
-						if (testString.equalsIgnoreCase("null"))
+						if (test.equalsIgnoreCase("null"))
 						{
-							token.value = JSONToken.NULL;
-							return true;
+							return JSONToken.NULL;
 						}
 
 						setErrorMessage("Invalid JSON token (field name)");
-						return false;
+						return JSONToken.NONE;
 					default: 
 						setErrorMessage("Invalid JSON token");
-						return false;
+						return JSONToken.NONE;
 				}
 			}
 		}
 
 		setErrorMessage("Invalid JSON token");
-		return false;
+		return JSONToken.NONE;
 	}
 	
 	/**
@@ -692,15 +653,13 @@ public class JSONReader implements AutoCloseable
 
 		while (true)
 		{
-			char ch = read();
-			
-			if (ch == -1)
+			if (isAtEnd())
 			{
-				backtrack(ch);
 				setErrorMessage("String token abruptly ended");
 				return false;
 			}
-
+			
+			char ch = read();
 			++characterNumber;
 
 			if (ch == '\"')
@@ -738,19 +697,17 @@ public class JSONReader implements AutoCloseable
 					case 'u':
 						int hexNum = 0;
 
-						for (int radix = 3; radix >= 0; --radix)
+						for (int radix = 3; radix > -1; --radix)
 						{
-							char numChar = read();
-							
-							if (numChar == -1)
+							if (isAtEnd())
 							{
-								backtrack(numChar);
 								setErrorMessage("String token abruptly ended");
 								return false;
 							}
 
+							ch = read();
 							++characterNumber;
-							int hexDigit = Character.digit(numChar, 16);
+							int hexDigit = Character.digit(ch, 16);
 
 							if (hexDigit == 0 && ch != '0')
 							{
@@ -989,10 +946,9 @@ public class JSONReader implements AutoCloseable
 	 */
 	private void parseWhiteSpace()
 	{
-		char ch;
-		
-		while ((ch = read()) != -1)
+		while (!isAtEnd())
 		{
+			char ch = read();
 			++characterNumber;
 			
 			if (isLineBreak(ch))
@@ -1017,13 +973,16 @@ public class JSONReader implements AutoCloseable
 	 */
 	private char read()
 	{
-		char ch = 0;
+		char ch = ' ';
 		
 		try
 		{
 			ch = (char) stream.read();
 		}
-		catch (IOException i) {}
+		catch (IOException i)
+		{
+			setErrorMessage("IOException");
+		}
 		
 		return ch;
 	}
@@ -1039,7 +998,10 @@ public class JSONReader implements AutoCloseable
 		{
 			stream.unread(ch);
 		}
-		catch (IOException i) {}
+		catch (IOException i)
+		{
+			setErrorMessage("IOException");
+		}
 	}
 	
 	/**
@@ -1049,8 +1011,24 @@ public class JSONReader implements AutoCloseable
 	 */
 	private boolean isAtEnd()
 	{
-		char ch = read();
-		backtrack(ch);
-		return ch == -1;
+		int num = ' ';
+		boolean res = false;
+		
+		try
+		{
+			num = stream.read();
+			res = num == -1;
+			
+			if (!res)
+			{
+				stream.unread(num);
+			}
+		}
+		catch (IOException i)
+		{
+			setErrorMessage("IOException");
+		}
+		
+		return res;
 	}
 }

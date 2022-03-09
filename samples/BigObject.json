@@ -1,0 +1,18 @@
+{
+	"arr": [ {
+		"nope": null
+	}, {}, {
+		"text": "Example",
+		"inner": {
+			"inner": {},
+			"arr": []
+		}
+	} ],
+	"text": "Hello\u7684 there\n!",
+	"obj": {
+		"num": 34,
+		"num2": -44,
+		"inner": {},
+		"nulls": [ null, null, true ]
+	}
+}

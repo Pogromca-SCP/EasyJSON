@@ -1,0 +1,13 @@
+[
+	-34.2,
+	null,
+	["This", "is", "an", "inner", "array"],
+	"Bottom TEXT",
+	{
+		"inner": {},
+		"arr": [ "InnerArray", "" ],
+		"number": 15
+	},
+	45,
+	false
+]

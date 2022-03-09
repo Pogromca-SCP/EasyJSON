@@ -1,89 +1,15 @@
 package org.json.easy.serialization;
 
 import org.json.easy.dom.*;
-import java.io.Reader;
-import org.json.easy.util.ValueWrapper;
 import java.util.LinkedList;
 import java.util.Stack;
+import java.util.Map;
 
 /**
  * Helper class for handling JSON serialization
  */
 public class JSONSerializer
 {
-	/**
-	 * Deserializes JSON data and returns it as an array
-	 * 
-	 * @param src Reader to get data from
-	 * @return Deserialized data as an array or empty array if something went wrong
-	 */
-	public static JSONValue[] deserializeArray(Reader src)
-	{
-		ValueWrapper<StackState> state = new ValueWrapper<StackState>();
-		
-		try (JSONReader reader = JSONReader.create(src))
-		{
-			if (!deserialize(reader, state))
-			{
-				return JSONArrayValue.EMPTY;
-			}
-		}
-		
-		LinkedList<JSONValue> res = state.value.array;
-		return res == null ? JSONArrayValue.EMPTY : listToArray(res);
-	}
-	
-	/**
-	 * Deserializes JSON data and returns it as an object
-	 * 
-	 * @param src Reader to get data from
-	 * @return Deserialized data as a JSON object or empty JSON object if something went wrong
-	 */
-	public static JSONObject deserializeObject(Reader src)
-	{
-		ValueWrapper<StackState> state = new ValueWrapper<StackState>();
-		
-		try (JSONReader reader = JSONReader.create(src))
-		{
-			if (!deserialize(reader, state))
-			{
-				return JSONObject.EMPTY;
-			}
-		}
-		
-		JSONObject res = state.value.object;
-		return res == null ? JSONObject.EMPTY : res;
-	}
-	
-	/**
-	 * Deserializes JSON data and returns it
-	 * 
-	 * @param src Reader to get data from
-	 * @return Deserialized data in JSON object/array or null JSON value if something went wrong
-	 */
-	public static JSONValue deserialize(Reader src)
-	{
-		ValueWrapper<StackState> state = new ValueWrapper<StackState>();
-		
-		try (JSONReader reader = JSONReader.create(src))
-		{
-			if (!deserialize(reader, state))
-			{
-				return JSONNullValue.NULL;
-			}
-		}
-
-		switch (state.value.type)
-		{
-			case OBJECT:
-				return new JSONObjectValue(state.value.object);
-			case ARRAY:
-				return new JSONArrayValue(state.value.array == null ? null : listToArray(state.value.array));
-			default:
-				return JSONNullValue.NULL;
-		}
-	}
-	
 	/**
 	 * Helper class for containing stack state
 	 */
@@ -111,6 +37,85 @@ public class JSONSerializer
 	}
 	
 	/**
+	 * Deserializes JSON data and returns it as an array
+	 * 
+	 * @param reader Reader to get data from
+	 * @return Deserialized data as an array or empty array if something went wrong
+	 */
+	public static JSONValue[] deserializeArray(JSONReader reader)
+	{
+		if (reader == null)
+		{
+			return JSONArrayValue.EMPTY;
+		}
+		
+		StackState state = deserializeJSON(reader);
+		
+		if (state == null)
+		{
+			return JSONArrayValue.EMPTY;
+		}
+		
+		LinkedList<JSONValue> res = state.array;
+		return res == null ? JSONArrayValue.EMPTY : listToArray(res);
+	}
+	
+	/**
+	 * Deserializes JSON data and returns it as an object
+	 * 
+	 * @param reader Reader to get data from
+	 * @return Deserialized data as a JSON object or empty JSON object if something went wrong
+	 */
+	public static JSONObject deserializeObject(JSONReader reader)
+	{
+		if (reader == null)
+		{
+			return JSONObject.EMPTY;
+		}
+		
+		StackState state = deserializeJSON(reader);
+		
+		if (state == null)
+		{
+			return JSONObject.EMPTY;
+		}
+		
+		JSONObject res = state.object;
+		return res == null ? JSONObject.EMPTY : res;
+	}
+	
+	/**
+	 * Deserializes JSON data and returns it
+	 * 
+	 * @param reader Reader to get data from
+	 * @return Deserialized data in JSON object/array or null JSON value if something went wrong
+	 */
+	public static JSONValue deserialize(JSONReader reader)
+	{
+		if (reader == null)
+		{
+			return JSONNullValue.NULL;
+		}
+		
+		StackState state = deserializeJSON(reader);
+		
+		if (state == null)
+		{
+			return JSONNullValue.NULL;
+		}
+
+		switch (state.type)
+		{
+			case OBJECT:
+				return new JSONObjectValue(state.object);
+			case ARRAY:
+				return new JSONArrayValue(state.array == null ? null : listToArray(state.array));
+			default:
+				return JSONNullValue.NULL;
+		}
+	}
+	
+	/**
 	 * Converts linked list into an array
 	 * 
 	 * @param list List to convert
@@ -127,22 +132,21 @@ public class JSONSerializer
 	 * Deserializes JSON data and writes it into a stack state
 	 * 
 	 * @param reader JSON reader to use
-	 * @param outStackState Stack state to write into
-	 * @return True if JSON deserialized successfully, false otherwise
+	 * @return Deserialized data in a stack state or null if something went wrong
 	 */
-	private static boolean deserialize(JSONReader reader, ValueWrapper<StackState> outStackState)
+	private static StackState deserializeJSON(JSONReader reader)
 	{
 		Stack<StackState> scopeStack = new Stack<StackState>();
 		StackState currentState = null;
 		JSONValue newValue;
-		ValueWrapper<JSONNotation> notation = new ValueWrapper<JSONNotation>();
+		Map.Entry<Boolean, JSONNotation> readResult;
 		
-		while (reader.readNext(notation))
+		while ((readResult = reader.readNext()).getKey())
 		{
 			String identifier = reader.getIdentifier();
 			newValue = null;
 			
-			switch (notation.value)
+			switch (readResult.getValue())
 			{
 				case OBJECT_START:
 					if (currentState != null)
@@ -197,7 +201,7 @@ public class JSONSerializer
 					newValue = JSONNullValue.NULL;
 					break;
 				case ERROR:
-					return false;
+					return null;
 				default:
 			}
 			
@@ -216,12 +220,11 @@ public class JSONSerializer
 		
 		String error = reader.getErrorMessage();
 		
-		if (currentState == null || (error != null && !error.isEmpty()))
+		if (error != null && !error.isEmpty())
 		{
-			return false;
+			return null;
 		}
 		
-		outStackState.value = currentState;
-		return true;
+		return currentState;
 	}
 }
