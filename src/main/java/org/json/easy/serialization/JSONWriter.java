@@ -1,0 +1,730 @@
+package org.json.easy.serialization;
+
+import java.util.Stack;
+import java.io.Writer;
+import org.json.easy.policies.JSONPrintPolicy;
+import java.util.function.Consumer;
+import org.json.easy.policies.PrettyJSONPrintPolicy;
+import java.io.IOException;
+import org.json.easy.dom.JSONValue;
+
+/**
+ * Writer wrapper for writing JSON data
+ */
+public class JSONWriter implements AutoCloseable
+{
+	/**
+	 * Checks if the provided token is a short value
+	 * 
+	 * @param token Token to check
+	 * @return True if token is a short value, false otherwise
+	 */
+	private static boolean isTokenShort(JSONToken token)
+	{
+		return token == JSONToken.NUMBER || token == JSONToken.TRUE || token == JSONToken.FALSE || token == JSONToken.NULL || token == JSONToken.STRING;
+	}
+	
+	/**
+	 * Contains entire write state in a stack structure
+	 */
+	private Stack<JSONType> stack;
+	
+	/**
+	 * Contains data stream to write into
+	 */
+	private Writer stream;
+	
+	/**
+	 * Contains previously written token
+	 */
+	private JSONToken previousToken;
+	
+	/**
+	 * Contains current indent level
+	 */
+	private int indentLevel;
+	
+	/**
+	 * Contains current printing policy
+	 */
+	private JSONPrintPolicy policy;
+	
+	/**
+	 * Contains write method for print policy
+	 */
+	private Consumer<Character> write;
+	
+	/**
+	 * Creates new JSON writer and wraps provided writer
+	 * 
+	 * @param writer Writer to wrap
+	 */
+	public JSONWriter(Writer writer)
+	{
+		this(writer, 0, null);
+	}
+	
+	/**
+	 * Creates new JSON writer and wraps provided writer
+	 * 
+	 * @param writer Writer to wrap
+	 * @param initIndent Initial indentation level
+	 */
+	public JSONWriter(Writer writer, int initLevel)
+	{
+		this(writer, initLevel, null);
+	}
+	
+	/**
+	 * Creates new JSON writer and wraps provided writer
+	 * 
+	 * @param writer Writer to wrap
+	 * @param pol JSON printing policy to use
+	 */
+	public JSONWriter(Writer writer, JSONPrintPolicy pol)
+	{
+		this(writer, 0, pol);
+	}
+	
+	/**
+	 * Creates new JSON writer and wraps provided writer
+	 * 
+	 * @param writer Writer to wrap
+	 * @param initIndent Initial indentation level
+	 * @param pol JSON printing policy to use
+	 */
+	public JSONWriter(Writer writer, int initIndent, JSONPrintPolicy pol)
+	{
+		stack = new Stack<JSONType>();
+		stream = writer;
+		previousToken = JSONToken.NONE;
+		indentLevel = initIndent;
+		policy = pol == null ? new PrettyJSONPrintPolicy() : pol;
+		
+		write = ch -> {
+			if (ch != null)
+			{
+				writeChar(ch);
+			}
+		}; 
+	}
+	
+	/**
+	 * Returns current indentation level
+	 * 
+	 * @return Current indent level value
+	 */
+	public int getIndentLevel()
+	{
+		return indentLevel;
+	}
+	
+	/**
+	 * Closes the writer and releases any system resources associated with it
+	 */
+	@Override
+	public void close()
+	{
+		if (stream != null)
+		{
+			try
+			{
+				stream.close();
+				stream.flush();
+			}
+			catch (IOException i) {}
+			
+			stream = null;
+		}
+	}
+	
+	/**
+	 * Writes a start of an object
+	 */
+	public final void writeObjectStart()
+	{
+		writeStart(false);
+	}
+	
+	/**
+	 * Writes a start of an object with an identifier
+	 * 
+	 * @param identifier Identifier to write
+	 */
+	public final void writeObjectStart(String identifier)
+	{
+		writeStart(false, identifier);
+	}
+	
+	/**
+	 * Writes an end of an object
+	 */
+	public final void writeObjectEnd()
+	{
+		if (stack.isEmpty() || stack.peek() != JSONType.OBJECT)
+		{
+			return;
+		}
+		
+		policy.writeLineTerminator(write);
+		--indentLevel;
+		policy.writeTabs(write, indentLevel);
+		writeChar('}');
+		stack.pop();
+		previousToken = JSONToken.CURLY_CLOSE;
+	}
+	
+	/**
+	 * Writes a start of an array
+	 */
+	public final void writeArrayStart()
+	{
+		writeStart(true);
+	}
+	
+	/**
+	 * Writes a start of an array with an identifier
+	 * 
+	 * @param identifier Identifier to write
+	 */
+	public final void writeArrayStart(String identifier)
+	{
+		writeStart(true, identifier);
+	}
+	
+	/**
+	 * Writes an end of an array
+	 */
+	public final void writeArrayEnd()
+	{
+		if (stack.isEmpty() || stack.peek() != JSONType.ARRAY)
+		{
+			return;
+		}
+		
+		--indentLevel;
+		
+		if (previousToken == JSONToken.SQUARE_CLOSE || previousToken == JSONToken.CURLY_CLOSE)
+		{
+			policy.writeLineTerminator(write);
+			policy.writeTabs(write, indentLevel);
+		}
+		else if (previousToken != JSONToken.SQUARE_OPEN)
+		{
+			policy.writeSpace(write);
+		}
+		
+		writeChar(']');
+		stack.pop();
+		previousToken = JSONToken.SQUARE_CLOSE;
+	}
+	
+	/**
+	 * Writes an atomic JSON value
+	 * 
+	 * @param value Value to write
+	 */
+	public final void writeValue(JSONValue value)
+	{
+		if (value == null)
+		{
+			return;
+		}
+		
+		switch (value.getType())
+		{
+			case NULL:
+				writeNull();
+				break;
+			case BOOLEAN:
+				writeValue(value.asBoolean());
+				break;
+			case NUMBER:
+				writeValue(value.asNumber());
+				break;
+			case STRING:
+				writeValue(value.asString());
+				break;
+			default:
+		}
+	}
+	
+	/**
+	 * Writes a null value
+	 */
+	public final void writeNull()
+	{
+		writeValuePrefix();
+		previousToken = writeNullValueOnly();
+	}
+	
+	/**
+	 * Writes a boolean value
+	 * 
+	 * @param value Value to write
+	 */
+	public final void writeValue(boolean value)
+	{
+		writeValuePrefix();
+		previousToken = writeValueOnly(value);
+	}
+	
+	/**
+	 * Writes a boolean value
+	 * 
+	 * @param value Value to write
+	 */
+	public final void writeValue(Boolean value)
+	{
+		writeValue(value == null ? false : value);
+	}
+	
+	/**
+	 * Writes a number value
+	 * 
+	 * @param value Value to write
+	 */
+	public final void writeValue(double value)
+	{
+		writeValuePrefix();
+		previousToken = writeValueOnly(value);
+	}
+	
+	/**
+	 * Writes a number value
+	 * 
+	 * @param value Value to write
+	 */
+	public final void writeValue(Double value)
+	{
+		writeValue(value == null ? 0.0 : value);
+	}
+	
+	/**
+	 * Writes a string value
+	 * 
+	 * @param value Value to write
+	 */
+	public final void writeValue(String value)
+	{
+		if (value == null)
+		{
+			return;
+		}
+		
+		writeValuePrefix();
+		previousToken = writeValueOnly(value);
+	}
+	
+	/**
+	 * Writes an atomic JSON value with an identifier
+	 * 
+	 * @param identifier Identifier to write
+	 * @param value Value to write
+	 */
+	public final void writeValue(String identifier, JSONValue value)
+	{
+		if (value == null)
+		{
+			return;
+		}
+		
+		switch (value.getType())
+		{
+			case NULL:
+				writeNull(identifier);
+				break;
+			case BOOLEAN:
+				writeValue(identifier, value.asBoolean());
+				break;
+			case NUMBER:
+				writeValue(identifier, value.asNumber());
+				break;
+			case STRING:
+				writeValue(identifier, value.asString());
+				break;
+			default:
+		}
+	}
+	
+	/**
+	 * Writes a null value with an identifier
+	 * 
+	 * @param identifer Identifier to write
+	 */
+	public final void writeNull(String identifier)
+	{
+		writeValuePrefix(identifier);
+		previousToken = writeNullValueOnly();
+	}
+	
+	/**
+	 * Writes a boolean value with an identifier
+	 * 
+	 * @param identifer Identifier to write
+	 * @param value Value to write
+	 */
+	public final void writeValue(String identifier, boolean value)
+	{
+		writeValuePrefix(identifier);
+		previousToken = writeValueOnly(value);
+	}
+	
+	/**
+	 * Writes a boolean value with an identifier
+	 * 
+	 * @param identifer Identifier to write
+	 * @param value Value to write
+	 */
+	public final void writeValue(String identifier, Boolean value)
+	{
+		writeValue(identifier, value == null ? false : value);
+	}
+	
+	/**
+	 * Writes a number value with an identifier
+	 * 
+	 * @param identifer Identifier to write
+	 * @param value Value to write
+	 */
+	public final void writeValue(String identifier, double value)
+	{
+		writeValuePrefix(identifier);
+		previousToken = writeValueOnly(value);
+	}
+	
+	/**
+	 * Writes a number value with an identifier
+	 * 
+	 * @param identifer Identifier to write
+	 * @param value Value to write
+	 */
+	public final void writeValue(String identifier, Double value)
+	{
+		writeValue(identifier, value == null ? 0.0 : value);
+	}
+	
+	/**
+	 * Writes a string value with an identifier
+	 * 
+	 * @param identifer Identifier to write
+	 * @param value Value to write
+	 */
+	public final void writeValue(String identifier, String value)
+	{
+		if (value == null)
+		{
+			return;
+		}
+		
+		writeValuePrefix(identifier);
+		previousToken = writeValueOnly(value);
+	}
+	
+	/**
+	 * Writes an identifier prefix
+	 * 
+	 * @param identifer Identifier to write
+	 */
+	public final void writeIdentifierPrefix(String identifier)
+	{
+		writeValuePrefix(identifier);
+		previousToken = JSONToken.IDENTIFIER;
+	}
+	
+	/**
+	 * Writes a start of an array or object
+	 * 
+	 * @param isArray Set to true if should write array start
+	 */
+	private void writeStart(boolean isArray)
+	{
+		if (!canWriteValueWithoutIdentifier())
+		{
+			return;
+		}
+		
+		if (previousToken != JSONToken.NONE)
+		{
+			writeCommaIfNeeded();
+		}
+		
+		if (previousToken != JSONToken.NONE)
+		{
+			policy.writeLineTerminator(write);
+			policy.writeTabs(write, indentLevel);
+		}
+		
+		writeChar(isArray ? '[' : '{');
+		++indentLevel;
+		stack.push(isArray ? JSONType.ARRAY : JSONType.OBJECT);
+		previousToken = isArray ? JSONToken.SQUARE_OPEN : JSONToken.CURLY_OPEN;
+	}
+	
+	/**
+	 * Writes a start of an array or object with an identifier
+	 * 
+	 * @param isArray Set to true if should write array start
+	 * @param identifier Identifier to write
+	 */
+	private void writeStart(boolean isArray, String identifier)
+	{
+		if (!canWriteValueWithIdentifier(identifier))
+		{
+			return;
+		}
+		
+		writeIdentifier(identifier);
+		
+		if (isArray)
+		{
+			policy.writeSpace(write);
+		}
+		else
+		{
+			policy.writeLineTerminator(write);
+			policy.writeTabs(write, indentLevel);
+		}
+		
+		writeChar(isArray ? '[' : '{');
+		++indentLevel;
+		stack.push(isArray ? JSONType.ARRAY : JSONType.OBJECT);
+		previousToken = isArray ? JSONToken.SQUARE_OPEN : JSONToken.CURLY_OPEN;
+	}
+	
+	/**
+	 * Checks if the writer can write a value without an identifier
+	 * 
+	 * @return True if it's possible, false otherwise
+	 */
+	private boolean canWriteValueWithoutIdentifier()
+	{
+		return stack.isEmpty() || stack.peek() == JSONType.ARRAY || previousToken == JSONToken.IDENTIFIER;
+	}
+	
+	/**
+	 * Checks if the writer can write a value with an identifier
+	 * 
+	 * @param identifier Identifier to check
+	 * @return True if it's possible, false otherwise
+	 */
+	private boolean canWriteValueWithIdentifier(String identifier)
+	{
+		return !stack.isEmpty() && stack.peek() == JSONType.OBJECT && previousToken != JSONToken.IDENTIFIER && identifier != null && !identifier.isEmpty();
+	}
+	
+	/**
+	 * Writes a comma if it's needed
+	 */
+	private void writeCommaIfNeeded()
+	{
+		if (previousToken != JSONToken.CURLY_OPEN && previousToken != JSONToken.SQUARE_OPEN && previousToken != JSONToken.IDENTIFIER)
+		{
+			writeChar(',');
+		}
+	}
+	
+	/**
+	 * Writes an identifier
+	 * 
+	 * @param identifier Identifier to write
+	 */
+	private void writeIdentifier(String identifier)
+	{
+		writeCommaIfNeeded();
+		policy.writeLineTerminator(write);
+		policy.writeTabs(write, indentLevel);
+		writeStringValue(identifier);
+		writeChar(':');
+	}
+	
+	/**
+	 * Writes a value prefix
+	 */
+	private void writeValuePrefix()
+	{
+		if (!canWriteValueWithoutIdentifier())
+		{
+			return;
+		}
+		
+		writeCommaIfNeeded();
+		
+		if (previousToken == JSONToken.SQUARE_OPEN || isTokenShort(previousToken))
+		{
+			policy.writeSpace(write);
+		}
+		else
+		{
+			policy.writeLineTerminator(write);
+			policy.writeTabs(write, indentLevel);
+		}
+	}
+	
+	/**
+	 * Writes a value prefix with an identifier
+	 * 
+	 * @param identifier Identifier to write
+	 */
+	private void writeValuePrefix(String identifier)
+	{
+		if (!canWriteValueWithIdentifier(identifier))
+		{
+			return;
+		}
+		
+		writeIdentifier(identifier);
+		policy.writeSpace(write);
+	}
+	
+	/**
+	 * Writes a null value
+	 * 
+	 * @return Written token type
+	 */
+	private JSONToken writeNullValueOnly()
+	{
+		writeString("null");
+		return JSONToken.NULL;
+	}
+	
+	/**
+	 * Writes a boolean value
+	 * 
+	 * @param value Value to write
+	 * @return Written token type
+	 */
+	private JSONToken writeValueOnly(boolean value)
+	{
+		writeString(Boolean.toString(value));
+		return value ? JSONToken.TRUE : JSONToken.FALSE;
+	}
+	
+	/**
+	 * Writes a number value
+	 * 
+	 * @param value Value to write
+	 * @return Written token type
+	 */
+	private JSONToken writeValueOnly(double value)
+	{
+		writeString(Double.toString(value));
+		return JSONToken.NUMBER;
+	}
+	
+	/**
+	 * Writes a string value
+	 * 
+	 * @param value Value to write
+	 * @return Written token type
+	 */
+	private JSONToken writeValueOnly(String value)
+	{
+		writeStringValue(value);
+		return JSONToken.STRING;
+	}
+	
+	/**
+	 * Writes a string value
+	 * 
+	 * @param value Value to write
+	 */
+	private void writeStringValue(String value)
+	{
+		StringBuilder sb = new StringBuilder().append('\"');
+		
+		for (int i = 0; i < value.length(); ++i)
+		{
+			char ch = value.charAt(i);
+			
+			switch (ch)
+			{
+				case '\\':
+					sb.append("\\").append('\\');
+					break;
+				case '\n':
+					sb.append("\\").append('n');
+					break;
+				case '\t':
+					sb.append("\\").append('t');
+					break;
+				case '\b':
+					sb.append("\\").append('b');
+					break;
+				case '\f':
+					sb.append("\\").append('f');
+					break;
+				case '\r':
+					sb.append("\\").append('r');
+					break;
+				case '\"':
+					sb.append("\\").append('\"');
+					break;
+				default:
+					if (ch > 31)
+					{
+						sb.append(ch);
+					}
+					else
+					{
+						sb.append("\\").append('u').append(toHexString(ch));
+					}
+			}
+		}
+		
+		writeString(sb.append('\"').toString());
+	}
+	
+	/**
+	 * Converts a character into a hex string
+	 * 
+	 * @param ch Character to convert
+	 * @return Result hex string
+	 */
+	private String toHexString(char ch)
+	{
+		StringBuilder sb = new StringBuilder();
+		String hex = Integer.toHexString(ch);
+		
+		for (int i = hex.length(); i < 4; ++i)
+		{
+			sb.append('0');
+		}
+		
+		return sb.append(hex).toString();
+	}
+	
+	/**
+	 * Writes a single character
+	 * 
+	 * @param ch Character to write
+	 */
+	private void writeChar(char ch)
+	{
+		if (stream != null)
+		{
+			try
+			{
+				stream.write(ch);
+			}
+			catch (IOException i) {}
+		}
+	}
+	
+	/**
+	 * Writes an entire string
+	 * 
+	 * @param str String to write
+	 */
+	private void writeString(String str)
+	{
+		if (stream != null)
+		{
+			try
+			{
+				stream.write(str);
+			}
+			catch (IOException i) {}
+		}
+	}
+}

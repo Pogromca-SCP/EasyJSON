@@ -117,6 +117,16 @@ public class JSONObject
 	}
 	
 	/**
+	 * Creates a copy of this object and returns it as a map
+	 * 
+	 * @return Copy of this object as a map
+	 */
+	public final Map<String, JSONValue> copyToMap()
+	{
+		return new HashMap<String, JSONValue>(values);
+	}
+	
+	/**
 	 * Attempts to get the field with the specified name and type
 	 *
 	 * @param fieldName The name of the field to get
@@ -192,7 +202,7 @@ public class JSONObject
 	 */
 	public final boolean setField(String fieldName, JSONValue value)
 	{
-		if (fieldName == null || fieldName.isBlank() || this == EMPTY)
+		if (fieldName == null || fieldName.isEmpty() || this == EMPTY)
 		{
 			return false;
 		}

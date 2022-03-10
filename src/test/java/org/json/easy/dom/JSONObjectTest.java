@@ -29,6 +29,7 @@ class JSONObjectTest
 		assertEquals(obj.size(), copy.size());
 		assertEquals(obj.hashCode(), copy.hashCode());
 		assertEquals(obj.toString(), copy.toString());
+		assertEquals(map, copy.copyToMap());
 	}
 	
 	@Test
@@ -65,7 +66,7 @@ class JSONObjectTest
 		obj.setField("", (JSONValue) null);
 		assertEquals(false, obj.hasField(""));
 		obj.setField("   \t", JSONNullValue.NULL);
-		assertEquals(false, obj.hasField("   \t"));
+		assertEquals(true, obj.hasField("   \t"));
 		obj.setField("null", (JSONValue) null);
 		assertEquals(JSONNullValue.NULL, obj.getField("null"));
 		obj.setField(null, JSONNullValue.NULL);

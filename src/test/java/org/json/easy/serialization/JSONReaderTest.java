@@ -1,9 +1,9 @@
 package org.json.easy.serialization;
 
-import org.junit.jupiter.api.Test;
 import org.json.easy.dom.*;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,13 +11,12 @@ class JSONReaderTest
 {
 	private void testTemplate(String file, String name, JSONValue[] expectedArray, JSONObject expectedObj)
 	{
-		String filepath = file;
 		String err = null;
 		JSONValue val = null;
 		JSONValue[] arr = null;
 		JSONObject obj = null;
 		
-		try (JSONReader reader = new JSONReader(new FileReader(filepath)))
+		try (JSONReader reader = new JSONReader(new FileReader(file)))
 		{
 			val = JSONSerializer.deserialize(reader);
 			err = reader.getErrorMessage();
@@ -27,12 +26,12 @@ class JSONReaderTest
 			f.printStackTrace();
 		}
 		
-		if (err != null)
+		if (err != null && !err.isEmpty())
 		{
 			System.out.println(name + ": " + err);
 		}
 		
-		try (JSONReader reader = new JSONReader(new FileReader(filepath)))
+		try (JSONReader reader = new JSONReader(new FileReader(file)))
 		{
 			arr = JSONSerializer.deserializeArray(reader);
 		}
@@ -41,7 +40,7 @@ class JSONReaderTest
 			f.printStackTrace();
 		}
 		
-		try (JSONReader reader = new JSONReader(new FileReader(filepath)))
+		try (JSONReader reader = new JSONReader(new FileReader(file)))
 		{
 			obj = JSONSerializer.deserializeObject(reader);
 		}

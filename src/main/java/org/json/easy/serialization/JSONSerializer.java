@@ -2,6 +2,7 @@ package org.json.easy.serialization;
 
 import org.json.easy.dom.*;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 import java.util.Map;
 
@@ -15,6 +16,27 @@ public class JSONSerializer
 	 */
 	private static class StackState
 	{
+		/**
+		 * Creates new stack state
+		 * 
+		 * @param id Identifier to set
+		 * @param isArray Whether or not this should be an array state
+		 */
+		public StackState(String id, boolean isArray)
+		{
+			identifier = id;
+			type = isArray ? JSONType.ARRAY : JSONType.OBJECT;
+			
+			if (isArray)
+			{
+				array = new LinkedList<JSONValue>();
+			}
+			else
+			{
+				object = new JSONObject();
+			}
+		}
+		
 		/**
 		 * Contains stack state type
 		 */
@@ -34,6 +56,70 @@ public class JSONSerializer
 		 * Contains stack object value
 		 */
 		public JSONObject object;
+	}
+	
+	/**
+	 * Helper class for containing element state
+	 */
+	private static class Element
+	{
+		/**
+		 * Creates new element with provided value
+		 * 
+		 * @param val Value to set
+		 */
+		public Element(JSONValue val)
+		{
+			this("", val);
+		}
+		
+		/**
+		 * Creates new element with provided value
+		 * 
+		 * @param val Value to set
+		 */
+		public Element(JSONValue[] val)
+		{
+			this("", new JSONArrayValue(val));
+		}
+		
+		/**
+		 * Creates new element with provided value
+		 * 
+		 * @param val Value to set
+		 */
+		public Element(JSONObject val)
+		{
+			this("", new JSONObjectValue(val));
+		}
+		
+		/**
+		 * Creates new element with provided identifier and value
+		 * 
+		 * @param id Identifier to set
+		 * @param val Value to set
+		 */
+		public Element(String id, JSONValue val)
+		{
+			identifier = id;
+			value = val == null ? JSONNullValue.NULL : val;
+			isProcessed = false;
+		}
+		
+		/**
+		 * Contains element identifier
+		 */
+		public String identifier;
+		
+		/**
+		 * Contains element value
+		 */
+		public JSONValue value;
+		
+		/**
+		 * Tells whether or not the element has been processed
+		 */
+		public boolean isProcessed;
 	}
 	
 	/**
@@ -116,12 +202,85 @@ public class JSONSerializer
 	}
 	
 	/**
+	 * Serializes JSON data
+	 * 
+	 * @param list List to serialize
+	 * @param writer JSON writer to write data into
+	 * @return True if data serialized successfully, false otherwise
+	 */
+	public static boolean serialize(List<JSONValue> list, JSONWriter writer)
+	{
+		if (writer == null || list == null)
+		{
+			return false;
+		}
+		
+		serialize(new Element(listToArray(list)), writer);
+		return true;
+	}
+	
+	/**
+	 * Serializes JSON data
+	 * 
+	 * @param array Array to serialize
+	 * @param writer JSON writer to write data into
+	 * @return True if data serialized successfully, false otherwise
+	 */
+	public static boolean serialize(JSONValue[] array, JSONWriter writer)
+	{
+		if (writer == null)
+		{
+			return false;
+		}
+		
+		serialize(new Element(array), writer);
+		return true;
+	}
+	
+	/**
+	 * Serializes JSON data
+	 * 
+	 * @param object JSON object to serialize
+	 * @param writer JSON writer to write data into
+	 * @return True if data serialized successfully, false otherwise
+	 */
+	public static boolean serialize(JSONObject object, JSONWriter writer)
+	{
+		if (writer == null)
+		{
+			return false;
+		}
+		
+		serialize(new Element(object), writer);
+		return true;
+	}
+	
+	/**
+	 * Serializes JSON data
+	 * 
+	 * @param value Value to serialize
+	 * @param identifier Value identifier to set
+	 * @param writer JSON writer to write data into
+	 * @return True if data serialized successfully, false otherwise
+	 */
+	public static boolean serialize(JSONValue value, String identifier, JSONWriter writer)
+	{
+		if (writer == null || identifier == null)
+		{
+			return false;
+		}
+		
+		serialize(new Element(identifier, value), writer);
+		return true;
+	}
+	
+	/**
 	 * Converts linked list into an array
 	 * 
 	 * @param list List to convert
 	 * @return Array with list values
 	 */
-	private static JSONValue[] listToArray(LinkedList<JSONValue> list)
+	private static JSONValue[] listToArray(List<JSONValue> list)
 	{	
 		JSONValue[] res = new JSONValue[list.size()];
 		list.toArray(res);
@@ -154,10 +313,7 @@ public class JSONSerializer
 						scopeStack.push(currentState);
 					}
 					
-					currentState = new StackState();
-					currentState.type = JSONType.OBJECT;
-					currentState.identifier = identifier;
-					currentState.object = new JSONObject();
+					currentState = new StackState(identifier, false);
 					break;
 				case OBJECT_END:
 					if (!scopeStack.isEmpty())
@@ -174,10 +330,7 @@ public class JSONSerializer
 						scopeStack.push(currentState);
 					}
 					
-					currentState = new StackState();
-					currentState.type = JSONType.ARRAY;
-					currentState.identifier = identifier;
-					currentState.array = new LinkedList<JSONValue>();
+					currentState = new StackState(identifier, true);
 					break;
 				case ARRAY_END:
 					if (!scopeStack.isEmpty())
@@ -226,5 +379,91 @@ public class JSONSerializer
 		}
 		
 		return currentState;
+	}
+	
+	/**
+	 * Serializes JSON data from an element
+	 * 
+	 * @param element Element to serialize
+	 * @param writer JSON writer to use
+	 */
+	private static void serialize(Element element, JSONWriter writer)
+	{
+		Stack<Element> elementStack = new Stack<Element>();
+		elementStack.push(element);
+		
+		while (!elementStack.isEmpty())
+		{
+			Element elem = elementStack.pop();
+			
+			switch (elem.value.getType())
+			{
+				case ARRAY:
+					if (elem.isProcessed)
+					{
+						writer.writeArrayEnd();
+					}
+					else
+					{
+						elem.isProcessed = true;
+						elementStack.push(elem);
+
+						if (elem.identifier.isEmpty())
+						{
+							writer.writeArrayStart();
+						}
+						else
+						{
+							writer.writeArrayStart(elem.identifier);
+						}
+
+						JSONValue[] values = elem.value.asArray();
+
+						for (int i = values.length - 1; i > -1; --i)
+						{
+							elementStack.push(new Element(values[i]));
+						}
+					}
+					
+					break;
+				case OBJECT:
+					if (elem.isProcessed)
+					{
+						writer.writeObjectEnd();
+					}
+					else
+					{
+						elem.isProcessed = true;
+						elementStack.push(elem);
+						
+						if (elem.identifier.isEmpty())
+						{
+							writer.writeObjectStart();
+						}
+						else
+						{
+							writer.writeObjectStart(elem.identifier);
+						}
+						
+						Map<String, JSONValue> obj = elem.value.asObject().copyToMap();
+						
+						for (Map.Entry<String, JSONValue> ent : obj.entrySet())
+						{
+							elementStack.push(new Element(ent.getKey(), ent.getValue()));
+						}
+					}
+					
+					break;
+				default:
+					if (elem.identifier.isEmpty())
+					{
+						writer.writeValue(elem.value);
+					}
+					else
+					{
+						writer.writeValue(elem.identifier, elem.value);
+					}
+			}
+		}
 	}
 }

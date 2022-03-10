@@ -152,36 +152,23 @@ public class JSONReader implements AutoCloseable
 	private boolean booleanValue;
 	
 	/**
-	 * Creates new JSON reader
-	 */
-	protected JSONReader()
-	{
-		parseState = new Stack<JSONType>();
-		currentToken = JSONToken.NONE;
-		stream = null;
-		lineNumber = 1;
-		characterNumber = 0;
-		finishedReadingRootObject = false;
-		errorMessage = null;
-		identifier = null;
-		stringValue = null;
-		numberValue = 0.0;
-		booleanValue = false;
-	}
-	
-	/**
 	 * Creates new JSON reader and wraps provided reader
 	 * 
 	 * @param reader Reader to wrap
 	 */
 	public JSONReader(Reader reader)
 	{
-		this();
-		
-		if (reader != null)
-		{
-			stream = new PushbackReader(reader);
-		}
+		parseState = new Stack<JSONType>();
+		currentToken = JSONToken.NONE;
+		stream = reader == null ? null : new PushbackReader(reader);
+		lineNumber = 1;
+		characterNumber = 0;
+		finishedReadingRootObject = false;
+		errorMessage = "";
+		identifier = "";
+		stringValue = "";
+		numberValue = 0.0;
+		booleanValue = false;
 	}
 	
 	/**
@@ -262,7 +249,7 @@ public class JSONReader implements AutoCloseable
 	 */
 	public final Map.Entry<Boolean, JSONNotation> readNext()
 	{
-		if (errorMessage != null && !errorMessage.isEmpty())
+		if (!errorMessage.isEmpty())
 		{
 			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.FALSE, JSONNotation.ERROR);
 		}
@@ -293,7 +280,7 @@ public class JSONReader implements AutoCloseable
 		}
 		
 		boolean readWasSuccess = false;
-		identifier = null;
+		identifier = "";
 
 		do
 		{
@@ -323,7 +310,7 @@ public class JSONReader implements AutoCloseable
 
 		if (!readWasSuccess || notation == JSONNotation.ERROR)
 		{
-			if (errorMessage == null || errorMessage.isEmpty())
+			if (errorMessage.isEmpty())
 			{
 				setErrorMessage("Unknown error");
 			}
@@ -566,13 +553,21 @@ public class JSONReader implements AutoCloseable
 						parseState.push(JSONType.OBJECT);
 						return JSONToken.CURLY_OPEN;
 					case '}':
-						parseState.pop();
+						if (!parseState.isEmpty())
+						{
+							parseState.pop();
+						}
+						
 						return JSONToken.CURLY_CLOSE;
 					case '[':
 						parseState.push(JSONType.ARRAY);
 						return JSONToken.SQUARE_OPEN;
 					case ']':
-						parseState.pop();
+						if (!parseState.isEmpty())
+						{
+							parseState.pop();
+						}
+						
 						return JSONToken.SQUARE_CLOSE;
 					case ':':
 						return JSONToken.COLON;
@@ -591,8 +586,7 @@ public class JSONReader implements AutoCloseable
 					case 'F':
 					case 'n':
 					case 'N':
-						StringBuilder sb = new StringBuilder();
-						sb.append(ch);
+						StringBuilder sb = new StringBuilder().append(ch);
 
 						while (!isAtEnd())
 						{
@@ -697,7 +691,7 @@ public class JSONReader implements AutoCloseable
 					case 'u':
 						int hexNum = 0;
 
-						for (int radix = 3; radix > -1; --radix)
+						for (byte radix = 3; radix > -1; --radix)
 						{
 							if (isAtEnd())
 							{
@@ -709,7 +703,7 @@ public class JSONReader implements AutoCloseable
 							++characterNumber;
 							int hexDigit = Character.digit(ch, 16);
 
-							if (hexDigit == 0 && ch != '0')
+							if (hexDigit == -1)
 							{
 								setErrorMessage("Invalid hexadecimal digit");
 								return false;
@@ -744,7 +738,7 @@ public class JSONReader implements AutoCloseable
 	private boolean parseNumberToken(char first)
 	{
 		StringBuilder sb = new StringBuilder();
-		int state = 0;
+		byte state = 0;
 		boolean useFirstChar = true;
 		boolean error = false;
 
