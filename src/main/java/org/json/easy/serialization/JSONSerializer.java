@@ -322,14 +322,13 @@ public final class JSONSerializer
 		Stack<StackState> scopeStack = new Stack<StackState>();
 		StackState currentState = null;
 		JSONValue newValue;
-		Map.Entry<Boolean, JSONNotation> readResult;
 		
-		while ((readResult = reader.readNext()).getKey())
+		while (reader.readNext())
 		{
 			String identifier = reader.getIdentifier();
 			newValue = null;
 			
-			switch (readResult.getValue())
+			switch (reader.getReadNotation())
 			{
 				case OBJECT_START:
 					if (currentState != null)

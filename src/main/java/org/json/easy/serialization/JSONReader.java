@@ -4,8 +4,6 @@ import java.util.Stack;
 import java.io.PushbackReader;
 import java.io.Reader;
 import java.io.IOException;
-import java.util.Map;
-import java.util.AbstractMap;
 
 /**
  * Reader wrapper for reading JSON data
@@ -127,6 +125,11 @@ public class JSONReader implements AutoCloseable
 	private boolean finishedReadingRootObject;
 	
 	/**
+	 * Contains previously read notation
+	 */
+	private JSONNotation readNotation;
+	
+	/**
 	 * Contains current error message
 	 */
 	private String errorMessage;
@@ -164,11 +167,22 @@ public class JSONReader implements AutoCloseable
 		lineNumber = 1;
 		characterNumber = 0;
 		finishedReadingRootObject = false;
+		readNotation = null;
 		errorMessage = "";
 		identifier = "";
 		stringValue = "";
 		numberValue = 0.0;
 		booleanValue = false;
+	}
+	
+	/**
+	 * Returns previously read notation
+	 * 
+	 * @return Previously read notation type, can be null
+	 */
+	public final JSONNotation getReadNotation()
+	{
+		return readNotation;
 	}
 	
 	/**
@@ -245,19 +259,21 @@ public class JSONReader implements AutoCloseable
 	/**
 	 * Parses next JSON notation element
 	 * 
-	 * @return A map entry containing a boolean key which tells if the reading can continue and parsed notation element type value which can be null
+	 * @return True if the reading can continue, false otherwise
 	 */
-	public final Map.Entry<Boolean, JSONNotation> readNext()
+	public final boolean readNext()
 	{
 		if (!errorMessage.isEmpty())
 		{
-			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.FALSE, JSONNotation.ERROR);
+			readNotation = JSONNotation.ERROR;
+			return false;
 		}
 
 		if (stream == null)
 		{
 			setErrorMessage("Null stream error");
-			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.TRUE, JSONNotation.ERROR);
+			readNotation = JSONNotation.ERROR;
+			return true;
 		}
 
 		boolean atEndOfStream = isAtEnd();
@@ -265,18 +281,21 @@ public class JSONReader implements AutoCloseable
 		if (atEndOfStream && !finishedReadingRootObject)
 		{
 			setErrorMessage("Improperly formatted input");
-			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.TRUE, JSONNotation.ERROR);
+			readNotation = JSONNotation.ERROR;
+			return true;
 		}
 
 		if (finishedReadingRootObject && !atEndOfStream)
 		{
 			setErrorMessage("Unexpected additional input");
-			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.TRUE, JSONNotation.ERROR);
+			readNotation = JSONNotation.ERROR;
+			return true;
 		}
 
 		if (atEndOfStream)
 		{
-			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.FALSE, null);
+			readNotation = null;
+			return false;
 		}
 		
 		boolean readWasSuccess = false;
@@ -305,17 +324,19 @@ public class JSONReader implements AutoCloseable
 		}
 		while (readWasSuccess && currentToken == JSONToken.NONE);
 		
-		JSONNotation notation = TOKEN_TO_NOTATION_TABLE[currentToken.ordinal()];
+		readNotation = TOKEN_TO_NOTATION_TABLE[currentToken.ordinal()];
 		finishedReadingRootObject = parseState.isEmpty();
 
-		if (!readWasSuccess || notation == JSONNotation.ERROR)
+		if (!readWasSuccess || readNotation == JSONNotation.ERROR)
 		{
+			readNotation = JSONNotation.ERROR;
+			
 			if (errorMessage.isEmpty())
 			{
 				setErrorMessage("Unknown error");
 			}
 
-			return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(Boolean.TRUE, JSONNotation.ERROR);
+			return true;
 		}
 
 		if (finishedReadingRootObject && !isAtEnd())
@@ -323,7 +344,7 @@ public class JSONReader implements AutoCloseable
 			parseWhiteSpace();
 		}
 
-		return new AbstractMap.SimpleEntry<Boolean, JSONNotation>(readWasSuccess, notation);
+		return readWasSuccess;
 	}
 	
 	/**
@@ -361,16 +382,15 @@ public class JSONReader implements AutoCloseable
 	private boolean readUntilMatching(JSONNotation expectedNotation)
 	{
 		int scopeCount = 0;
-		Map.Entry<Boolean, JSONNotation> readResult;
 
-		while ((readResult = readNext()).getKey())
+		while (readNext())
 		{
-			if (scopeCount == 0 && readResult.getValue() == expectedNotation)
+			if (scopeCount == 0 && readNotation == expectedNotation)
 			{
 				return true;
 			}
 
-			switch (readResult.getValue())
+			switch (readNotation)
 			{
 				case OBJECT_START:
 				case ARRAY_START:
