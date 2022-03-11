@@ -17,7 +17,6 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	{
 		if (write != null)
 		{
-			write.accept('\r');
 			write.accept('\n');
 		}
 	}

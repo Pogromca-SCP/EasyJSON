@@ -7,23 +7,13 @@ import java.util.function.Consumer;
 import org.json.easy.policies.PrettyJSONPrintPolicy;
 import java.io.IOException;
 import org.json.easy.dom.JSONValue;
+import org.json.easy.dom.JSONNullValue;
 
 /**
  * Writer wrapper for writing JSON data
  */
 public class JSONWriter implements AutoCloseable
-{
-	/**
-	 * Checks if the provided token is a short value
-	 * 
-	 * @param token Token to check
-	 * @return True if token is a short value, false otherwise
-	 */
-	private static boolean isTokenShort(JSONToken token)
-	{
-		return token == JSONToken.NUMBER || token == JSONToken.TRUE || token == JSONToken.FALSE || token == JSONToken.NULL || token == JSONToken.STRING;
-	}
-	
+{	
 	/**
 	 * Contains entire write state in a stack structure
 	 */
@@ -129,8 +119,8 @@ public class JSONWriter implements AutoCloseable
 		{
 			try
 			{
-				stream.close();
 				stream.flush();
+				stream.close();
 			}
 			catch (IOException i) {}
 			
@@ -161,17 +151,7 @@ public class JSONWriter implements AutoCloseable
 	 */
 	public final void writeObjectEnd()
 	{
-		if (stack.isEmpty() || stack.peek() != JSONType.OBJECT)
-		{
-			return;
-		}
-		
-		policy.writeLineTerminator(write);
-		--indentLevel;
-		policy.writeTabs(write, indentLevel);
-		writeChar('}');
-		stack.pop();
-		previousToken = JSONToken.CURLY_CLOSE;
+		writeEnd(false);
 	}
 	
 	/**
@@ -197,26 +177,7 @@ public class JSONWriter implements AutoCloseable
 	 */
 	public final void writeArrayEnd()
 	{
-		if (stack.isEmpty() || stack.peek() != JSONType.ARRAY)
-		{
-			return;
-		}
-		
-		--indentLevel;
-		
-		if (previousToken == JSONToken.SQUARE_CLOSE || previousToken == JSONToken.CURLY_CLOSE)
-		{
-			policy.writeLineTerminator(write);
-			policy.writeTabs(write, indentLevel);
-		}
-		else if (previousToken != JSONToken.SQUARE_OPEN)
-		{
-			policy.writeSpace(write);
-		}
-		
-		writeChar(']');
-		stack.pop();
-		previousToken = JSONToken.SQUARE_CLOSE;
+		writeEnd(true);
 	}
 	
 	/**
@@ -228,7 +189,7 @@ public class JSONWriter implements AutoCloseable
 	{
 		if (value == null)
 		{
-			return;
+			value = JSONNullValue.NULL;
 		}
 		
 		switch (value.getType())
@@ -307,13 +268,8 @@ public class JSONWriter implements AutoCloseable
 	 */
 	public final void writeValue(String value)
 	{
-		if (value == null)
-		{
-			return;
-		}
-		
 		writeValuePrefix();
-		previousToken = writeValueOnly(value);
+		previousToken = writeValueOnly(value == null ? "" : value);
 	}
 	
 	/**
@@ -326,7 +282,7 @@ public class JSONWriter implements AutoCloseable
 	{
 		if (value == null)
 		{
-			return;
+			value = JSONNullValue.NULL;
 		}
 		
 		switch (value.getType())
@@ -412,13 +368,8 @@ public class JSONWriter implements AutoCloseable
 	 */
 	public final void writeValue(String identifier, String value)
 	{
-		if (value == null)
-		{
-			return;
-		}
-		
 		writeValuePrefix(identifier);
-		previousToken = writeValueOnly(value);
+		previousToken = writeValueOnly(value == null ? "" : value);
 	}
 	
 	/**
@@ -447,12 +398,11 @@ public class JSONWriter implements AutoCloseable
 		if (previousToken != JSONToken.NONE)
 		{
 			writeCommaIfNeeded();
-		}
-		
-		if (previousToken != JSONToken.NONE)
-		{
-			policy.writeLineTerminator(write);
-			policy.writeTabs(write, indentLevel);
+			
+			if (previousToken != JSONToken.SQUARE_OPEN)
+			{
+				policy.writeSpace(write);
+			}
 		}
 		
 		writeChar(isArray ? '[' : '{');
@@ -475,21 +425,36 @@ public class JSONWriter implements AutoCloseable
 		}
 		
 		writeIdentifier(identifier);
-		
-		if (isArray)
+		policy.writeSpace(write);
+		writeChar(isArray ? '[' : '{');
+		++indentLevel;
+		stack.push(isArray ? JSONType.ARRAY : JSONType.OBJECT);
+		previousToken = isArray ? JSONToken.SQUARE_OPEN : JSONToken.CURLY_OPEN;
+	}
+	
+	/**
+	 * Writes an end of an array or object
+	 * 
+	 * @param isArray Set to true if should write array end
+	 */
+	private void writeEnd(boolean isArray)
+	{
+		if (stack.isEmpty() || (isArray ? stack.peek() != JSONType.ARRAY : stack.peek() != JSONType.OBJECT))
 		{
-			policy.writeSpace(write);
+			return;
 		}
-		else
+		
+		--indentLevel;
+		
+		if (!isArray && previousToken != JSONToken.CURLY_OPEN)
 		{
 			policy.writeLineTerminator(write);
 			policy.writeTabs(write, indentLevel);
 		}
 		
-		writeChar(isArray ? '[' : '{');
-		++indentLevel;
-		stack.push(isArray ? JSONType.ARRAY : JSONType.OBJECT);
-		previousToken = isArray ? JSONToken.SQUARE_OPEN : JSONToken.CURLY_OPEN;
+		writeChar(isArray ? ']' : '}');
+		stack.pop();
+		previousToken = isArray ? JSONToken.SQUARE_CLOSE : JSONToken.CURLY_CLOSE;
 	}
 	
 	/**
@@ -550,14 +515,9 @@ public class JSONWriter implements AutoCloseable
 		
 		writeCommaIfNeeded();
 		
-		if (previousToken == JSONToken.SQUARE_OPEN || isTokenShort(previousToken))
+		if (previousToken != JSONToken.SQUARE_OPEN)
 		{
 			policy.writeSpace(write);
-		}
-		else
-		{
-			policy.writeLineTerminator(write);
-			policy.writeTabs(write, indentLevel);
 		}
 	}
 	

@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Helper class for handling JSON serialization
  */
-public class JSONSerializer
+public final class JSONSerializer
 {
 	/**
 	 * Helper class for containing stack state
@@ -70,7 +70,7 @@ public class JSONSerializer
 		 */
 		public Element(JSONValue val)
 		{
-			this("", val);
+			this(null, val);
 		}
 		
 		/**
@@ -80,7 +80,7 @@ public class JSONSerializer
 		 */
 		public Element(JSONValue[] val)
 		{
-			this("", new JSONArrayValue(val));
+			this(null, new JSONArrayValue(val));
 		}
 		
 		/**
@@ -90,7 +90,7 @@ public class JSONSerializer
 		 */
 		public Element(JSONObject val)
 		{
-			this("", new JSONObjectValue(val));
+			this(null, new JSONObjectValue(val));
 		}
 		
 		/**
@@ -101,7 +101,7 @@ public class JSONSerializer
 		 */
 		public Element(String id, JSONValue val)
 		{
-			identifier = id;
+			identifier = id == null ? "" : id;
 			value = val == null ? JSONNullValue.NULL : val;
 			isProcessed = false;
 		}
@@ -265,7 +265,7 @@ public class JSONSerializer
 	 */
 	public static boolean serialize(JSONValue value, String identifier, JSONWriter writer)
 	{
-		if (writer == null || identifier == null)
+		if (writer == null)
 		{
 			return false;
 		}
@@ -466,4 +466,9 @@ public class JSONSerializer
 			}
 		}
 	}
+	
+	/**
+	 * No instances allowed
+	 */
+	private JSONSerializer() {}
 }
