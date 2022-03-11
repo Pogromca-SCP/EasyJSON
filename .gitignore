@@ -13,6 +13,7 @@
 # Project Files
 *.classpath
 *.project
+doc/
 
 # Package Files #
 *.jar

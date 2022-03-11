@@ -6,6 +6,8 @@ import java.util.Arrays;
 
 /**
  * Represents JSON array value
+ * 
+ * @since 1.0.0
  */
 public class JSONArrayValue extends JSONValue
 {

@@ -5,6 +5,8 @@ import java.util.Arrays;
 
 /**
  * Base class for JSON value representation
+ * 
+ * @since 1.0.0
  */
 public abstract class JSONValue
 {

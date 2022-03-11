@@ -8,6 +8,8 @@ import java.util.Stack;
 
 /**
  * Helper class for handling JSON serialization
+ * 
+ * @since 1.0.0
  */
 public final class JSONSerializer
 {

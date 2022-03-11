@@ -5,6 +5,8 @@ import java.util.Map;
 
 /**
  * Represents JSON object value
+ * 
+ * @since 1.0.0
  */
 public class JSONObjectValue extends JSONValue
 {

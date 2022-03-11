@@ -4,6 +4,8 @@ import org.json.easy.serialization.JSONType;
 
 /**
  * Represents JSON boolean value
+ * 
+ * @since 1.0.0
  */
 public class JSONBooleanValue extends JSONValue
 {

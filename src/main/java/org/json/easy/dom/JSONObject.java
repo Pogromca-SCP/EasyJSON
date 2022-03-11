@@ -8,6 +8,8 @@ import java.util.List;
 
 /**
  * Represents JSON object
+ * 
+ * @since 1.0.0
  */
 public class JSONObject
 {

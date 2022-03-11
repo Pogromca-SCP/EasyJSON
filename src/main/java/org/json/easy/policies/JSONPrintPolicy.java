@@ -5,6 +5,8 @@ import org.json.easy.serialization.JSONToken;
 
 /**
  * Interface to implement in order to create new JSON printing policy
+ * 
+ * @since 1.0.0
  */
 public interface JSONPrintPolicy
 {

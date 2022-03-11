@@ -4,7 +4,9 @@ import java.util.function.Consumer;
 import org.json.easy.serialization.JSONToken;
 
 /**
- * Print policy that generates human readable output
+ * JSON print policy that generates human readable output
+ * 
+ * @since 1.0.0
  */
 public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 {
@@ -88,7 +90,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * Prints value prefix
 	 * 
 	 * @param write Writes a single character
-	 * @param identation Current indentation level
+	 * @param indentation Current indentation level
 	 * @param previous Previous JSON token type
 	 */
 	@Override

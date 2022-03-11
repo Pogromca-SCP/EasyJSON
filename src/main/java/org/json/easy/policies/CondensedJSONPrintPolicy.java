@@ -4,7 +4,9 @@ import java.util.function.Consumer;
 import org.json.easy.serialization.JSONToken;
 
 /**
- * Print policy that generates compressed output
+ * JSON print policy that generates compressed output
+ * 
+ * @since 1.0.0
  */
 public class CondensedJSONPrintPolicy implements JSONPrintPolicy
 {

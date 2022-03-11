@@ -7,6 +7,8 @@ import java.io.IOException;
 
 /**
  * Reader wrapper for reading JSON data
+ * 
+ * @since 1.0.0
  */
 public class JSONReader implements AutoCloseable
 {	
@@ -349,6 +351,8 @@ public class JSONReader implements AutoCloseable
 	
 	/**
 	 * Skips the object
+	 * 
+	 * @return True if skipped successfully, false otherwise
 	 */
 	public final boolean skipObject()
 	{
@@ -357,6 +361,8 @@ public class JSONReader implements AutoCloseable
 
 	/**
 	 * Skips the array
+	 * 
+	 * @return True if skipped successfully, false otherwise
 	 */
 	public final boolean skipArray()
 	{

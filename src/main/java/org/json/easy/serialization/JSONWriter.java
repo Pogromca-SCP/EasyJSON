@@ -11,6 +11,8 @@ import org.json.easy.dom.JSONNullValue;
 
 /**
  * Writer wrapper for writing JSON data
+ * 
+ * @since 1.0.0
  */
 public class JSONWriter implements AutoCloseable
 {	
@@ -60,9 +62,9 @@ public class JSONWriter implements AutoCloseable
 	 * @param writer Writer to wrap
 	 * @param initIndent Initial indentation level
 	 */
-	public JSONWriter(Writer writer, int initLevel)
+	public JSONWriter(Writer writer, int initIndent)
 	{
-		this(writer, initLevel, null);
+		this(writer, initIndent, null);
 	}
 	
 	/**
@@ -306,7 +308,7 @@ public class JSONWriter implements AutoCloseable
 	/**
 	 * Writes a null value with an identifier
 	 * 
-	 * @param identifer Identifier to write
+	 * @param identifier Identifier to write
 	 */
 	public final void writeNull(String identifier)
 	{
@@ -317,7 +319,7 @@ public class JSONWriter implements AutoCloseable
 	/**
 	 * Writes a boolean value with an identifier
 	 * 
-	 * @param identifer Identifier to write
+	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
 	public final void writeValue(String identifier, boolean value)
@@ -329,7 +331,7 @@ public class JSONWriter implements AutoCloseable
 	/**
 	 * Writes a boolean value with an identifier
 	 * 
-	 * @param identifer Identifier to write
+	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
 	public final void writeValue(String identifier, Boolean value)
@@ -340,7 +342,7 @@ public class JSONWriter implements AutoCloseable
 	/**
 	 * Writes a number value with an identifier
 	 * 
-	 * @param identifer Identifier to write
+	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
 	public final void writeValue(String identifier, double value)
@@ -352,7 +354,7 @@ public class JSONWriter implements AutoCloseable
 	/**
 	 * Writes a number value with an identifier
 	 * 
-	 * @param identifer Identifier to write
+	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
 	public final void writeValue(String identifier, Double value)
@@ -363,7 +365,7 @@ public class JSONWriter implements AutoCloseable
 	/**
 	 * Writes a string value with an identifier
 	 * 
-	 * @param identifer Identifier to write
+	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
 	public final void writeValue(String identifier, String value)
@@ -375,7 +377,7 @@ public class JSONWriter implements AutoCloseable
 	/**
 	 * Writes an identifier prefix
 	 * 
-	 * @param identifer Identifier to write
+	 * @param identifier Identifier to write
 	 */
 	public final void writeIdentifierPrefix(String identifier)
 	{
