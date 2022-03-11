@@ -398,11 +398,15 @@ public class JSONWriter implements AutoCloseable
 		if (previousToken != JSONToken.NONE)
 		{
 			writeCommaIfNeeded();
-			
-			if (previousToken != JSONToken.SQUARE_OPEN)
-			{
-				policy.writeSpace(write);
-			}
+		}
+		
+		if (isArray)
+		{
+			policy.writeArrayStartPrefix(write, indentLevel, previousToken);
+		}
+		else
+		{
+			policy.writeObjectStartPrefix(write, indentLevel, previousToken);
 		}
 		
 		writeChar(isArray ? '[' : '{');
@@ -425,7 +429,16 @@ public class JSONWriter implements AutoCloseable
 		}
 		
 		writeIdentifier(identifier);
-		policy.writeSpace(write);
+		
+		if (isArray)
+		{
+			policy.writeArrayStartPrefix(write, indentLevel, previousToken);
+		}
+		else
+		{
+			policy.writeObjectStartPrefix(write, indentLevel, previousToken);
+		}
+		
 		writeChar(isArray ? '[' : '{');
 		++indentLevel;
 		stack.push(isArray ? JSONType.ARRAY : JSONType.OBJECT);
@@ -446,10 +459,13 @@ public class JSONWriter implements AutoCloseable
 		
 		--indentLevel;
 		
-		if (!isArray && previousToken != JSONToken.CURLY_OPEN)
+		if (isArray)
 		{
-			policy.writeLineTerminator(write);
-			policy.writeTabs(write, indentLevel);
+			policy.writeArrayEndPrefix(write, indentLevel, previousToken);
+		}
+		else
+		{
+			policy.writeObjectEndPrefix(write, indentLevel, previousToken);
 		}
 		
 		writeChar(isArray ? ']' : '}');
@@ -497,8 +513,7 @@ public class JSONWriter implements AutoCloseable
 	private void writeIdentifier(String identifier)
 	{
 		writeCommaIfNeeded();
-		policy.writeLineTerminator(write);
-		policy.writeTabs(write, indentLevel);
+		policy.writeIdentifierPrefix(write, indentLevel, previousToken);
 		writeStringValue(identifier);
 		writeChar(':');
 	}
@@ -514,11 +529,7 @@ public class JSONWriter implements AutoCloseable
 		}
 		
 		writeCommaIfNeeded();
-		
-		if (previousToken != JSONToken.SQUARE_OPEN)
-		{
-			policy.writeSpace(write);
-		}
+		policy.writeValuePrefix(write, indentLevel, previousToken);
 	}
 	
 	/**
@@ -534,7 +545,7 @@ public class JSONWriter implements AutoCloseable
 		}
 		
 		writeIdentifier(identifier);
-		policy.writeSpace(write);
+		policy.writeValuePrefix(write, indentLevel, previousToken);
 	}
 	
 	/**
