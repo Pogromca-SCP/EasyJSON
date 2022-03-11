@@ -12,7 +12,7 @@ class JSONValueTest
 	@Test
 	void testValueEquals()
 	{
-		JSONValue[] values = { new JSONBooleanValue(false), new JSONNumberValue(115.4), new JSONNullValue(), new JSONArrayValue(null),
+		JSONValue[] values = { new JSONBooleanValue(false), new JSONNumberValue(115.4), new JSONNullValue(), new JSONArrayValue((JSONValue[]) null),
 				new JSONStringValue("testing"), new JSONObjectValue(JSONObject.EMPTY), new JSONStringValue("test")};
 		
 		for (JSONValue val : values)
@@ -142,7 +142,7 @@ class JSONValueTest
 				null,
 				JSONArrayValue.EMPTY,
 				{ new JSONBooleanValue(false), new JSONNumberValue(115.4) },
-				{ new JSONNullValue(), new JSONArrayValue(null), new JSONStringValue("testing"), null, new JSONObjectValue(JSONObject.EMPTY)}
+				{ new JSONNullValue(), new JSONArrayValue((JSONValue[]) null), new JSONStringValue("testing"), null, new JSONObjectValue(JSONObject.EMPTY)}
 		};
 		
 		for (JSONValue[] v : values)

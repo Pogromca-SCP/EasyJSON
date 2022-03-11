@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.json.easy.serialization.JSONType;
+import java.util.List;
 
 /**
  * Represents JSON object
@@ -340,6 +341,18 @@ public class JSONObject
 	}
 	
 	/**
+	 * Sets the value of the field with the specified name
+	 *
+	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setField(String fieldName, List<JSONValue> value)
+	{
+		return setField(fieldName, new JSONArrayValue(value));
+	}
+	
+	/**
 	 * Attempts to get the field with the specified name as an object
 	 *
 	 * @param fieldName The name of the field to get
@@ -359,6 +372,18 @@ public class JSONObject
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setField(String fieldName, JSONObject value)
+	{
+		return setField(fieldName, new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name
+	 *
+	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setField(String fieldName, Map<String, JSONValue> value)
 	{
 		return setField(fieldName, new JSONObjectValue(value));
 	}

@@ -1,6 +1,7 @@
 package org.json.easy.dom;
 
 import org.json.easy.serialization.JSONType;
+import java.util.Map;
 
 /**
  * Represents JSON object value
@@ -21,6 +22,16 @@ public class JSONObjectValue extends JSONValue
 	{
 		type = JSONType.OBJECT;
 		value = val == null ? JSONObject.EMPTY : val;
+	}
+	
+	/**
+	 * Creates new object value
+	 * 
+	 * @param val Value to set
+	 */
+	public JSONObjectValue(Map<String, JSONValue> val)
+	{
+		this(new JSONObject(val));
 	}
 	
 	/**

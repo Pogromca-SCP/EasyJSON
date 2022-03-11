@@ -1,6 +1,7 @@
 package org.json.easy.dom;
 
 import org.json.easy.serialization.JSONType;
+import java.util.List;
 import java.util.Arrays;
 
 /**
@@ -27,6 +28,21 @@ public class JSONArrayValue extends JSONValue
 	{
 		type = JSONType.ARRAY;
 		value = val == null ? EMPTY : val;
+	}
+	
+	/**
+	 * Creates new array value
+	 * 
+	 * @param val Value to set
+	 */
+	public JSONArrayValue(List<JSONValue> val)
+	{
+		this(val == null ? null : new JSONValue[val.size()]);
+		
+		if (value.length > 0)
+		{
+			val.toArray(value);
+		}
 	}
 	
 	/**

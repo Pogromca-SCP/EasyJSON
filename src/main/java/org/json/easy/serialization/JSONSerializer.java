@@ -3,8 +3,8 @@ package org.json.easy.serialization;
 import org.json.easy.dom.*;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Helper class for handling JSON serialization
@@ -88,7 +88,27 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
+		public Element(List<JSONValue> val)
+		{
+			this(null, new JSONArrayValue(val));
+		}
+		
+		/**
+		 * Creates new element with provided value
+		 * 
+		 * @param val Value to set
+		 */
 		public Element(JSONObject val)
+		{
+			this(null, new JSONObjectValue(val));
+		}
+		
+		/**
+		 * Creates new element with provided value
+		 * 
+		 * @param val Value to set
+		 */
+		public Element(Map<String, JSONValue> val)
 		{
 			this(null, new JSONObjectValue(val));
 		}
@@ -142,8 +162,7 @@ public final class JSONSerializer
 			return JSONArrayValue.EMPTY;
 		}
 		
-		LinkedList<JSONValue> res = state.array;
-		return res == null ? JSONArrayValue.EMPTY : listToArray(res);
+		return new JSONArrayValue(state.array).asArray();
 	}
 	
 	/**
@@ -195,7 +214,7 @@ public final class JSONSerializer
 			case OBJECT:
 				return new JSONObjectValue(state.object);
 			case ARRAY:
-				return new JSONArrayValue(state.array == null ? null : listToArray(state.array));
+				return new JSONArrayValue(state.array);
 			default:
 				return JSONNullValue.NULL;
 		}
@@ -210,12 +229,12 @@ public final class JSONSerializer
 	 */
 	public static boolean serialize(List<JSONValue> list, JSONWriter writer)
 	{
-		if (writer == null || list == null)
+		if (writer == null)
 		{
 			return false;
 		}
 		
-		serialize(new Element(listToArray(list)), writer);
+		serialize(new Element(list), writer);
 		return true;
 	}
 	
@@ -234,6 +253,24 @@ public final class JSONSerializer
 		}
 		
 		serialize(new Element(array), writer);
+		return true;
+	}
+	
+	/**
+	 * Serializes JSON data
+	 * 
+	 * @param map Map to serialize
+	 * @param writer JSON writer to write data into
+	 * @return True if data serialized successfully, false otherwise
+	 */
+	public static boolean serialize(Map<String, JSONValue> map, JSONWriter writer)
+	{
+		if (writer == null)
+		{
+			return false;
+		}
+		
+		serialize(new Element(map), writer);
 		return true;
 	}
 	
@@ -272,19 +309,6 @@ public final class JSONSerializer
 		
 		serialize(new Element(identifier, value), writer);
 		return true;
-	}
-	
-	/**
-	 * Converts linked list into an array
-	 * 
-	 * @param list List to convert
-	 * @return Array with list values
-	 */
-	private static JSONValue[] listToArray(List<JSONValue> list)
-	{	
-		JSONValue[] res = new JSONValue[list.size()];
-		list.toArray(res);
-		return res;
 	}
 	
 	/**
@@ -336,7 +360,7 @@ public final class JSONSerializer
 					if (!scopeStack.isEmpty())
 					{
 						identifier = currentState.identifier;
-						newValue = new JSONArrayValue(listToArray(currentState.array));
+						newValue = new JSONArrayValue(currentState.array);
 						currentState = scopeStack.pop();
 					}
 					
