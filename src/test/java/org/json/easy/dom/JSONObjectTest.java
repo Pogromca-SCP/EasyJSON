@@ -64,7 +64,7 @@ class JSONObjectTest
 		assertEquals(JSONNullValue.NULL, obj.getField("true"));
 		assertEquals(false, obj.hasField("true"));
 		obj.setField("", (JSONValue) null);
-		assertEquals(false, obj.hasField(""));
+		assertEquals(true, obj.hasField(""));
 		obj.setField("   \t", JSONNullValue.NULL);
 		assertEquals(true, obj.hasField("   \t"));
 		obj.setField("null", (JSONValue) null);

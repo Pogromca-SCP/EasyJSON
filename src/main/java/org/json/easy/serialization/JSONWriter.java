@@ -475,7 +475,7 @@ public class JSONWriter implements AutoCloseable
 	 */
 	private boolean canWriteValueWithIdentifier(String identifier)
 	{
-		return !stack.isEmpty() && stack.peek() == JSONType.OBJECT && previousToken != JSONToken.IDENTIFIER && identifier != null && !identifier.isEmpty();
+		return !stack.isEmpty() && stack.peek() == JSONType.OBJECT && previousToken != JSONToken.IDENTIFIER && identifier != null;
 	}
 	
 	/**

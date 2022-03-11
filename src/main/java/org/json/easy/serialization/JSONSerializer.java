@@ -121,7 +121,7 @@ public final class JSONSerializer
 		 */
 		public Element(String id, JSONValue val)
 		{
-			identifier = id == null ? "" : id;
+			identifier = id;
 			value = val == null ? JSONNullValue.NULL : val;
 			isProcessed = false;
 		}
@@ -432,7 +432,7 @@ public final class JSONSerializer
 						elem.isProcessed = true;
 						elementStack.push(elem);
 
-						if (elem.identifier.isEmpty())
+						if (elem.identifier == null)
 						{
 							writer.writeArrayStart();
 						}
@@ -460,7 +460,7 @@ public final class JSONSerializer
 						elem.isProcessed = true;
 						elementStack.push(elem);
 						
-						if (elem.identifier.isEmpty())
+						if (elem.identifier == null)
 						{
 							writer.writeObjectStart();
 						}
@@ -479,7 +479,7 @@ public final class JSONSerializer
 					
 					break;
 				default:
-					if (elem.identifier.isEmpty())
+					if (elem.identifier == null)
 					{
 						writer.writeValue(elem.value);
 					}

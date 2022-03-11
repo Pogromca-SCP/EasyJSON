@@ -197,13 +197,13 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set, null will be converted to JSON null value
 	 * @return True if set successfully, false otherwise
 	 */
 	public final boolean setField(String fieldName, JSONValue value)
 	{
-		if (fieldName == null || fieldName.isEmpty() || this == EMPTY)
+		if (fieldName == null || this == EMPTY)
 		{
 			return false;
 		}
@@ -236,7 +236,7 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
@@ -248,7 +248,7 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
@@ -271,7 +271,7 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
@@ -283,7 +283,7 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
@@ -307,7 +307,7 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
@@ -331,7 +331,7 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
@@ -343,7 +343,7 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
@@ -367,7 +367,7 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
@@ -379,7 +379,7 @@ public class JSONObject
 	/**
 	 * Sets the value of the field with the specified name
 	 *
-	 * @param fieldName Name of the field to set, null or blank strings are not allowed
+	 * @param fieldName Name of the field to set, null strings are not allowed
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */

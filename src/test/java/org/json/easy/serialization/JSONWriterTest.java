@@ -62,15 +62,16 @@ class JSONWriterTest
 		obj.setField("arr", simple);
 		obj.setField("bool", false);
 		obj.setField("obj", JSONObject.EMPTY);
+		obj.setField("", (JSONValue) null);
 		JSONObjectValue val = new JSONObjectValue(obj);
 		JSONObjectValue em = new JSONObjectValue(JSONObject.EMPTY);
 		testTemplate(em, "{}");
-		testTemplate(val, "{\"empty\":\"\",\"obj\":{},\"bool\":false,\"text\":\"Test\",\"arr\":[true,null,\"Testing\",null,-34.2]}");
+		testTemplate(val, "{\"empty\":\"\",\"text\":\"Test\",\"obj\":{},\"bool\":false,\"\":null,\"arr\":[true,null,\"Testing\",null,-34.2]}");
 		JSONObject no = new JSONObject();
 		no.setField("text", "Example");
 		no.setField("bottom", "Text");
 		no.setField("test", "Bottom");
 		obj.setField("inner", no);
-		testTemplate(val, "{\"empty\":\"\",\"inner\":{\"bottom\":\"Text\",\"test\":\"Bottom\",\"text\":\"Example\"},\"text\":\"Test\",\"obj\":{},\"bool\":false,\"arr\":[true,null,\"Testing\",null,-34.2]}");
+		testTemplate(val, "{\"empty\":\"\",\"inner\":{\"bottom\":\"Text\",\"test\":\"Bottom\",\"text\":\"Example\"},\"text\":\"Test\",\"obj\":{},\"bool\":false,\"\":null,\"arr\":[true,null,\"Testing\",null,-34.2]}");
 	}
 }
