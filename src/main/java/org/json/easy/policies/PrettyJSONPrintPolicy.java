@@ -18,7 +18,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeObjectStartPrefix(Consumer<Character> write, int indentation, JSONToken previous)
+	public void writeObjectStartPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous)
 	{
 		if (previous != JSONToken.NONE)
 		{
@@ -34,7 +34,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeArrayStartPrefix(Consumer<Character> write, int indentation, JSONToken previous)
+	public void writeArrayStartPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous)
 	{
 		if (previous != JSONToken.NONE)
 		{
@@ -50,7 +50,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeObjectEndPrefix(Consumer<Character> write, int indentation, JSONToken previous)
+	public void writeObjectEndPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous)
 	{
 		if (write != null && previous != JSONToken.CURLY_OPEN)
 		{
@@ -67,7 +67,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeArrayEndPrefix(Consumer<Character> write, int indentation, JSONToken previous) {}
+	public void writeArrayEndPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous) {}
 	
 	/**
 	 * Prints object key prefix
@@ -77,7 +77,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeIdentifierPrefix(Consumer<Character> write, int indentation, JSONToken previous)
+	public void writeIdentifierPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous)
 	{
 		if (write != null)
 		{
@@ -94,7 +94,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeValuePrefix(Consumer<Character> write, int indentation, JSONToken previous)
+	public void writeValuePrefix(final Consumer<Character> write, final int indentation, final JSONToken previous)
 	{
 		if (write != null && previous != JSONToken.SQUARE_OPEN)
 		{
@@ -107,7 +107,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * 
 	 * @param write Writes a single character
 	 */
-	private void writeLineTerminator(Consumer<Character> write)
+	private void writeLineTerminator(final Consumer<Character> write)
 	{
 		write.accept('\n');
 	}
@@ -117,7 +117,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * 
 	 * @param write Writes a single character
 	 */
-	private void writeSpace(Consumer<Character> write)
+	private void writeSpace(final Consumer<Character> write)
 	{
 		write.accept(' ');
 	}
@@ -128,7 +128,7 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 	 * @param write Writes a single character
 	 * @param amount Amount of tabs to print
 	 */
-	private void writeTabs(Consumer<Character> write, int amount)
+	private void writeTabs(final Consumer<Character> write, final int amount)
 	{
 		for (int i = 0; i < amount; ++i)
 		{

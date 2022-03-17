@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JSONReaderTest
 {
-	private void testTemplate(String file, String name, JSONValue[] expectedArray, JSONObject expectedObj)
+	private void testTemplate(final String file, final String name, final JSONValue[] expectedArray, final JSONObject expectedObj)
 	{
 		String err = null;
 		JSONValue val = null;
@@ -70,7 +70,7 @@ class JSONReaderTest
 	@Test
 	void testSmallArrayFile()
 	{
-		JSONValue[] expected = { JSONBooleanValue.TRUE, JSONBooleanValue.FALSE, new JSONNumberValue(3.14),
+		final JSONValue[] expected = { JSONBooleanValue.TRUE, JSONBooleanValue.FALSE, new JSONNumberValue(3.14),
 				new JSONStringValue("Testing"), JSONNullValue.NULL, new JSONStringValue("Test")};
 		
 		testTemplate("samples/SmallArray.json", "SmallArrayTest", expected, JSONObject.EMPTY);
@@ -79,7 +79,7 @@ class JSONReaderTest
 	@Test
 	void testSmallObjectFile()
 	{
-		JSONObject expected = new JSONObject();
+		final JSONObject expected = new JSONObject();
 		expected.setField("boolean", true);
 		expected.setField("none", (JSONValue) null);
 		expected.setField("string", "Example Text");
@@ -89,16 +89,16 @@ class JSONReaderTest
 	@Test
 	void testBigArrayFile()
 	{
-		JSONValue[] inner = { new JSONStringValue("This"), new JSONStringValue("is"), new JSONStringValue("an"), new JSONStringValue("inner"),
+		final JSONValue[] inner = { new JSONStringValue("This"), new JSONStringValue("is"), new JSONStringValue("an"), new JSONStringValue("inner"),
 				new JSONStringValue("array") };
 		
-		JSONValue[] last = { new JSONStringValue("InnerArray"), new JSONStringValue("") };
-		JSONObject obj = new JSONObject();
+		final JSONValue[] last = { new JSONStringValue("InnerArray"), new JSONStringValue("") };
+		final JSONObject obj = new JSONObject();
 		obj.setField("inner", JSONObject.EMPTY);
 		obj.setField("arr", last);
 		obj.setField("number", 15);
 		
-		JSONValue[] expected = { new JSONNumberValue(-34.2), JSONNullValue.NULL, new JSONArrayValue(inner), new JSONStringValue("Bottom TEXT"),
+		final JSONValue[] expected = { new JSONNumberValue(-34.2), JSONNullValue.NULL, new JSONArrayValue(inner), new JSONStringValue("Bottom TEXT"),
 				new JSONObjectValue(obj), new JSONNumberValue(0e45), JSONBooleanValue.FALSE };
 		
 		testTemplate("samples/BigArray.json", "BigArrayTest", expected, JSONObject.EMPTY);
@@ -107,22 +107,22 @@ class JSONReaderTest
 	@Test
 	void testBigObjectFile()
 	{
-		JSONObject empty = new JSONObject();
+		final JSONObject empty = new JSONObject();
 		empty.setField("nope", (JSONValue) null);
-		JSONObject sup = new JSONObject();
+		final JSONObject sup = new JSONObject();
 		sup.setField("inner", JSONObject.EMPTY);
 		sup.setField("arr", JSONArrayValue.EMPTY);
-		JSONObject last = new JSONObject();
+		final JSONObject last = new JSONObject();
 		last.setField("text", "Example");
 		last.setField("inner", sup);
-		JSONValue[] arr = { new JSONObjectValue(empty), new JSONObjectValue(JSONObject.EMPTY), new JSONObjectValue(last) };
-		JSONValue[] nulls = { JSONNullValue.NULL, JSONNullValue.NULL, JSONBooleanValue.TRUE };
-		JSONObject inner = new JSONObject();
+		final JSONValue[] arr = { new JSONObjectValue(empty), new JSONObjectValue(JSONObject.EMPTY), new JSONObjectValue(last) };
+		final JSONValue[] nulls = { JSONNullValue.NULL, JSONNullValue.NULL, JSONBooleanValue.TRUE };
+		final JSONObject inner = new JSONObject();
 		inner.setField("num", 34);
 		inner.setField("num2", -44);
 		inner.setField("inner", JSONObject.EMPTY);
 		inner.setField("nulls", nulls);
-		JSONObject expected = new JSONObject();
+		final JSONObject expected = new JSONObject();
 		expected.setField("text", "Hello\u7684 there\n!");
 		expected.setField("obj", inner);
 		expected.setField("arr", arr);

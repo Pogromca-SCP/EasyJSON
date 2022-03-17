@@ -99,7 +99,7 @@ public class JSONReader implements AutoCloseable
 	/**
 	 * Contains entire parse state in a stack structure
 	 */
-	private Stack<JSONType> parseState;
+	private final Stack<JSONType> parseState;
 	
 	/**
 	 * Contains current JSON Token
@@ -161,7 +161,7 @@ public class JSONReader implements AutoCloseable
 	 * 
 	 * @param reader Reader to wrap
 	 */
-	public JSONReader(Reader reader)
+	public JSONReader(final Reader reader)
 	{
 		parseState = new Stack<JSONType>();
 		currentToken = JSONToken.NONE;
@@ -278,7 +278,7 @@ public class JSONReader implements AutoCloseable
 			return true;
 		}
 
-		boolean atEndOfStream = isAtEnd();
+		final boolean atEndOfStream = isAtEnd();
 
 		if (atEndOfStream && !finishedReadingRootObject)
 		{
@@ -374,7 +374,7 @@ public class JSONReader implements AutoCloseable
 	 * 
 	 * @param message Message to set
 	 */
-	private void setErrorMessage(String message)
+	private void setErrorMessage(final String message)
 	{
 		errorMessage = message + " at Line: " +  lineNumber + " Ch: " + characterNumber;
 	}
@@ -385,7 +385,7 @@ public class JSONReader implements AutoCloseable
 	 * @param expectedNotation Notation to match
 	 * @return True if no errors occurred, false otherwise
 	 */
-	private boolean readUntilMatching(JSONNotation expectedNotation)
+	private boolean readUntilMatching(final JSONNotation expectedNotation)
 	{
 		int scopeCount = 0;
 
@@ -446,7 +446,7 @@ public class JSONReader implements AutoCloseable
 	 */
 	private boolean readNextObjectValue()
 	{
-		boolean useComma = currentToken != JSONToken.CURLY_OPEN;
+		final boolean useComma = currentToken != JSONToken.CURLY_OPEN;
 		currentToken = nextToken();
 
 		if (currentToken == JSONToken.NONE)
@@ -506,7 +506,7 @@ public class JSONReader implements AutoCloseable
 	 */
 	private boolean readNextArrayValue()
 	{
-		boolean useComma = currentToken != JSONToken.SQUARE_OPEN;
+		final boolean useComma = currentToken != JSONToken.SQUARE_OPEN;
 		currentToken = nextToken();
 
 		if (currentToken == JSONToken.NONE)
@@ -612,7 +612,7 @@ public class JSONReader implements AutoCloseable
 					case 'F':
 					case 'n':
 					case 'N':
-						StringBuilder sb = new StringBuilder().append(ch);
+						final StringBuilder sb = new StringBuilder().append(ch);
 
 						while (!isAtEnd())
 						{
@@ -630,7 +630,7 @@ public class JSONReader implements AutoCloseable
 							}
 						}
 						
-						String test = sb.toString();
+						final String test = sb.toString();
 						
 						if (test.equalsIgnoreCase("false"))
 						{
@@ -669,7 +669,7 @@ public class JSONReader implements AutoCloseable
 	 */
 	private boolean parseStringToken()
 	{
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		while (true)
 		{
@@ -727,7 +727,7 @@ public class JSONReader implements AutoCloseable
 
 							ch = read();
 							++characterNumber;
-							int hexDigit = Character.digit(ch, 16);
+							final int hexDigit = Character.digit(ch, 16);
 
 							if (hexDigit == -1)
 							{
@@ -761,9 +761,9 @@ public class JSONReader implements AutoCloseable
 	 * @param first First character to parse
 	 * @return True if parsed successfully, false otherwise
 	 */
-	private boolean parseNumberToken(char first)
+	private boolean parseNumberToken(final char first)
 	{
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		byte state = 0;
 		boolean useFirstChar = true;
 		boolean error = false;
@@ -968,7 +968,7 @@ public class JSONReader implements AutoCloseable
 	{
 		while (!isAtEnd())
 		{
-			char ch = read();
+			final char ch = read();
 			++characterNumber;
 			
 			if (isLineBreak(ch))

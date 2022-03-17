@@ -24,7 +24,7 @@ public final class JSONSerializer
 		 * @param id Identifier to set
 		 * @param isArray Whether or not this should be an array state
 		 */
-		public StackState(String id, boolean isArray)
+		public StackState(final String id, final boolean isArray)
 		{
 			identifier = id;
 			type = isArray ? JSONType.ARRAY : JSONType.OBJECT;
@@ -32,32 +32,34 @@ public final class JSONSerializer
 			if (isArray)
 			{
 				array = new LinkedList<JSONValue>();
+				object = null;
 			}
 			else
 			{
 				object = new JSONObject();
+				array = null;
 			}
 		}
 		
 		/**
 		 * Contains stack state type
 		 */
-		public JSONType type;
+		public final JSONType type;
 		
 		/**
 		 * Contains stack state identifier
 		 */
-		public String identifier;
+		public final String identifier;
 		
 		/**
 		 * Contains stack array value
 		 */
-		public LinkedList<JSONValue> array;
+		public final LinkedList<JSONValue> array;
 		
 		/**
 		 * Contains stack object value
 		 */
-		public JSONObject object;
+		public final JSONObject object;
 	}
 	
 	/**
@@ -70,7 +72,7 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
-		public Element(JSONValue val)
+		public Element(final JSONValue val)
 		{
 			this(null, val);
 		}
@@ -80,7 +82,7 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
-		public Element(JSONValue[] val)
+		public Element(final JSONValue[] val)
 		{
 			this(null, new JSONArrayValue(val));
 		}
@@ -90,7 +92,7 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
-		public Element(List<JSONValue> val)
+		public Element(final List<JSONValue> val)
 		{
 			this(null, new JSONArrayValue(val));
 		}
@@ -100,7 +102,7 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
-		public Element(JSONObject val)
+		public Element(final JSONObject val)
 		{
 			this(null, new JSONObjectValue(val));
 		}
@@ -110,7 +112,7 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
-		public Element(Map<String, JSONValue> val)
+		public Element(final Map<String, JSONValue> val)
 		{
 			this(null, new JSONObjectValue(val));
 		}
@@ -121,7 +123,7 @@ public final class JSONSerializer
 		 * @param id Identifier to set
 		 * @param val Value to set
 		 */
-		public Element(String id, JSONValue val)
+		public Element(final String id, final JSONValue val)
 		{
 			identifier = id;
 			value = val == null ? JSONNullValue.NULL : val;
@@ -131,12 +133,12 @@ public final class JSONSerializer
 		/**
 		 * Contains element identifier
 		 */
-		public String identifier;
+		public final String identifier;
 		
 		/**
 		 * Contains element value
 		 */
-		public JSONValue value;
+		public final JSONValue value;
 		
 		/**
 		 * Tells whether or not the element has been processed
@@ -150,14 +152,14 @@ public final class JSONSerializer
 	 * @param reader Reader to get data from
 	 * @return Deserialized data as an array or empty array if something went wrong
 	 */
-	public static JSONValue[] deserializeArray(JSONReader reader)
+	public static JSONValue[] deserializeArray(final JSONReader reader)
 	{
 		if (reader == null)
 		{
 			return JSONArrayValue.EMPTY;
 		}
 		
-		StackState state = deserializeJSON(reader);
+		final StackState state = deserializeJSON(reader);
 		
 		if (state == null)
 		{
@@ -173,21 +175,21 @@ public final class JSONSerializer
 	 * @param reader Reader to get data from
 	 * @return Deserialized data as a JSON object or empty JSON object if something went wrong
 	 */
-	public static JSONObject deserializeObject(JSONReader reader)
+	public static JSONObject deserializeObject(final JSONReader reader)
 	{
 		if (reader == null)
 		{
 			return JSONObject.EMPTY;
 		}
 		
-		StackState state = deserializeJSON(reader);
+		final StackState state = deserializeJSON(reader);
 		
 		if (state == null)
 		{
 			return JSONObject.EMPTY;
 		}
 		
-		JSONObject res = state.object;
+		final JSONObject res = state.object;
 		return res == null ? JSONObject.EMPTY : res;
 	}
 	
@@ -197,14 +199,14 @@ public final class JSONSerializer
 	 * @param reader Reader to get data from
 	 * @return Deserialized data in JSON object/array or null JSON value if something went wrong
 	 */
-	public static JSONValue deserialize(JSONReader reader)
+	public static JSONValue deserialize(final JSONReader reader)
 	{
 		if (reader == null)
 		{
 			return JSONNullValue.NULL;
 		}
 		
-		StackState state = deserializeJSON(reader);
+		final StackState state = deserializeJSON(reader);
 		
 		if (state == null)
 		{
@@ -229,7 +231,7 @@ public final class JSONSerializer
 	 * @param writer JSON writer to write data into
 	 * @return True if data serialized successfully, false otherwise
 	 */
-	public static boolean serialize(List<JSONValue> list, JSONWriter writer)
+	public static boolean serialize(final List<JSONValue> list, final JSONWriter writer)
 	{
 		if (writer == null)
 		{
@@ -247,7 +249,7 @@ public final class JSONSerializer
 	 * @param writer JSON writer to write data into
 	 * @return True if data serialized successfully, false otherwise
 	 */
-	public static boolean serialize(JSONValue[] array, JSONWriter writer)
+	public static boolean serialize(final JSONValue[] array, final JSONWriter writer)
 	{
 		if (writer == null)
 		{
@@ -265,7 +267,7 @@ public final class JSONSerializer
 	 * @param writer JSON writer to write data into
 	 * @return True if data serialized successfully, false otherwise
 	 */
-	public static boolean serialize(Map<String, JSONValue> map, JSONWriter writer)
+	public static boolean serialize(final Map<String, JSONValue> map, final JSONWriter writer)
 	{
 		if (writer == null)
 		{
@@ -283,7 +285,7 @@ public final class JSONSerializer
 	 * @param writer JSON writer to write data into
 	 * @return True if data serialized successfully, false otherwise
 	 */
-	public static boolean serialize(JSONObject object, JSONWriter writer)
+	public static boolean serialize(final JSONObject object, final JSONWriter writer)
 	{
 		if (writer == null)
 		{
@@ -302,7 +304,7 @@ public final class JSONSerializer
 	 * @param writer JSON writer to write data into
 	 * @return True if data serialized successfully, false otherwise
 	 */
-	public static boolean serialize(JSONValue value, String identifier, JSONWriter writer)
+	public static boolean serialize(final JSONValue value, final String identifier, final JSONWriter writer)
 	{
 		if (writer == null)
 		{
@@ -319,9 +321,9 @@ public final class JSONSerializer
 	 * @param reader JSON reader to use
 	 * @return Deserialized data in a stack state or null if something went wrong
 	 */
-	private static StackState deserializeJSON(JSONReader reader)
+	private static StackState deserializeJSON(final JSONReader reader)
 	{
-		Stack<StackState> scopeStack = new Stack<StackState>();
+		final Stack<StackState> scopeStack = new Stack<StackState>();
 		StackState currentState = null;
 		JSONValue newValue;
 		
@@ -396,7 +398,7 @@ public final class JSONSerializer
 			}
 		}
 		
-		String error = reader.getErrorMessage();
+		final String error = reader.getErrorMessage();
 		
 		if (error != null && !error.isEmpty())
 		{
@@ -412,14 +414,14 @@ public final class JSONSerializer
 	 * @param element Element to serialize
 	 * @param writer JSON writer to use
 	 */
-	private static void serialize(Element element, JSONWriter writer)
+	private static void serialize(final Element element, final JSONWriter writer)
 	{
-		Stack<Element> elementStack = new Stack<Element>();
+		final Stack<Element> elementStack = new Stack<Element>();
 		elementStack.push(element);
 		
 		while (!elementStack.isEmpty())
 		{
-			Element elem = elementStack.pop();
+			final Element elem = elementStack.pop();
 			
 			switch (elem.value.getType())
 			{
@@ -442,7 +444,7 @@ public final class JSONSerializer
 							writer.writeArrayStart(elem.identifier);
 						}
 
-						JSONValue[] values = elem.value.asArray();
+						final JSONValue[] values = elem.value.asArray();
 
 						for (int i = values.length - 1; i > -1; --i)
 						{
@@ -470,9 +472,9 @@ public final class JSONSerializer
 							writer.writeObjectStart(elem.identifier);
 						}
 						
-						Map<String, JSONValue> obj = elem.value.asObject().copyToMap();
+						final Map<String, JSONValue> obj = elem.value.asObject().copyToMap();
 						
-						for (Map.Entry<String, JSONValue> ent : obj.entrySet())
+						for (final Map.Entry<String, JSONValue> ent : obj.entrySet())
 						{
 							elementStack.push(new Element(ent.getKey(), ent.getValue()));
 						}

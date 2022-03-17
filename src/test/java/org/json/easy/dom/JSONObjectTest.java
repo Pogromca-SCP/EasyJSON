@@ -11,20 +11,20 @@ class JSONObjectTest
 	@Test
 	void testObjectConstructors()
 	{
-		HashMap<String, JSONValue> map = new HashMap<String, JSONValue>();
-		HashMap<String, JSONValue> empty = new HashMap<String, JSONValue>();
+		final HashMap<String, JSONValue> map = new HashMap<String, JSONValue>();
+		final HashMap<String, JSONValue> empty = new HashMap<String, JSONValue>();
 		map.put("bool", JSONBooleanValue.TRUE);
 		map.put("null", JSONNullValue.NULL);
 		map.put("test", new JSONStringValue("testing"));
-		JSONObject obj = new JSONObject(map);
-		JSONObject emptyObj = JSONObject.EMPTY;
+		final JSONObject obj = new JSONObject(map);
+		final JSONObject emptyObj = JSONObject.EMPTY;
 		assertEquals(map.hashCode(), obj.hashCode());
 		assertEquals(empty.hashCode(), emptyObj.hashCode());
 		assertEquals(map.toString(), obj.toString());
 		assertEquals(empty.toString(), emptyObj.toString());
 		assertEquals(map.size(), obj.size());
 		assertEquals(empty.size(), emptyObj.size());
-		JSONObject copy = new JSONObject(obj);
+		final JSONObject copy = new JSONObject(obj);
 		assertEquals(copy.equals(obj), obj.equals(copy));
 		assertEquals(obj.size(), copy.size());
 		assertEquals(obj.hashCode(), copy.hashCode());
@@ -35,7 +35,7 @@ class JSONObjectTest
 	@Test
 	void testEmptyObject()
 	{
-		JSONObject obj = JSONObject.EMPTY;
+		final JSONObject obj = JSONObject.EMPTY;
 		assertEquals(0, obj.size());
 		obj.setField("test", true);
 		obj.setField("true", true);
@@ -49,7 +49,7 @@ class JSONObjectTest
 	@Test
 	void testObjectOperations()
 	{
-		JSONObject obj = new JSONObject();
+		final JSONObject obj = new JSONObject();
 		obj.setField("true", JSONBooleanValue.TRUE);
 		assertEquals(true, obj.hasField("true", JSONType.BOOLEAN));
 		assertEquals(true, obj.hasField("true"));

@@ -29,7 +29,7 @@ public class JSONBooleanValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONBooleanValue(boolean val)
+	public JSONBooleanValue(final boolean val)
 	{
 		type = JSONType.BOOLEAN;
 		value = val;
@@ -40,7 +40,7 @@ public class JSONBooleanValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONBooleanValue(Boolean val)
+	public JSONBooleanValue(final Boolean val)
 	{
 		this(val == null ? false : val);
 	}

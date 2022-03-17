@@ -19,7 +19,7 @@ public class JSONStringValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONStringValue(String val)
+	public JSONStringValue(final String val)
 	{
 		type = JSONType.STRING;
 		value = val == null ? "" : val;

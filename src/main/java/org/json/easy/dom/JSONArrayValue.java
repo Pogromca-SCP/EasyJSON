@@ -26,7 +26,7 @@ public class JSONArrayValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONArrayValue(JSONValue[] val)
+	public JSONArrayValue(final JSONValue[] val)
 	{
 		type = JSONType.ARRAY;
 		value = val == null ? EMPTY : val;
@@ -37,7 +37,7 @@ public class JSONArrayValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONArrayValue(List<JSONValue> val)
+	public JSONArrayValue(final List<JSONValue> val)
 	{
 		this(val == null ? null : new JSONValue[val.size()]);
 		

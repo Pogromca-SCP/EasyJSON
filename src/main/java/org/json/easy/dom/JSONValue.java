@@ -40,7 +40,7 @@ public abstract class JSONValue
 	 * @return True if objects are equal, false otherwise
 	 */
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		return obj instanceof JSONValue ? equals((JSONValue) obj) : false;
 	}
@@ -51,7 +51,7 @@ public abstract class JSONValue
 	 * @param val Value to compare
 	 * @return True if values are equal, false otherwise
 	 */
-	public final boolean equals(JSONValue val)
+	public final boolean equals(final JSONValue val)
 	{
 		if (val == null || type != val.type)
 		{
@@ -64,8 +64,8 @@ public abstract class JSONValue
 			case NULL:
 				return true;
 			case STRING:
-				String str1 = asString();
-				String str2 = val.asString();
+				final String str1 = asString();
+				final String str2 = val.asString();
 				return str1 == null ? str2 == null : str1.equals(str2);
 			case BOOLEAN:
 				return asBoolean() == val.asBoolean();
@@ -74,8 +74,8 @@ public abstract class JSONValue
 			case ARRAY:
 				return Arrays.equals(asArray(), val.asArray());
 			case OBJECT:
-				JSONObject obj1 = asObject();
-				JSONObject obj2 = val.asObject();
+				final JSONObject obj1 = asObject();
+				final JSONObject obj2 = val.asObject();
 				return obj1 == null ? obj2 == null : obj1.equals(obj2);
 			default:
 				return false;

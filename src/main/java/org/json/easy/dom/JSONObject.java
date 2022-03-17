@@ -36,20 +36,20 @@ public class JSONObject
 	 * 
 	 * @param src Map to copy, null or blank keys are not copied
 	 */
-	public JSONObject(Map<String, JSONValue> src)
+	public JSONObject(final Map<String, JSONValue> src)
 	{
 		this();
 		
 		if (src != null)
 		{
-			Set<Map.Entry<String, JSONValue>> set = src.entrySet();
+			final Set<Map.Entry<String, JSONValue>> set = src.entrySet();
 			
 			if (set == null)
 			{
 				return;
 			}
 			
-			for (Map.Entry<String, JSONValue> ent : set)
+			for (final Map.Entry<String, JSONValue> ent : set)
 			{
 				if (ent != null)
 				{
@@ -64,7 +64,7 @@ public class JSONObject
 	 * 
 	 * @param src Object to copy
 	 */
-	public JSONObject(JSONObject src)
+	public JSONObject(final JSONObject src)
 	{
 		values = src == null ? new HashMap<String, JSONValue>() : new HashMap<String, JSONValue>(src.values);
 	}
@@ -76,14 +76,14 @@ public class JSONObject
 	 * @return True if objects are equal, false otherwise
 	 */
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		if (!(obj instanceof JSONObject))
 		{
 			return false;
 		}
 		
-		JSONObject tmp = (JSONObject) obj;
+		final JSONObject tmp = (JSONObject) obj;
 		return values.equals(tmp.values);
 	}
 	
@@ -136,9 +136,9 @@ public class JSONObject
 	 * @param fieldType The type of the field to get, use null or JSONType.None value if type doesn't matter
 	 * @return Field value, or null JSON value if the field doesn't exist or has different type
 	 */
-	public final JSONValue getField(String fieldName, JSONType fieldType)
+	public final JSONValue getField(final String fieldName, final JSONType fieldType)
 	{
-		JSONValue val = values.get(fieldName);
+		final JSONValue val = values.get(fieldName);
 		
 		if (val != null && (fieldType == null || fieldType == JSONType.NONE || fieldType == val.getType()))
 		{
@@ -154,7 +154,7 @@ public class JSONObject
 	 * @param fieldName The name of the field to get
 	 * @return Field value, or null JSON value if the field doesn't exist
 	 */
-	public JSONValue getField(String fieldName)
+	public JSONValue getField(final String fieldName)
 	{
 		return getField(fieldName, null);
 	}
@@ -166,9 +166,9 @@ public class JSONObject
 	 * @param fieldType Type of the field to check, use null or JSONType.None value if type doesn't matter
 	 * @return True if the field exists, false otherwise
 	 */
-	public final boolean hasField(String fieldName, JSONType fieldType)
+	public final boolean hasField(final String fieldName, final JSONType fieldType)
 	{
-		boolean res = values.containsKey(fieldName);
+		final boolean res = values.containsKey(fieldName);
 		
 		if (fieldType == null || fieldType == JSONType.NONE)
 		{
@@ -176,7 +176,7 @@ public class JSONObject
 		}
 		else if (res)
 		{
-			JSONValue val = values.get(fieldName);
+			final JSONValue val = values.get(fieldName);
 			return fieldType == val.getType();
 		}
 		else
@@ -191,7 +191,7 @@ public class JSONObject
 	 * @param fieldName Name of the field to check
 	 * @return True if the field exists, false otherwise
 	 */
-	public boolean hasField(String fieldName)
+	public boolean hasField(final String fieldName)
 	{
 		return hasField(fieldName, null);
 	}
@@ -203,7 +203,7 @@ public class JSONObject
 	 * @param value Value to set, null will be converted to JSON null value
 	 * @return True if set successfully, false otherwise
 	 */
-	public final boolean setField(String fieldName, JSONValue value)
+	public final boolean setField(final String fieldName, final JSONValue value)
 	{
 		if (fieldName == null || this == EMPTY)
 		{
@@ -219,7 +219,7 @@ public class JSONObject
 	 *
 	 * @param fieldName Name of the field to remove
 	 */
-	public final void removeField(String fieldName)
+	public final void removeField(final String fieldName)
 	{
 		values.remove(fieldName);
 	}
@@ -230,7 +230,7 @@ public class JSONObject
 	 * @param fieldName The name of the field to get
 	 * @return Field value, or false if the field doesn't exist
 	 */
-	public boolean getBooleanField(String fieldName)
+	public boolean getBooleanField(final String fieldName)
 	{
 		return getField(fieldName, JSONType.BOOLEAN).asBoolean();
 	}
@@ -242,7 +242,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, boolean value)
+	public boolean setField(final String fieldName, final boolean value)
 	{
 		return setField(fieldName, value ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE);
 	}
@@ -254,7 +254,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, Boolean value)
+	public boolean setField(final String fieldName, final Boolean value)
 	{
 		return setField(fieldName, value == null || !value ? JSONBooleanValue.FALSE : JSONBooleanValue.TRUE);
 	}
@@ -265,7 +265,7 @@ public class JSONObject
 	 * @param fieldName The name of the field to get
 	 * @return Field value, or zero if the field doesn't exist
 	 */
-	public double getNumberField(String fieldName)
+	public double getNumberField(final String fieldName)
 	{
 		return getField(fieldName, JSONType.NUMBER).asNumber();
 	}
@@ -277,7 +277,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, double value)
+	public boolean setField(final String fieldName, final double value)
 	{
 		return setField(fieldName, new JSONNumberValue(value));
 	}
@@ -289,7 +289,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, Double value)
+	public boolean setField(final String fieldName, final Double value)
 	{
 		return setField(fieldName, new JSONNumberValue(value));
 	}
@@ -300,9 +300,9 @@ public class JSONObject
 	 * @param fieldName The name of the field to get
 	 * @return Field value, or empty string if the field doesn't exist
 	 */
-	public String getStringField(String fieldName)
+	public String getStringField(final String fieldName)
 	{
-		String res = getField(fieldName, JSONType.STRING).asString();
+		final String res = getField(fieldName, JSONType.STRING).asString();
 		return res == null ? "" : res;
 	}
 	
@@ -313,7 +313,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, String value)
+	public boolean setField(final String fieldName, final String value)
 	{
 		return setField(fieldName, new JSONStringValue(value));
 	}
@@ -324,9 +324,9 @@ public class JSONObject
 	 * @param fieldName The name of the field to get
 	 * @return Field value, or empty array if the field doesn't exist
 	 */
-	public JSONValue[] getArrayField(String fieldName)
+	public JSONValue[] getArrayField(final String fieldName)
 	{
-		JSONValue[] res = getField(fieldName, JSONType.ARRAY).asArray();
+		final JSONValue[] res = getField(fieldName, JSONType.ARRAY).asArray();
 		return res == null ? JSONArrayValue.EMPTY : res;
 	}
 	
@@ -337,7 +337,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, JSONValue[] value)
+	public boolean setField(final String fieldName, final JSONValue[] value)
 	{
 		return setField(fieldName, new JSONArrayValue(value));
 	}
@@ -349,7 +349,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, List<JSONValue> value)
+	public boolean setField(final String fieldName, final List<JSONValue> value)
 	{
 		return setField(fieldName, new JSONArrayValue(value));
 	}
@@ -360,9 +360,9 @@ public class JSONObject
 	 * @param fieldName The name of the field to get
 	 * @return Field value, or empty object if the field doesn't exist
 	 */
-	public JSONObject getObjectField(String fieldName)
+	public JSONObject getObjectField(final String fieldName)
 	{
-		JSONObject res = getField(fieldName, JSONType.OBJECT).asObject();
+		final JSONObject res = getField(fieldName, JSONType.OBJECT).asObject();
 		return res == null ? EMPTY : res;
 	}
 	
@@ -373,7 +373,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, JSONObject value)
+	public boolean setField(final String fieldName, final JSONObject value)
 	{
 		return setField(fieldName, new JSONObjectValue(value));
 	}
@@ -385,7 +385,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(String fieldName, Map<String, JSONValue> value)
+	public boolean setField(final String fieldName, final Map<String, JSONValue> value)
 	{
 		return setField(fieldName, new JSONObjectValue(value));
 	}

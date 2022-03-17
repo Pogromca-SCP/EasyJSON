@@ -19,7 +19,7 @@ public class JSONWriter implements AutoCloseable
 	/**
 	 * Contains entire write state in a stack structure
 	 */
-	private Stack<JSONType> stack;
+	private final Stack<JSONType> stack;
 	
 	/**
 	 * Contains data stream to write into
@@ -39,19 +39,19 @@ public class JSONWriter implements AutoCloseable
 	/**
 	 * Contains current printing policy
 	 */
-	private JSONPrintPolicy policy;
+	private final JSONPrintPolicy policy;
 	
 	/**
 	 * Contains write method for print policy
 	 */
-	private Consumer<Character> write;
+	private final Consumer<Character> write;
 	
 	/**
 	 * Creates new JSON writer and wraps provided writer
 	 * 
 	 * @param writer Writer to wrap
 	 */
-	public JSONWriter(Writer writer)
+	public JSONWriter(final Writer writer)
 	{
 		this(writer, 0, null);
 	}
@@ -62,7 +62,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param writer Writer to wrap
 	 * @param initIndent Initial indentation level
 	 */
-	public JSONWriter(Writer writer, int initIndent)
+	public JSONWriter(final Writer writer, final int initIndent)
 	{
 		this(writer, initIndent, null);
 	}
@@ -73,7 +73,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param writer Writer to wrap
 	 * @param pol JSON printing policy to use
 	 */
-	public JSONWriter(Writer writer, JSONPrintPolicy pol)
+	public JSONWriter(final Writer writer, final JSONPrintPolicy pol)
 	{
 		this(writer, 0, pol);
 	}
@@ -85,7 +85,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param initIndent Initial indentation level
 	 * @param pol JSON printing policy to use
 	 */
-	public JSONWriter(Writer writer, int initIndent, JSONPrintPolicy pol)
+	public JSONWriter(final Writer writer, final int initIndent, final JSONPrintPolicy pol)
 	{
 		stack = new Stack<JSONType>();
 		stream = writer;
@@ -143,7 +143,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param identifier Identifier to write
 	 */
-	public final void writeObjectStart(String identifier)
+	public final void writeObjectStart(final String identifier)
 	{
 		writeStart(false, identifier);
 	}
@@ -169,7 +169,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param identifier Identifier to write
 	 */
-	public final void writeArrayStart(String identifier)
+	public final void writeArrayStart(final String identifier)
 	{
 		writeStart(true, identifier);
 	}
@@ -226,7 +226,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param value Value to write
 	 */
-	public final void writeValue(boolean value)
+	public final void writeValue(final boolean value)
 	{
 		writeValuePrefix();
 		previousToken = writeValueOnly(value);
@@ -237,7 +237,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param value Value to write
 	 */
-	public final void writeValue(Boolean value)
+	public final void writeValue(final Boolean value)
 	{
 		writeValue(value == null ? false : value);
 	}
@@ -247,7 +247,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param value Value to write
 	 */
-	public final void writeValue(double value)
+	public final void writeValue(final double value)
 	{
 		writeValuePrefix();
 		previousToken = writeValueOnly(value);
@@ -258,7 +258,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param value Value to write
 	 */
-	public final void writeValue(Double value)
+	public final void writeValue(final Double value)
 	{
 		writeValue(value == null ? 0.0 : value);
 	}
@@ -268,7 +268,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param value Value to write
 	 */
-	public final void writeValue(String value)
+	public final void writeValue(final String value)
 	{
 		writeValuePrefix();
 		previousToken = writeValueOnly(value == null ? "" : value);
@@ -280,7 +280,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
-	public final void writeValue(String identifier, JSONValue value)
+	public final void writeValue(final String identifier, JSONValue value)
 	{
 		if (value == null)
 		{
@@ -310,7 +310,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param identifier Identifier to write
 	 */
-	public final void writeNull(String identifier)
+	public final void writeNull(final String identifier)
 	{
 		writeValuePrefix(identifier);
 		previousToken = writeNullValueOnly();
@@ -322,7 +322,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
-	public final void writeValue(String identifier, boolean value)
+	public final void writeValue(final String identifier, final boolean value)
 	{
 		writeValuePrefix(identifier);
 		previousToken = writeValueOnly(value);
@@ -334,7 +334,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
-	public final void writeValue(String identifier, Boolean value)
+	public final void writeValue(final String identifier, final Boolean value)
 	{
 		writeValue(identifier, value == null ? false : value);
 	}
@@ -345,7 +345,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
-	public final void writeValue(String identifier, double value)
+	public final void writeValue(final String identifier, final double value)
 	{
 		writeValuePrefix(identifier);
 		previousToken = writeValueOnly(value);
@@ -357,7 +357,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
-	public final void writeValue(String identifier, Double value)
+	public final void writeValue(final String identifier, final Double value)
 	{
 		writeValue(identifier, value == null ? 0.0 : value);
 	}
@@ -368,7 +368,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
-	public final void writeValue(String identifier, String value)
+	public final void writeValue(final String identifier, final String value)
 	{
 		writeValuePrefix(identifier);
 		previousToken = writeValueOnly(value == null ? "" : value);
@@ -379,7 +379,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param identifier Identifier to write
 	 */
-	public final void writeIdentifierPrefix(String identifier)
+	public final void writeIdentifierPrefix(final String identifier)
 	{
 		writeValuePrefix(identifier);
 		previousToken = JSONToken.IDENTIFIER;
@@ -390,7 +390,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param isArray Set to true if should write array start
 	 */
-	private void writeStart(boolean isArray)
+	private void writeStart(final boolean isArray)
 	{
 		if (!canWriteValueWithoutIdentifier())
 		{
@@ -423,7 +423,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param isArray Set to true if should write array start
 	 * @param identifier Identifier to write
 	 */
-	private void writeStart(boolean isArray, String identifier)
+	private void writeStart(final boolean isArray, final String identifier)
 	{
 		if (!canWriteValueWithIdentifier(identifier))
 		{
@@ -452,7 +452,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param isArray Set to true if should write array end
 	 */
-	private void writeEnd(boolean isArray)
+	private void writeEnd(final boolean isArray)
 	{
 		if (stack.isEmpty() || (isArray ? stack.peek() != JSONType.ARRAY : stack.peek() != JSONType.OBJECT))
 		{
@@ -491,7 +491,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param identifier Identifier to check
 	 * @return True if it's possible, false otherwise
 	 */
-	private boolean canWriteValueWithIdentifier(String identifier)
+	private boolean canWriteValueWithIdentifier(final String identifier)
 	{
 		return !stack.isEmpty() && stack.peek() == JSONType.OBJECT && previousToken != JSONToken.IDENTIFIER && identifier != null;
 	}
@@ -512,7 +512,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param identifier Identifier to write
 	 */
-	private void writeIdentifier(String identifier)
+	private void writeIdentifier(final String identifier)
 	{
 		writeCommaIfNeeded();
 		policy.writeIdentifierPrefix(write, indentLevel, previousToken);
@@ -539,7 +539,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param identifier Identifier to write
 	 */
-	private void writeValuePrefix(String identifier)
+	private void writeValuePrefix(final String identifier)
 	{
 		if (!canWriteValueWithIdentifier(identifier))
 		{
@@ -567,7 +567,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param value Value to write
 	 * @return Written token type
 	 */
-	private JSONToken writeValueOnly(boolean value)
+	private JSONToken writeValueOnly(final boolean value)
 	{
 		writeString(Boolean.toString(value));
 		return value ? JSONToken.TRUE : JSONToken.FALSE;
@@ -579,7 +579,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param value Value to write
 	 * @return Written token type
 	 */
-	private JSONToken writeValueOnly(double value)
+	private JSONToken writeValueOnly(final double value)
 	{
 		writeString(Double.toString(value));
 		return JSONToken.NUMBER;
@@ -591,7 +591,7 @@ public class JSONWriter implements AutoCloseable
 	 * @param value Value to write
 	 * @return Written token type
 	 */
-	private JSONToken writeValueOnly(String value)
+	private JSONToken writeValueOnly(final String value)
 	{
 		writeStringValue(value);
 		return JSONToken.STRING;
@@ -602,13 +602,13 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param value Value to write
 	 */
-	private void writeStringValue(String value)
+	private void writeStringValue(final String value)
 	{
-		StringBuilder sb = new StringBuilder().append('\"');
+		final StringBuilder sb = new StringBuilder().append('\"');
 		
 		for (int i = 0; i < value.length(); ++i)
 		{
-			char ch = value.charAt(i);
+			final char ch = value.charAt(i);
 			
 			switch (ch)
 			{
@@ -654,10 +654,10 @@ public class JSONWriter implements AutoCloseable
 	 * @param ch Character to convert
 	 * @return Result hex string
 	 */
-	private String toHexString(char ch)
+	private String toHexString(final char ch)
 	{
-		StringBuilder sb = new StringBuilder();
-		String hex = Integer.toHexString(ch);
+		final StringBuilder sb = new StringBuilder();
+		final String hex = Integer.toHexString(ch);
 		
 		for (int i = hex.length(); i < 4; ++i)
 		{
@@ -672,7 +672,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param ch Character to write
 	 */
-	private void writeChar(char ch)
+	private void writeChar(final char ch)
 	{
 		if (stream != null)
 		{
@@ -689,7 +689,7 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param str String to write
 	 */
-	private void writeString(String str)
+	private void writeString(final String str)
 	{
 		if (stream != null)
 		{

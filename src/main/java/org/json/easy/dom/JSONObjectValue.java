@@ -20,7 +20,7 @@ public class JSONObjectValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONObjectValue(JSONObject val)
+	public JSONObjectValue(final JSONObject val)
 	{
 		type = JSONType.OBJECT;
 		value = val == null ? JSONObject.EMPTY : val;
@@ -31,7 +31,7 @@ public class JSONObjectValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONObjectValue(Map<String, JSONValue> val)
+	public JSONObjectValue(final Map<String, JSONValue> val)
 	{
 		this(new JSONObject(val));
 	}

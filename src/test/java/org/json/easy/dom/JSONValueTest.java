@@ -12,14 +12,14 @@ class JSONValueTest
 	@Test
 	void testValueEquals()
 	{
-		JSONValue[] values = { new JSONBooleanValue(false), new JSONNumberValue(115.4), new JSONNullValue(), new JSONArrayValue((JSONValue[]) null),
+		final JSONValue[] values = { new JSONBooleanValue(false), new JSONNumberValue(115.4), new JSONNullValue(), new JSONArrayValue((JSONValue[]) null),
 				new JSONStringValue("testing"), new JSONObjectValue(JSONObject.EMPTY), new JSONStringValue("test")};
 		
-		for (JSONValue val : values)
+		for (final JSONValue val : values)
 		{
-			for (JSONValue v : values)
+			for (final JSONValue v : values)
 			{
-				boolean tmp = val.equals(v);
+				final boolean tmp = val.equals(v);
 				assertEquals(val == v, tmp);
 				assertEquals(tmp, v.equals(val));
 			}
@@ -29,7 +29,7 @@ class JSONValueTest
 	@Test
 	void testNullValue()
 	{
-		JSONNullValue val = new JSONNullValue();
+		final JSONNullValue val = new JSONNullValue();
 		assertEquals(0, val.hashCode());
 		assertEquals("null", val.toString());
 		
@@ -46,11 +46,11 @@ class JSONValueTest
 	@Test
 	void testBooleanValue()
 	{
-		Boolean[] values = { null, false, true };
+		final Boolean[] values = { null, false, true };
 		
 		for (Boolean v : values)
 		{
-			JSONBooleanValue val = new JSONBooleanValue(v);
+			final JSONBooleanValue val = new JSONBooleanValue(v);
 			
 			if (v == null)
 			{
@@ -74,11 +74,11 @@ class JSONValueTest
 	@Test
 	void testNumberValue()
 	{
-		Double[] values = { 0.0, 3.14, null, -9.4, 5.6, 12.0 };
+		final Double[] values = { 0.0, 3.14, null, -9.4, 5.6, 12.0 };
 		
 		for (Double v : values)
 		{
-			JSONNumberValue val = new JSONNumberValue(v);
+			final JSONNumberValue val = new JSONNumberValue(v);
 			
 			if (v == null)
 			{
@@ -102,11 +102,11 @@ class JSONValueTest
 	@Test
 	void testStringValue()
 	{
-		String[] values = { null, "hahafunny", "", "5.6", "bruh" };
+		final String[] values = { null, "hahafunny", "", "5.6", "bruh" };
 		
 		for (String v : values)
 		{
-			JSONStringValue val = new JSONStringValue(v);
+			final JSONStringValue val = new JSONStringValue(v);
 			
 			if (v == null)
 			{
@@ -138,7 +138,7 @@ class JSONValueTest
 	@Test
 	void testArrayValue()
 	{	
-		JSONValue[][] values = {
+		final JSONValue[][] values = {
 				null,
 				JSONArrayValue.EMPTY,
 				{ new JSONBooleanValue(false), new JSONNumberValue(115.4) },
@@ -147,7 +147,7 @@ class JSONValueTest
 		
 		for (JSONValue[] v : values)
 		{
-			JSONArrayValue val = new JSONArrayValue(v);
+			final JSONArrayValue val = new JSONArrayValue(v);
 			
 			if (v == null)
 			{
@@ -171,16 +171,16 @@ class JSONValueTest
 	@Test
 	void testObjectValue()
 	{
-		HashMap<String, JSONValue> map = new HashMap<String, JSONValue>();
+		final HashMap<String, JSONValue> map = new HashMap<String, JSONValue>();
 		map.put("null", null);
 		map.put("bool", JSONBooleanValue.FALSE);
 		map.put("test", new JSONStringValue("test"));
 		map.put("34", new JSONNumberValue(34));
-		JSONObject[] values = { null, JSONObject.EMPTY, new JSONObject(), new JSONObject(map)};
+		final JSONObject[] values = { null, JSONObject.EMPTY, new JSONObject(), new JSONObject(map)};
 		
 		for (JSONObject v : values)
 		{
-			JSONObjectValue val = new JSONObjectValue(v);
+			final JSONObjectValue val = new JSONObjectValue(v);
 			
 			if (v == null)
 			{

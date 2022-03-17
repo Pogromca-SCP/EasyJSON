@@ -19,7 +19,7 @@ public class JSONNumberValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONNumberValue(double val)
+	public JSONNumberValue(final double val)
 	{
 		type = JSONType.NUMBER;
 		value = val;
@@ -30,7 +30,7 @@ public class JSONNumberValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONNumberValue(Double val)
+	public JSONNumberValue(final Double val)
 	{
 		this(val == null ? 0.0 : val);
 	}

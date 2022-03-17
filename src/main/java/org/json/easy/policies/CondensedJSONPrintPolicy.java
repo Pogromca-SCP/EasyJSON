@@ -18,7 +18,7 @@ public class CondensedJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeObjectStartPrefix(Consumer<Character> write, int indentation, JSONToken previous) {}
+	public void writeObjectStartPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous) {}
 	
 	/**
 	 * Prints array start prefix
@@ -28,7 +28,7 @@ public class CondensedJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeArrayStartPrefix(Consumer<Character> write, int indentation, JSONToken previous) {}
+	public void writeArrayStartPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous) {}
 	
 	/**
 	 * Prints object end prefix
@@ -38,7 +38,7 @@ public class CondensedJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeObjectEndPrefix(Consumer<Character> write, int indentation, JSONToken previous) {}
+	public void writeObjectEndPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous) {}
 	
 	/**
 	 * Prints array end prefix
@@ -48,7 +48,7 @@ public class CondensedJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeArrayEndPrefix(Consumer<Character> write, int indentation, JSONToken previous) {}
+	public void writeArrayEndPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous) {}
 	
 	/**
 	 * Prints object key prefix
@@ -58,7 +58,7 @@ public class CondensedJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeIdentifierPrefix(Consumer<Character> write, int indentation, JSONToken previous) {}
+	public void writeIdentifierPrefix(final Consumer<Character> write, final int indentation, final JSONToken previous) {}
 	
 	/**
 	 * Prints value prefix
@@ -68,5 +68,5 @@ public class CondensedJSONPrintPolicy implements JSONPrintPolicy
 	 * @param previous Previous JSON token type
 	 */
 	@Override
-	public void writeValuePrefix(Consumer<Character> write, int indentation, JSONToken previous) {}
+	public void writeValuePrefix(final Consumer<Character> write, final int indentation, final JSONToken previous) {}
 }
