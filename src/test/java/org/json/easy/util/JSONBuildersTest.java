@@ -6,7 +6,7 @@ import org.json.easy.dom.*;
 import static java.lang.System.out;
 import static org.junit.jupiter.api.Assertions.*;
 
-class JSONDOMBuilderTest
+class JSONBuildersTest
 {
 	@Test
 	void testObjectBuilder()
@@ -18,7 +18,7 @@ class JSONDOMBuilderTest
 		expected.setField("text", "Bottom TEXT");
 		expected.setField("empty", JSONObject.EMPTY);
 		expected.setField("arr", JSONArrayValue.EMPTY);
-		final JSONDOMBuilder.Object obj = new JSONDOMBuilder.Object();
+		final JSONObjectBuilder obj = new JSONObjectBuilder();
 		obj.set("true", true);
 		obj.set("nope");
 		obj.set("num", 34.98);
@@ -45,7 +45,7 @@ class JSONDOMBuilderTest
 		final JSONValue[] expected = { JSONBooleanValue.TRUE, null, new JSONNumberValue(34.98), new JSONStringValue("Bottom TEXT"),
 				new JSONObjectValue(JSONObject.EMPTY), new JSONArrayValue(JSONArrayValue.EMPTY) };
 		
-		final JSONDOMBuilder.Array arr = new JSONDOMBuilder.Array();
+		final JSONArrayBuilder arr = new JSONArrayBuilder();
 		arr.add(true);
 		arr.add((JSONValue) null);
 		arr.add(34.98);
