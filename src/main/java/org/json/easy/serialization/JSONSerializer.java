@@ -152,18 +152,18 @@ public final class JSONSerializer
 	 * @param reader Reader to get data from
 	 * @return Deserialized data as an array or empty array if something went wrong
 	 */
-	public static JSONValue[] deserializeArray(final JSONReader reader)
+	public static JSONArray deserializeArray(final JSONReader reader)
 	{
 		if (reader == null)
 		{
-			return JSONArrayValue.EMPTY;
+			return JSONArray.EMPTY;
 		}
 		
 		final StackState state = deserializeJSON(reader);
 		
 		if (state == null)
 		{
-			return JSONArrayValue.EMPTY;
+			return JSONArray.EMPTY;
 		}
 		
 		return new JSONArrayValue(state.array).asArray();
@@ -444,7 +444,7 @@ public final class JSONSerializer
 							writer.writeArrayStart(elem.identifier);
 						}
 
-						final JSONValue[] values = elem.value.asArray();
+						final JSONValue[] values = elem.value.asArray().copyToArray();
 
 						for (int i = values.length - 1; i > -1; --i)
 						{

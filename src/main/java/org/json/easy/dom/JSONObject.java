@@ -324,10 +324,10 @@ public class JSONObject
 	 * @param fieldName The name of the field to get
 	 * @return Field value, or empty array if the field doesn't exist
 	 */
-	public JSONValue[] getArrayField(final String fieldName)
+	public JSONArray getArrayField(final String fieldName)
 	{
-		final JSONValue[] res = getField(fieldName, JSONType.ARRAY).asArray();
-		return res == null ? JSONArrayValue.EMPTY : res;
+		final JSONArray res = getField(fieldName, JSONType.ARRAY).asArray();
+		return res == null ? JSONArray.EMPTY : res;
 	}
 	
 	/**

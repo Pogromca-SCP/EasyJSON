@@ -1,7 +1,6 @@
 package org.json.easy.dom;
 
 import org.json.easy.serialization.JSONType;
-import java.util.Arrays;
 
 /**
  * Base class for JSON value representation
@@ -72,7 +71,9 @@ public abstract class JSONValue
 			case NUMBER:
 				return asNumber() == val.asNumber();
 			case ARRAY:
-				return Arrays.equals(asArray(), val.asArray());
+				final JSONArray arr1 = asArray();
+				final JSONArray arr2 = val.asArray();
+				return arr1 == null ? arr2 == null : arr1.equals(arr2);
 			case OBJECT:
 				final JSONObject obj1 = asObject();
 				final JSONObject obj2 = val.asObject();
@@ -127,9 +128,9 @@ public abstract class JSONValue
 	 * 
 	 * @return This value as an array or empty array if not possible
 	 */
-	public JSONValue[] asArray()
+	public JSONArray asArray()
 	{
-		return JSONArrayValue.EMPTY;
+		return JSONArray.EMPTY;
 	}
 	
 	/**
