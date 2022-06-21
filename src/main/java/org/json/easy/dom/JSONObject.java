@@ -3,8 +3,9 @@ package org.json.easy.dom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import org.json.easy.serialization.JSONType;
-import java.util.List;
 
 /**
  * Represents JSON object
@@ -124,9 +125,47 @@ public class JSONObject
 	 * 
 	 * @return Copy of this object as a map
 	 */
-	public final Map<String, JSONValue> copyToMap()
+	public final Map<String, JSONValue> toMap()
 	{
 		return new HashMap<String, JSONValue>(values);
+	}
+	
+	/**
+	 * Performs an action on every field in this object
+	 * 
+	 * @param action Action to perform
+	 */
+	public final void forEach(final Consumer<Map.Entry<String, JSONValue>> action)
+	{
+		if (action != null)
+		{
+			for (final Map.Entry<String, JSONValue> ent : values.entrySet())
+			{
+				action.accept(ent);
+			}
+		}
+	}
+	
+	/**
+	 * Checks if all values meet the condition
+	 * 
+	 * @param pred Condition to test
+	 * @return True if all values met the condition, false otherwise
+	 */
+	public final boolean checkAll(final Predicate<JSONValue> pred)
+	{
+		if (pred != null)
+		{
+			for (final JSONValue val : values.values())
+			{
+				if (!pred.test(val))
+				{
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -200,12 +239,12 @@ public class JSONObject
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set, null will be converted to JSON null value
+	 * @param value Value to set, null will be converted to JSON null value. Recursive values are not allowed
 	 * @return True if set successfully, false otherwise
 	 */
 	public final boolean setField(final String fieldName, final JSONValue value)
 	{
-		if (fieldName == null || this == EMPTY)
+		if (fieldName == null || this == EMPTY || (value != null && !isSafeToAdd(value)))
 		{
 			return false;
 		}
@@ -222,6 +261,25 @@ public class JSONObject
 	public final void removeField(final String fieldName)
 	{
 		values.remove(fieldName);
+	}
+	
+	/**
+	 * Removes all fields from this object
+	 */
+	public final void clear()
+	{
+		values.clear();
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name to null
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setNullField(final String fieldName)
+	{
+		return setField(fieldName, JSONNullValue.NULL);
 	}
 	
 	/**
@@ -334,7 +392,19 @@ public class JSONObject
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setField(final String fieldName, final JSONArray value)
+	{
+		return setField(fieldName, new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set. Recursive values are not allowed
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setField(final String fieldName, final JSONValue[] value)
@@ -346,10 +416,10 @@ public class JSONObject
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set
+	 * @param value Value to set. Recursive values are not allowed
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(final String fieldName, final List<JSONValue> value)
+	public boolean setField(final String fieldName, final Iterable<JSONValue> value)
 	{
 		return setField(fieldName, new JSONArrayValue(value));
 	}
@@ -370,7 +440,7 @@ public class JSONObject
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set
+	 * @param value Value to set. Recursive values are not allowed
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setField(final String fieldName, final JSONObject value)
@@ -382,11 +452,67 @@ public class JSONObject
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set
+	 * @param value Value to set. Recursive values are not allowed
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setField(final String fieldName, final Map<String, JSONValue> value)
 	{
 		return setField(fieldName, new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Checks if it is safe to add a value
+	 * 
+	 * @param value Value to check
+	 * @return True if value can be added, false otherwise
+	 */
+	private boolean isSafeToAdd(final JSONValue value)
+	{
+		switch (value.getType())
+		{
+			case ARRAY:
+				final JSONArray arr = value.asArray();
+				return arr == null ? true : checkArray(arr);
+			case OBJECT:
+				final JSONObject obj = value.asObject();
+				return obj == null ? true : checkObject(obj);
+			default:
+				return true;
+		}
+	}
+	
+	/**
+	 * Checks if an object can be added
+	 * 
+	 * @param obj Object to check
+	 * @return True if object can be added, false otherwise
+	 */
+	private boolean checkObject(final JSONObject obj)
+	{
+		if (obj == this)
+		{
+			return false;
+		}
+		
+		for (final JSONValue val : obj.values.values())
+		{
+			if (!isSafeToAdd(val))
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Checks if an array can be added
+	 * 
+	 * @param arr Array to check
+	 * @return True if array can be added, false otherwise
+	 */
+	private boolean checkArray(final JSONArray arr)
+	{		
+		return arr.checkAll(val -> isSafeToAdd(val));
 	}
 }
