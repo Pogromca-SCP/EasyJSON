@@ -258,9 +258,9 @@ public class JSONWriter implements AutoCloseable
 	 * 
 	 * @param value Value to write
 	 */
-	public final void writeValue(final Double value)
+	public final void writeValue(final Number value)
 	{
-		writeValue(value == null ? 0.0 : value);
+		writeValue(value == null ? 0.0 : value.doubleValue());
 	}
 	
 	/**
@@ -357,9 +357,9 @@ public class JSONWriter implements AutoCloseable
 	 * @param identifier Identifier to write
 	 * @param value Value to write
 	 */
-	public final void writeValue(final String identifier, final Double value)
+	public final void writeValue(final String identifier, final Number value)
 	{
-		writeValue(identifier, value == null ? 0.0 : value);
+		writeValue(identifier, value == null ? 0.0 : value.doubleValue());
 	}
 	
 	/**

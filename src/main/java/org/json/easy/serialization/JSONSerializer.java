@@ -1,8 +1,6 @@
 package org.json.easy.serialization;
 
 import org.json.easy.dom.*;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -31,7 +29,7 @@ public final class JSONSerializer
 			
 			if (isArray)
 			{
-				array = new LinkedList<JSONValue>();
+				array = new JSONArray();
 				object = null;
 			}
 			else
@@ -54,7 +52,7 @@ public final class JSONSerializer
 		/**
 		 * Contains stack array value
 		 */
-		public final LinkedList<JSONValue> array;
+		public final JSONArray array;
 		
 		/**
 		 * Contains stack object value
@@ -82,6 +80,16 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
+		public Element(final JSONArray val)
+		{
+			this(null, new JSONArrayValue(val));
+		}
+		
+		/**
+		 * Creates new element with provided value
+		 * 
+		 * @param val Value to set
+		 */
 		public Element(final JSONValue[] val)
 		{
 			this(null, new JSONArrayValue(val));
@@ -92,7 +100,7 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
-		public Element(final List<JSONValue> val)
+		public Element(final Iterable<JSONValue> val)
 		{
 			this(null, new JSONArrayValue(val));
 		}
@@ -166,7 +174,8 @@ public final class JSONSerializer
 			return JSONArray.EMPTY;
 		}
 		
-		return new JSONArrayValue(state.array).asArray();
+		final JSONArray res = state.array;
+		return res == null ? JSONArray.EMPTY : res;
 	}
 	
 	/**
@@ -227,18 +236,36 @@ public final class JSONSerializer
 	/**
 	 * Serializes JSON data
 	 * 
-	 * @param list List to serialize
+	 * @param col Collection to serialize
 	 * @param writer JSON writer to write data into
 	 * @return True if data serialized successfully, false otherwise
 	 */
-	public static boolean serialize(final List<JSONValue> list, final JSONWriter writer)
+	public static boolean serialize(final Iterable<JSONValue> col, final JSONWriter writer)
 	{
 		if (writer == null)
 		{
 			return false;
 		}
 		
-		serialize(new Element(list), writer);
+		serialize(new Element(col), writer);
+		return true;
+	}
+	
+	/**
+	 * Serializes JSON data
+	 * 
+	 * @param array Array to serialize
+	 * @param writer JSON writer to write data into
+	 * @return True if data serialized successfully, false otherwise
+	 */
+	public static boolean serialize(final JSONArray array, final JSONWriter writer)
+	{
+		if (writer == null)
+		{
+			return false;
+		}
+		
+		serialize(new Element(array), writer);
 		return true;
 	}
 	
@@ -393,7 +420,7 @@ public final class JSONSerializer
 				}
 				else
 				{
-					currentState.array.add(newValue);
+					currentState.array.addElement(newValue);
 				}
 			}
 		}

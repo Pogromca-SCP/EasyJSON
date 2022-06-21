@@ -18,7 +18,7 @@ class JSONWriterTest
 			switch (val.getType())
 			{
 				case ARRAY:
-					JSONSerializer.serialize(val.asArray().toList(), writer);
+					JSONSerializer.serialize(val.asArray(), writer);
 					break;
 				case OBJECT:
 					JSONSerializer.serialize(val.asObject(), writer);
@@ -49,7 +49,7 @@ class JSONWriterTest
 		final JSONArrayValue comVal = new JSONArrayValue(complex);
 		testTemplate(empty, "[]");
 		testTemplate(simVal, "[true,null,\"Testing\",null,-34.2]");
-		testTemplate(comVal, "[[true,null,\"Testing\",null,-34.2],null,{\"empty\":\"\",\"bool\":false,\"text\":\"Test\",\"arr\":[true,null,\"Testing\",null,-34.2]},12.0,[\"This\",\"is\",\"inner\",\"array\"],[],true]");
+		testTemplate(comVal, "[[true,null,\"Testing\",null,-34.2],null,{\"empty\":\"\",\"text\":\"Test\",\"bool\":false,\"arr\":[true,null,\"Testing\",null,-34.2]},12.0,[\"This\",\"is\",\"inner\",\"array\"],[],true]");
 	}
 	
 	@Test
@@ -72,6 +72,6 @@ class JSONWriterTest
 		no.setField("bottom", "Text");
 		no.setField("test", "Bottom");
 		obj.setField("inner", no);
-		testTemplate(val, "{\"empty\":\"\",\"inner\":{\"bottom\":\"Text\",\"test\":\"Bottom\",\"text\":\"Example\"},\"text\":\"Test\",\"obj\":{},\"bool\":false,\"\":null,\"arr\":[true,null,\"Testing\",null,-34.2]}");
+		testTemplate(val, "{\"empty\":\"\",\"inner\":{\"text\":\"Example\",\"bottom\":\"Text\",\"test\":\"Bottom\"},\"text\":\"Test\",\"obj\":{},\"bool\":false,\"\":null,\"arr\":[true,null,\"Testing\",null,-34.2]}");
 	}
 }

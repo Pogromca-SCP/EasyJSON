@@ -61,7 +61,7 @@ class JSONArrayTest
 		assertEquals(false, arr.isIndexValid(0));
 		arr.addNullElement();
 		assertEquals(1, arr.size());
-		arr.addNullElement();
+		arr.addElement((JSONValue) null);
 		assertEquals(2, arr.size());
 		assertEquals(JSONNullValue.NULL, arr.getElement(0));
 		assertEquals(JSONNullValue.NULL, arr.getElement(1));

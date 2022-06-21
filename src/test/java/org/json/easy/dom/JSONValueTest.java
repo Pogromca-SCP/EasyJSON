@@ -179,7 +179,7 @@ class JSONValueTest
 		map.put("bool", JSONBooleanValue.FALSE);
 		map.put("test", new JSONStringValue("test"));
 		map.put("34", new JSONNumberValue(34));
-		final JSONObject[] values = { null, JSONObject.EMPTY, new JSONObject(), new JSONObject(map)};
+		final JSONObject[] values = { null, JSONObject.EMPTY, new JSONObject(), new JSONObject(map) };
 		
 		for (JSONObject v : values)
 		{
