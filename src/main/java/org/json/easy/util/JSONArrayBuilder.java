@@ -1,11 +1,9 @@
 package org.json.easy.util;
 
-import java.util.LinkedList;
 import org.json.easy.dom.*;
 import org.json.easy.policies.JSONPrintPolicy;
 import java.io.StringWriter;
 import org.json.easy.serialization.JSONWriter;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -14,21 +12,21 @@ import static org.json.easy.serialization.JSONSerializer.serialize;
 /**
  * Helper class for creating JSON arrays
  * 
- * @since 1.1.0
+ * @since 1.0.0
  */
 public class JSONArrayBuilder
 {
 	/**
 	 * Contains array data
 	 */
-	private final LinkedList<JSONValue> array;
+	private final JSONArray array;
 	
 	/**
 	 * Creates new array
 	 */
 	public JSONArrayBuilder()
 	{
-		array = new LinkedList<JSONValue>();
+		array = new JSONArray();
 	}
 	
 	/**
@@ -39,6 +37,16 @@ public class JSONArrayBuilder
 	public final JSONArrayValue asValue()
 	{
 		return new JSONArrayValue(array);
+	}
+	
+	/**
+	 * Returns this JSON array
+	 * 
+	 * @return Reference to this array
+	 */
+	public final JSONArray asArray()
+	{
+		return array;
 	}
 	
 	/**
@@ -88,7 +96,19 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add(final JSONArrayBuilder value)
 	{
-		array.add(value == null ? null : value.asValue());
+		array.addElement(value == null ? null : value.asValue());
+		return this;
+	}
+	
+	/**
+	 * Adds a new value into this array
+	 * 
+	 * @param value Value to add
+	 * @return Reference to this object to allow method chaining
+	 */
+	public JSONArrayBuilder add(final JSONArray value)
+	{
+		array.addElement(value);
 		return this;
 	}
 	
@@ -100,7 +120,7 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add(final JSONValue[] value)
 	{
-		array.add(new JSONArrayValue(value));
+		array.addElement(value);
 		return this;
 	}
 	
@@ -110,9 +130,9 @@ public class JSONArrayBuilder
 	 * @param value Value to add
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONArrayBuilder add(final List<JSONValue> value)
+	public JSONArrayBuilder add(final Iterable<JSONValue> value)
 	{
-		array.add(new JSONArrayValue(value));
+		array.addElement(value);
 		return this;
 	}
 	
@@ -124,7 +144,7 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add(final JSONObjectBuilder value)
 	{
-		array.add(value == null ? null : value.asValue());
+		array.addElement(value == null ? null : value.asValue());
 		return this;
 	}
 	
@@ -136,7 +156,7 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add(final JSONObject value)
 	{
-		array.add(new JSONObjectValue(value));
+		array.addElement(value);
 		return this;
 	}
 	
@@ -148,7 +168,7 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add(final Map<String, JSONValue> value)
 	{
-		array.add(new JSONObjectValue(value));
+		array.addElement(value);
 		return this;
 	}
 	
@@ -160,7 +180,7 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add(final String value)
 	{
-		array.add(new JSONStringValue(value));
+		array.addElement(value);
 		return this;
 	}
 	
@@ -170,9 +190,9 @@ public class JSONArrayBuilder
 	 * @param value Value to add
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONArrayBuilder add(final Double value)
+	public JSONArrayBuilder add(final Number value)
 	{
-		array.add(new JSONNumberValue(value));
+		array.addElement(value);
 		return this;
 	}
 	
@@ -184,7 +204,7 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add(final double value)
 	{
-		array.add(new JSONNumberValue(value));
+		array.addElement(value);
 		return this;
 	}
 	
@@ -196,7 +216,7 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add(final Boolean value)
 	{
-		array.add(value == null || !value ? JSONBooleanValue.FALSE : JSONBooleanValue.TRUE);
+		array.addElement(value);
 		return this;
 	}
 	
@@ -208,7 +228,7 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add(final boolean value)
 	{
-		array.add(value ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE);
+		array.addElement(value);
 		return this;
 	}
 	
@@ -219,7 +239,7 @@ public class JSONArrayBuilder
 	 */
 	public JSONArrayBuilder add()
 	{
-		array.add(JSONNullValue.NULL);
+		array.addNullElement();
 		return this;
 	}
 	
@@ -231,18 +251,40 @@ public class JSONArrayBuilder
 	 */
 	public final JSONArrayBuilder add(final JSONValue value)
 	{
-		array.add(value);
+		array.addElement(value);
 		return this;
 	}
 	
 	/**
-	 * Copies elements from provided list into this array if condition is met
+	 * Copies elements from provided array into this array if condition is met
 	 * 
-	 * @param src List to copy elements from
+	 * @param src Array to copy elements from
 	 * @param pred Condition that elements must meet in order to be copied
 	 * @return Reference to this object to allow method chaining
 	 */
-	public final JSONArrayBuilder copyIf(final List<JSONValue> src, final Predicate<JSONValue> pred)
+	public final JSONArrayBuilder copyIf(final JSONArray src, final Predicate<JSONValue> pred)
+	{
+		if (src != null && pred != null)
+		{
+			src.forEach(val -> {
+				if (pred.test(val))
+				{
+					array.addElement(val);
+				}
+			});
+		}
+		
+		return this;
+	}
+	
+	/**
+	 * Copies elements from provided collection into this array if condition is met
+	 * 
+	 * @param src Collection to copy elements from
+	 * @param pred Condition that elements must meet in order to be copied
+	 * @return Reference to this object to allow method chaining
+	 */
+	public final JSONArrayBuilder copyIf(final Iterable<JSONValue> src, final Predicate<JSONValue> pred)
 	{
 		if (src != null && pred != null)
 		{
@@ -250,7 +292,7 @@ public class JSONArrayBuilder
 			{
 				if (pred.test(val))
 				{
-					array.add(val);
+					array.addElement(val);
 				}
 			}
 		}
@@ -259,9 +301,9 @@ public class JSONArrayBuilder
 	}
 	
 	/**
-	 * Copies elements from provided list into this array if condition is met
+	 * Copies elements from provided array into this array if condition is met
 	 * 
-	 * @param src List to copy elements from
+	 * @param src Array to copy elements from
 	 * @param pred Condition that elements must meet in order to be copied
 	 * @return Reference to this object to allow method chaining
 	 */
@@ -273,7 +315,7 @@ public class JSONArrayBuilder
 			{
 				if (pred.test(val))
 				{
-					array.add(val);
+					array.addElement(val);
 				}
 			}
 		}

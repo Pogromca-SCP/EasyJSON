@@ -4,7 +4,6 @@ import org.json.easy.dom.*;
 import org.json.easy.policies.JSONPrintPolicy;
 import java.io.StringWriter;
 import org.json.easy.serialization.JSONWriter;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
 import java.util.Set;
@@ -110,6 +109,19 @@ public class JSONObjectBuilder
 	 * @param value Value to set
 	 * @return Reference to this object to allow method chaining
 	 */
+	public JSONObjectBuilder set(final String key, final JSONArray value)
+	{
+		object.setField(key, value);
+		return this;
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name
+	 * 
+	 * @param key Name of the field to set, null string are not allowed
+	 * @param value Value to set
+	 * @return Reference to this object to allow method chaining
+	 */
 	public JSONObjectBuilder set(final String key, final JSONValue[] value)
 	{
 		object.setField(key, value);
@@ -123,7 +135,7 @@ public class JSONObjectBuilder
 	 * @param value Value to set
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONObjectBuilder set(final String key, final List<JSONValue> value)
+	public JSONObjectBuilder set(final String key, final Iterable<JSONValue> value)
 	{
 		object.setField(key, value);
 		return this;
@@ -188,7 +200,7 @@ public class JSONObjectBuilder
 	 * @param value Value to set
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONObjectBuilder set(final String key, final Double value)
+	public JSONObjectBuilder set(final String key, final Number value)
 	{
 		object.setField(key, value);
 		return this;
@@ -241,7 +253,7 @@ public class JSONObjectBuilder
 	 */
 	public JSONObjectBuilder set(final String key)
 	{
-		object.setField(key, JSONNullValue.NULL);
+		object.setNullField(key);
 		return this;
 	}
 	
@@ -255,6 +267,31 @@ public class JSONObjectBuilder
 	public final JSONObjectBuilder set(final String key, final JSONValue value)
 	{
 		object.setField(key, value);
+		return this;
+	}
+	
+	/**
+	 * Copies elements from provided object into this object if condition is met
+	 * 
+	 * @param src Object to copy elements from
+	 * @param pred Condition that elements must meet in order to be copied
+	 * @return Reference to this object to allow method chaining
+	 */
+	public final JSONObjectBuilder copyIf(final JSONObject src, final BiPredicate<String, JSONValue> pred)
+	{
+		if (src != null && pred != null)
+		{
+			src.forEach(ent -> {
+				final String key = ent.getKey();
+				final JSONValue val = ent.getValue();
+				
+				if (pred.test(key, val))
+				{
+					object.setField(key, val);
+				}
+			});
+		}
+		
 		return this;
 	}
 	

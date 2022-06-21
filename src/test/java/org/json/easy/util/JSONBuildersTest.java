@@ -13,64 +13,43 @@ class JSONBuildersTest
 	{
 		final JSONObject expected = new JSONObject();
 		expected.setField("true", true);
-		expected.setField("nope", (JSONValue) null);
+		expected.setNullField("nope");
 		expected.setField("num", 34.98);
 		expected.setField("text", "Bottom TEXT");
 		expected.setField("empty", JSONObject.EMPTY);
 		expected.setField("arr", JSONArray.EMPTY);
 		final JSONObjectBuilder obj = new JSONObjectBuilder();
-		obj.set("true", true);
-		obj.set("nope");
-		obj.set("num", 34.98);
-		obj.set("text", "Bottom TEXT");
-		obj.set("empty", JSONObject.EMPTY);
-		obj.set("arr", JSONArray.EMPTY.toArray());
+		obj.set("true", true).set("nope").set("num", 34.98).set("text", "Bottom TEXT").set("empty", JSONObject.EMPTY).set("arr", JSONArray.EMPTY);
 		out.println(obj);
 		out.println();
 		assertEquals(expected, obj.asObject());
 		expected.setField("false", false);
 		expected.setField("num2", -15);
 		expected.setField("another", JSONObject.EMPTY);
-		
-		obj.copyIf(expected.toMap(), (key, val) -> {
-			return !obj.asObject().hasField(key);
-		});
-		
+		obj.copyIf(expected, (key, val) -> !obj.asObject().hasField(key));
 		assertEquals(expected, obj.asObject());
 	}
-	/*
+	
 	@Test
 	void testArrayBuilder()
 	{
-		final JSONValue[] expected = { JSONBooleanValue.TRUE, null, new JSONNumberValue(34.98), new JSONStringValue("Bottom TEXT"),
-				new JSONObjectValue(JSONObject.EMPTY), new JSONArrayValue(JSONArray.EMPTY) };
-		
+		final JSONArray expected = new JSONArray();
+		expected.addElement(true);
+		expected.addNullElement();
+		expected.addElement(34.98);
+		expected.addElement("Bottom TEXT");
+		expected.addElement(JSONObject.EMPTY);
+		expected.addElement(JSONArray.EMPTY);
 		final JSONArrayBuilder arr = new JSONArrayBuilder();
-		arr.add(true);
-		arr.add((JSONValue) null);
-		arr.add(34.98);
-		arr.add("Bottom TEXT");
-		arr.add(JSONObject.EMPTY);
-		arr.add(JSONArray.EMPTY.toArray());
+		arr.add(true).add().add(34.98).add("Bottom TEXT").add(JSONObject.EMPTY).add(JSONArray.EMPTY);
 		out.println(arr);
 		out.println();
-		assertArrayEquals(expected, arr.asValue().asArray().toArray());
+		assertEquals(expected, arr.asArray());
 		
 		final JSONValue[] second = { JSONBooleanValue.TRUE, null, new JSONNumberValue(34.98), new JSONStringValue("Bottom TEXT"),
-				new JSONObjectValue(JSONObject.EMPTY), new JSONArrayValue(JSONArray.EMPTY), JSONBooleanValue.FALSE, new JSONNumberValue(-15) };
+				new JSONObjectValue(JSONObject.EMPTY), new JSONArrayValue(JSONArray.EMPTY) };
 		
-		arr.copyIf(second, (val) -> {
-			for (final JSONValue v : arr.asValue().asArray().toArray())
-			{
-				if (v == null ? val == null : v.equals(val))
-				{
-					return false;
-				}
-			}
-			
-			return true;
-		});
-		
-		assertArrayEquals(second, arr.asValue().asArray().toArray());
-	}*/
+		arr.copyIf(second, val -> false);
+		assertEquals(new JSONArray(second), arr.asArray());
+	}
 }
