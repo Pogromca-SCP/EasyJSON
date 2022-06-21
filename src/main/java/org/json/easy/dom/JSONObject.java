@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import org.json.easy.serialization.JSONType;
 
 /**
@@ -79,13 +78,7 @@ public class JSONObject
 	@Override
 	public boolean equals(final Object obj)
 	{
-		if (!(obj instanceof JSONObject))
-		{
-			return false;
-		}
-		
-		final JSONObject tmp = (JSONObject) obj;
-		return values.equals(tmp.values);
+		return obj instanceof JSONObject ? values.equals(((JSONObject) obj).values) : false;
 	}
 	
 	/**
@@ -144,28 +137,6 @@ public class JSONObject
 				action.accept(ent);
 			}
 		}
-	}
-	
-	/**
-	 * Checks if all values meet the condition
-	 * 
-	 * @param pred Condition to test
-	 * @return True if all values met the condition, false otherwise
-	 */
-	public final boolean checkAll(final Predicate<JSONValue> pred)
-	{
-		if (pred != null)
-		{
-			for (final JSONValue val : values.values())
-			{
-				if (!pred.test(val))
-				{
-					return false;
-				}
-			}
-		}
-		
-		return true;
 	}
 	
 	/**
@@ -244,7 +215,7 @@ public class JSONObject
 	 */
 	public final boolean setField(final String fieldName, final JSONValue value)
 	{
-		if (fieldName == null || this == EMPTY || (value != null && !isSafeToAdd(value)))
+		if (fieldName == null || this == EMPTY)
 		{
 			return false;
 		}
@@ -347,7 +318,7 @@ public class JSONObject
 	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(final String fieldName, final Double value)
+	public boolean setField(final String fieldName, final Number value)
 	{
 		return setField(fieldName, new JSONNumberValue(value));
 	}
@@ -458,61 +429,5 @@ public class JSONObject
 	public boolean setField(final String fieldName, final Map<String, JSONValue> value)
 	{
 		return setField(fieldName, new JSONObjectValue(value));
-	}
-	
-	/**
-	 * Checks if it is safe to add a value
-	 * 
-	 * @param value Value to check
-	 * @return True if value can be added, false otherwise
-	 */
-	private boolean isSafeToAdd(final JSONValue value)
-	{
-		switch (value.getType())
-		{
-			case ARRAY:
-				final JSONArray arr = value.asArray();
-				return arr == null ? true : checkArray(arr);
-			case OBJECT:
-				final JSONObject obj = value.asObject();
-				return obj == null ? true : checkObject(obj);
-			default:
-				return true;
-		}
-	}
-	
-	/**
-	 * Checks if an object can be added
-	 * 
-	 * @param obj Object to check
-	 * @return True if object can be added, false otherwise
-	 */
-	private boolean checkObject(final JSONObject obj)
-	{
-		if (obj == this)
-		{
-			return false;
-		}
-		
-		for (final JSONValue val : obj.values.values())
-		{
-			if (!isSafeToAdd(val))
-			{
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Checks if an array can be added
-	 * 
-	 * @param arr Array to check
-	 * @return True if array can be added, false otherwise
-	 */
-	private boolean checkArray(final JSONArray arr)
-	{		
-		return arr.checkAll(val -> isSafeToAdd(val));
 	}
 }

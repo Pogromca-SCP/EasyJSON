@@ -30,9 +30,9 @@ public class JSONNumberValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONNumberValue(final Double val)
+	public JSONNumberValue(final Number val)
 	{
-		this(val == null ? 0.0 : val);
+		this(val == null ? 0.0 : val.doubleValue());
 	}
 	
 	/**

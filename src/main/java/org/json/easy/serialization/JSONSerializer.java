@@ -444,7 +444,7 @@ public final class JSONSerializer
 							writer.writeArrayStart(elem.identifier);
 						}
 
-						final JSONValue[] values = elem.value.asArray().copyToArray();
+						final JSONValue[] values = elem.value.asArray().toArray();
 
 						for (int i = values.length - 1; i > -1; --i)
 						{
@@ -472,12 +472,7 @@ public final class JSONSerializer
 							writer.writeObjectStart(elem.identifier);
 						}
 						
-						final Map<String, JSONValue> obj = elem.value.asObject().copyToMap();
-						
-						for (final Map.Entry<String, JSONValue> ent : obj.entrySet())
-						{
-							elementStack.push(new Element(ent.getKey(), ent.getValue()));
-						}
+						elem.value.asObject().forEach(ent -> elementStack.push(new Element(ent.getKey(), ent.getValue())));
 					}
 					
 					break;

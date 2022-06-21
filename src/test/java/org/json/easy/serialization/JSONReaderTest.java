@@ -33,7 +33,7 @@ class JSONReaderTest
 		
 		try (JSONReader reader = new JSONReader(new FileReader(file)))
 		{
-			arr = JSONSerializer.deserializeArray(reader);
+			arr = JSONSerializer.deserializeArray(reader).toArray();
 		}
 		catch (FileNotFoundException f)
 		{
@@ -49,7 +49,7 @@ class JSONReaderTest
 			f.printStackTrace();
 		}
 		
-		assertArrayEquals(expectedArray, val.asArray());
+		assertArrayEquals(expectedArray, val.asArray().toArray());
 		assertEquals(expectedObj, val.asObject());
 		assertArrayEquals(expectedArray, arr);
 		assertEquals(expectedObj, obj);
@@ -58,13 +58,13 @@ class JSONReaderTest
 	@Test
 	void testEmptyArrayFile()
 	{
-		testTemplate("samples/EmptyArray.json", "EmptyArrayTest", JSONArrayValue.EMPTY, JSONObject.EMPTY);
+		testTemplate("samples/EmptyArray.json", "EmptyArrayTest", JSONArray.EMPTY.toArray(), JSONObject.EMPTY);
 	}
 	
 	@Test
 	void testEmptyObjectFile()
 	{
-		testTemplate("samples/EmptyObject.json", "EmptyObjectTest", JSONArrayValue.EMPTY, JSONObject.EMPTY);
+		testTemplate("samples/EmptyObject.json", "EmptyObjectTest", JSONArray.EMPTY.toArray(), JSONObject.EMPTY);
 	}
 	
 	@Test
@@ -83,7 +83,7 @@ class JSONReaderTest
 		expected.setField("boolean", true);
 		expected.setField("none", (JSONValue) null);
 		expected.setField("string", "Example Text");
-		testTemplate("samples/SmallObject.json", "SmallObjectTest", JSONArrayValue.EMPTY, expected);
+		testTemplate("samples/SmallObject.json", "SmallObjectTest", JSONArray.EMPTY.toArray(), expected);
 	}
 	
 	@Test
@@ -111,7 +111,7 @@ class JSONReaderTest
 		empty.setField("nope", (JSONValue) null);
 		final JSONObject sup = new JSONObject();
 		sup.setField("inner", JSONObject.EMPTY);
-		sup.setField("arr", JSONArrayValue.EMPTY);
+		sup.setField("arr", JSONArray.EMPTY);
 		final JSONObject last = new JSONObject();
 		last.setField("text", "Example");
 		last.setField("inner", sup);
@@ -126,12 +126,12 @@ class JSONReaderTest
 		expected.setField("text", "Hello\u7684 there\n!");
 		expected.setField("obj", inner);
 		expected.setField("arr", arr);
-		testTemplate("samples/BigObject.json", "BigObjectTest", JSONArrayValue.EMPTY, expected);
+		testTemplate("samples/BigObject.json", "BigObjectTest", JSONArray.EMPTY.toArray(), expected);
 	}
 	
 	@Test
 	void testIncorrectFile()
 	{
-		testTemplate("samples/Incorrect.json", "IncorrectTest", JSONArrayValue.EMPTY, JSONObject.EMPTY);
+		testTemplate("samples/Incorrect.json", "IncorrectTest", JSONArray.EMPTY.toArray(), JSONObject.EMPTY);
 	}
 }

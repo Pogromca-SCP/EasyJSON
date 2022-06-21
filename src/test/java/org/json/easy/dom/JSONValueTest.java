@@ -2,7 +2,6 @@ package org.json.easy.dom;
 
 import org.junit.jupiter.api.Test;
 import org.json.easy.serialization.JSONType;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +38,7 @@ class JSONValueTest
 		assertEquals(false, val.asBoolean());
 		assertEquals(0.0, val.asNumber());
 		assertEquals("", val.asString());
-		assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+		assertEquals(JSONArray.EMPTY, val.asArray());
 		assertEquals(JSONObject.EMPTY, val.asObject());
 	}
 
@@ -66,7 +65,7 @@ class JSONValueTest
 			assertEquals(v, val.asBoolean());
 			assertEquals(v ? 1.0 : 0.0, val.asNumber());
 			assertEquals(Boolean.toString(v), val.asString());
-			assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
@@ -94,7 +93,7 @@ class JSONValueTest
 			assertEquals(v != 0.0, val.asBoolean());
 			assertEquals(v, val.asNumber());
 			assertEquals(Double.toString(v), val.asString());
-			assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
@@ -130,7 +129,7 @@ class JSONValueTest
 			
 			assertEquals(num, val.asNumber());
 			assertEquals(v, val.asString());
-			assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
@@ -138,24 +137,28 @@ class JSONValueTest
 	@Test
 	void testArrayValue()
 	{	
-		final JSONValue[][] values = {
-				null,
-				JSONArrayValue.EMPTY,
-				{ new JSONBooleanValue(false), new JSONNumberValue(115.4) },
-				{ new JSONNullValue(), new JSONArrayValue((JSONValue[]) null), new JSONStringValue("testing"), null, new JSONObjectValue(JSONObject.EMPTY)}
-		};
+		final JSONArray arr = new JSONArray();
+		arr.addElement(false);
+		arr.addElement(115.4);
+		final JSONArray arr2 = new JSONArray();
+		arr2.addNullElement();
+		arr2.addElement(JSONArray.EMPTY);
+		arr2.addElement("testing");
+		arr2.addNullElement();
+		arr2.addElement(JSONObject.EMPTY);
+		final JSONArray[] values = { null, JSONArray.EMPTY, arr, arr2 };
 		
-		for (JSONValue[] v : values)
+		for (JSONArray v : values)
 		{
 			final JSONArrayValue val = new JSONArrayValue(v);
 			
 			if (v == null)
 			{
-				v = JSONArrayValue.EMPTY;
+				v = JSONArray.EMPTY;
 			}
 			
-			assertEquals(Arrays.hashCode(v), val.hashCode());
-			assertEquals(Arrays.toString(v), val.toString());
+			assertEquals(v.hashCode(), val.hashCode());
+			assertEquals(v.toString(), val.toString());
 			
 			assertEquals(JSONType.ARRAY, val.getType());
 			assertEquals(false, val.isNull());
@@ -163,7 +166,7 @@ class JSONValueTest
 			assertEquals(false, val.asBoolean());
 			assertEquals(0.0, val.asNumber());
 			assertEquals("", val.asString());
-			assertArrayEquals(v, val.asArray());
+			assertEquals(v, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
 		}
 	}
@@ -196,7 +199,7 @@ class JSONValueTest
 			assertEquals(false, val.asBoolean());
 			assertEquals(0.0, val.asNumber());
 			assertEquals("", val.asString());
-			assertArrayEquals(JSONArrayValue.EMPTY, val.asArray());
+			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(v, val.asObject());
 		}
 	}

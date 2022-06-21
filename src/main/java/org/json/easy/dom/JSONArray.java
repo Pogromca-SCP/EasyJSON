@@ -3,7 +3,7 @@ package org.json.easy.dom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.Map;
 
 /**
  * Represents JSON array
@@ -16,6 +16,39 @@ public class JSONArray
 	 * Contains a reference to global empty array
 	 */
 	public static final JSONArray EMPTY = new JSONArray();
+	
+	/**
+	 * Converts a number object to an int value
+	 * 
+	 * @param num Number to convert
+	 * @return Converted value or zero if number was null
+	 */
+	private static int asInt(final Number num)
+	{
+		return num == null ? 0 : num.intValue();
+	}
+	
+	/**
+	 * Converts a boolean to a JSON value
+	 * 
+	 * @param val Value to convert
+	 * @return Converted value
+	 */
+	private static JSONBooleanValue asVal(final boolean val)
+	{
+		return val ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE;
+	}
+	
+	/**
+	 * Converts a boolean to a JSON value
+	 * 
+	 * @param val Value to convert
+	 * @return Converted value
+	 */
+	private static JSONBooleanValue asVal(final Boolean val)
+	{
+		return (val != null && val) ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE;
+	}
 	
 	/**
 	 * Contains array values
@@ -85,13 +118,7 @@ public class JSONArray
 	@Override
 	public boolean equals(final Object obj)
 	{
-		if (!(obj instanceof JSONArray))
-		{
-			return false;
-		}
-		
-		final JSONArray tmp = (JSONArray) obj;
-		return values.equals(tmp.values);
+		return obj instanceof JSONArray ? values.equals(((JSONArray) obj).values) : false;
 	}
 	
 	/**
@@ -164,28 +191,6 @@ public class JSONArray
 	}
 	
 	/**
-	 * Checks if all elements meet the condition
-	 * 
-	 * @param pred Condition to test
-	 * @return True if all elements met the condition, false otherwise
-	 */
-	public final boolean checkAll(final Predicate<JSONValue> pred)
-	{
-		if (pred != null)
-		{
-			for (final JSONValue val : values)
-			{
-				if (!pred.test(val))
-				{
-					return false;
-				}
-			}
-		}
-		
-		return true;
-	}
-	
-	/**
 	 * Attempts to get the element on the specified index
 	 *
 	 * @param index Index of the element to get
@@ -209,7 +214,7 @@ public class JSONArray
 	 */
 	public JSONValue getElement(final Number index)
 	{
-		return getElement(index == null ? 0 : index.intValue());
+		return getElement(asInt(index));
 	}
 	
 	/**
@@ -231,7 +236,7 @@ public class JSONArray
 	 */
 	public boolean isIndexValid(final Number index)
 	{
-		return isIndexValid(index == null ? 0 : index.intValue());
+		return isIndexValid(asInt(index));
 	}
 	
 	/**
@@ -242,7 +247,7 @@ public class JSONArray
 	 */
 	public final boolean addElement(final JSONValue value)
 	{
-		if (this == EMPTY || (value != null && !isSafeToAdd(value)))
+		if (this == EMPTY)
 		{
 			return false;
 		}
@@ -259,7 +264,7 @@ public class JSONArray
 	 */
 	public final boolean setElement(final int index, final JSONValue value)
 	{
-		if (!isIndexValid(index) || this == EMPTY || (value != null && !isSafeToAdd(value)))
+		if (!isIndexValid(index) || this == EMPTY)
 		{
 			return false;
 		}
@@ -277,7 +282,7 @@ public class JSONArray
 	 */
 	public boolean setElement(final Number index, final JSONValue value)
 	{
-		return setElement(index == null ? 0 : index.intValue(), value);
+		return setElement(asInt(index), value);
 	}
 	
 	/**
@@ -300,7 +305,7 @@ public class JSONArray
 	 */
 	public void removeElement(final Number index)
 	{
-		removeElement(index == null ? 0 : index.intValue());
+		removeElement(asInt(index));
 	}
 	
 	/**
@@ -340,7 +345,7 @@ public class JSONArray
 	 */
 	public boolean setNullElement(final Number index)
 	{
-		return setElement(index == null ? 0 : index.intValue(), JSONNullValue.NULL);
+		return setElement(asInt(index), JSONNullValue.NULL);
 	}
 	
 	/**
@@ -362,7 +367,7 @@ public class JSONArray
 	 */
 	public boolean getBooleanElement(final Number index)
 	{
-		return getElement(index == null ? 0 : index.intValue()).asBoolean();
+		return getElement(asInt(index)).asBoolean();
 	}
 	
 	/**
@@ -373,86 +378,439 @@ public class JSONArray
 	 */
 	public boolean addElement(final boolean value)
 	{
-		return addElement(value ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE);
+		return addElement(asVal(value));
+	}
+	
+	/**
+	 * Adds new element to this array
+	 * 
+	 * @param value Value to add
+	 * @return True if added successfully, false otherwise
+	 */
+	public boolean addElement(final Boolean value)
+	{
+		return addElement(asVal(value));
 	}
 	
 	/**
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set
-	 * @param value Value to set, null will be converted to JSON null value. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setElement(final int index, final boolean value)
 	{
-		return setElement(index, value ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE);
+		return setElement(index, asVal(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final int index, final Boolean value)
+	{
+		return setElement(index, asVal(value));
 	}
 	
 	/**
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set, null is interpreted as 0
-	 * @param value Value to set, null will be converted to JSON null value. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setElement(final Number index, final boolean value)
 	{
-		return setElement(index == null ? 0 : index.intValue(), value ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE);
+		return setElement(asInt(index), asVal(value));
 	}
 	
 	/**
-	 * Checks if it is safe to add a value
-	 * 
-	 * @param value Value to check
-	 * @return True if value can be added, false otherwise
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set, null is interpreted as 0
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
 	 */
-	private boolean isSafeToAdd(final JSONValue value)
+	public boolean setElement(final Number index, final Boolean value)
 	{
-		switch (value.getType())
-		{
-			case ARRAY:
-				final JSONArray arr = value.asArray();
-				return arr == null ? true : checkArray(arr);
-			case OBJECT:
-				final JSONObject obj = value.asObject();
-				return obj == null ? true : checkObject(obj);
-			default:
-				return true;
-		}
+		return setElement(asInt(index), asVal(value));
 	}
 	
 	/**
-	 * Checks if an object can be added
-	 * 
-	 * @param obj Object to check
-	 * @return True if object can be added, false otherwise
+	 * Attempts to get the element on the specified index as a number
+	 *
+	 * @param index Index of the element to get
+	 * @return Element value, or zero if the index is out of bounds
 	 */
-	private boolean checkObject(final JSONObject obj)
+	public double getNumberElement(final int index)
 	{
-		return obj.checkAll(val -> isSafeToAdd(val));
+		return getElement(index).asNumber();
 	}
 	
 	/**
-	 * Checks if an array can be added
-	 * 
-	 * @param arr Array to check
-	 * @return True if array can be added, false otherwise
+	 * Attempts to get the element on the specified index as a number
+	 *
+	 * @param index Index of the element to get
+	 * @return Element value, or zero if the index is out of bounds
 	 */
-	private boolean checkArray(final JSONArray arr)
+	public double getNumberElement(final Number index)
 	{
-		if (arr == this)
-		{
-			return false;
-		}
-		
-		for (final JSONValue val : arr.values)
-		{
-			if (!isSafeToAdd(val))
-			{
-				return false;
-			}
-		}
-		
-		return true;
+		return getElement(asInt(index)).asNumber();
+	}
+	
+	/**
+	 * Adds new element to this array
+	 * 
+	 * @param value Value to add
+	 * @return True if added successfully, false otherwise
+	 */
+	public boolean addElement(final double value)
+	{
+		return addElement(new JSONNumberValue(value));
+	}
+	
+	/**
+	 * Adds new element to this array
+	 * 
+	 * @param value Value to add
+	 * @return True if added successfully, false otherwise
+	 */
+	public boolean addElement(final Number value)
+	{
+		return addElement(new JSONNumberValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final int index, final double value)
+	{
+		return setElement(index, new JSONNumberValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final int index, final Number value)
+	{
+		return setElement(index, new JSONNumberValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set, null is interpreted as 0
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final Number index, final double value)
+	{
+		return setElement(asInt(index), new JSONNumberValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set, null is interpreted as 0
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final Number index, final Number value)
+	{
+		return setElement(asInt(index), new JSONNumberValue(value));
+	}
+	
+	/**
+	 * Attempts to get the element on the specified index as a string
+	 *
+	 * @param index Index of the element to get
+	 * @return Element value, or empty string if the index is out of bounds
+	 */
+	public String getStringElement(final int index)
+	{
+		final String tmp = getElement(index).asString();
+		return tmp == null ? "" : tmp;
+	}
+	
+	/**
+	 * Attempts to get the element on the specified index as a string
+	 *
+	 * @param index Index of the element to get
+	 * @return Element value, or empty string if the index is out of bounds
+	 */
+	public String getStringElement(final Number index)
+	{
+		final String tmp = getElement(asInt(index)).asString();
+		return tmp == null ? "" : tmp;
+	}
+	
+	/**
+	 * Adds new element to this array
+	 * 
+	 * @param value Value to add
+	 * @return True if added successfully, false otherwise
+	 */
+	public boolean addElement(final String value)
+	{
+		return addElement(new JSONStringValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final int index, final String value)
+	{
+		return setElement(index, new JSONStringValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set, null is interpreted as 0
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final Number index, final String value)
+	{
+		return setElement(asInt(index), new JSONStringValue(value));
+	}
+	
+	/**
+	 * Attempts to get the element on the specified index as an array
+	 *
+	 * @param index Index of the element to get
+	 * @return Element value, or empty array if the index is out of bounds
+	 */
+	public JSONArray getArrayElement(final int index)
+	{
+		final JSONArray tmp = getElement(index).asArray();
+		return tmp == null ? EMPTY : tmp;
+	}
+	
+	/**
+	 * Attempts to get the element on the specified index as an array
+	 *
+	 * @param index Index of the element to get
+	 * @return Element value, or empty array if the index is out of bounds
+	 */
+	public JSONArray getArrayElement(final Number index)
+	{
+		final JSONArray tmp = getElement(asInt(index)).asArray();
+		return tmp == null ? EMPTY : tmp;
+	}
+	
+	/**
+	 * Adds new element to this array
+	 * 
+	 * @param value Value to add. Recursive values are not allowed
+	 * @return True if added successfully, false otherwise
+	 */
+	public boolean addElement(final JSONArray value)
+	{
+		return addElement(new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Adds new element to this array
+	 * 
+	 * @param value Value to add. Recursive values are not allowed
+	 * @return True if added successfully, false otherwise
+	 */
+	public boolean addElement(final JSONValue[] value)
+	{
+		return addElement(new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Adds new element to this array
+	 * 
+	 * @param value Value to add. Recursive values are not allowed
+	 * @return True if added successfully, false otherwise
+	 */
+	public boolean addElement(final Iterable<JSONValue> value)
+	{
+		return addElement(new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final int index, final JSONArray value)
+	{
+		return setElement(index, new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final int index, final JSONValue[] value)
+	{
+		return setElement(index, new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final int index, final Iterable<JSONValue> value)
+	{
+		return setElement(index, new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set, null is interpreted as 0
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final Number index, final JSONArray value)
+	{
+		return setElement(asInt(index), new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set, null is interpreted as 0
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final Number index, final JSONValue[] value)
+	{
+		return setElement(asInt(index), new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set, null is interpreted as 0
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final Number index, final Iterable<JSONValue> value)
+	{
+		return setElement(asInt(index), new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Attempts to get the element on the specified index as an object
+	 *
+	 * @param index Index of the element to get
+	 * @return Element value, or empty object if the index is out of bounds
+	 */
+	public JSONObject getObjectElement(final int index)
+	{
+		final JSONObject tmp = getElement(index).asObject();
+		return tmp == null ? JSONObject.EMPTY : tmp;
+	}
+	
+	/**
+	 * Attempts to get the element on the specified index as an object
+	 *
+	 * @param index Index of the element to get
+	 * @return Element value, or empty object if the index is out of bounds
+	 */
+	public JSONObject getObjectElement(final Number index)
+	{
+		final JSONObject tmp = getElement(asInt(index)).asObject();
+		return tmp == null ? JSONObject.EMPTY : tmp;
+	}
+	
+	/**
+	 * Adds new element to this array
+	 * 
+	 * @param value Value to add. Recursive values are not allowed
+	 * @return True if added successfully, false otherwise
+	 */
+	public boolean addElement(final JSONObject value)
+	{
+		return addElement(new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Adds new element to this array
+	 * 
+	 * @param value Value to add. Recursive values are not allowed
+	 * @return True if added successfully, false otherwise
+	 */
+	public boolean addElement(final Map<String, JSONValue> value)
+	{
+		return addElement(new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final int index, final JSONObject value)
+	{
+		return setElement(index, new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final int index, final Map<String, JSONValue> value)
+	{
+		return setElement(index, new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set, null is interpreted as 0
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final Number index, final JSONObject value)
+	{
+		return setElement(asInt(index), new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Sets the value of the element on the specified index
+	 *
+	 * @param index Index of the element to set, null is interpreted as 0
+	 * @param value Value to set. Recursive values are not allowed
+	 * @return True if set successfully, false otherwise
+	 */
+	public boolean setElement(final Number index, final Map<String, JSONValue> value)
+	{
+		return setElement(asInt(index), new JSONObjectValue(value));
 	}
 }

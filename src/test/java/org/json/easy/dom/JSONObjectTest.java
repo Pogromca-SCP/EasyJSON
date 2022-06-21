@@ -29,7 +29,7 @@ class JSONObjectTest
 		assertEquals(obj.size(), copy.size());
 		assertEquals(obj.hashCode(), copy.hashCode());
 		assertEquals(obj.toString(), copy.toString());
-		assertEquals(map, copy.copyToMap());
+		assertEquals(map, copy.toMap());
 	}
 	
 	@Test
@@ -67,9 +67,21 @@ class JSONObjectTest
 		assertEquals(true, obj.hasField(""));
 		obj.setField("   \t", JSONNullValue.NULL);
 		assertEquals(true, obj.hasField("   \t"));
-		obj.setField("null", (JSONValue) null);
+		obj.setNullField("null");
 		assertEquals(JSONNullValue.NULL, obj.getField("null"));
 		obj.setField(null, JSONNullValue.NULL);
 		assertEquals(false, obj.hasField(null));
+	}
+	
+	@Test
+	void testObjectIterator()
+	{
+		final JSONObject obj = new JSONObject();
+		obj.setNullField("null");
+		obj.setField("num", 3.14);
+		obj.setField("text", "Test");
+		final HashMap<String, JSONValue> cp = new HashMap<String, JSONValue>();
+		obj.forEach(ent -> cp.put(ent.getKey(), ent.getValue()));
+		assertEquals(cp, obj.toMap());
 	}
 }

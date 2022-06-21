@@ -18,7 +18,7 @@ class JSONWriterTest
 			switch (val.getType())
 			{
 				case ARRAY:
-					JSONSerializer.serialize(val.asArray(), writer);
+					JSONSerializer.serialize(val.asArray().toList(), writer);
 					break;
 				case OBJECT:
 					JSONSerializer.serialize(val.asObject(), writer);
@@ -34,7 +34,7 @@ class JSONWriterTest
 	void testArrayWrite()
 	{
 		final JSONValue[] simple = { JSONBooleanValue.TRUE, null, new JSONStringValue("Testing"), JSONNullValue.NULL, new JSONNumberValue(-34.2) };
-		final JSONArrayValue empty = new JSONArrayValue(JSONArrayValue.EMPTY);
+		final JSONArrayValue empty = new JSONArrayValue(JSONArray.EMPTY);
 		final JSONArrayValue simVal = new JSONArrayValue(simple);
 		final JSONObject obj = new JSONObject();
 		obj.setField("text", "Test");
