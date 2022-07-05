@@ -457,7 +457,7 @@ public final class JSONSerializer
 					{
 						writer.writeArrayEnd();
 					}
-					else
+					else if (canBeProcessed(elementStack, elem.value.asArray()))
 					{
 						elem.isProcessed = true;
 						elementStack.push(elem);
@@ -485,7 +485,7 @@ public final class JSONSerializer
 					{
 						writer.writeObjectEnd();
 					}
-					else
+					else if (canBeProcessed(elementStack, elem.value.asObject()))
 					{
 						elem.isProcessed = true;
 						elementStack.push(elem);
@@ -514,6 +514,50 @@ public final class JSONSerializer
 					}
 			}
 		}
+	}
+	
+	/**
+	 * Checks if the array can be processed by serializer
+	 * 
+	 * @param stack Current serialization stack
+	 * @param arr Array to check
+	 * @return True if array can be processed, false otherwise
+	 */
+	private static boolean canBeProcessed(final Stack<Element> stack, final JSONArray arr)
+	{
+		for (final Element el : stack)
+		{
+			final JSONArray tmp = el.value.asArray();
+			
+			if (tmp != JSONArray.EMPTY && tmp == arr)
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Checks if the object can be processed by serializer
+	 * 
+	 * @param stack Current serialization stack
+	 * @param obj Object to check
+	 * @return True if object can be processed, false otherwise
+	 */
+	private static boolean canBeProcessed(final Stack<Element> stack, final JSONObject obj)
+	{	
+		for (final Element el : stack)
+		{
+			final JSONObject tmp = el.value.asObject();
+			
+			if (tmp != JSONObject.EMPTY && tmp == obj)
+			{
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**

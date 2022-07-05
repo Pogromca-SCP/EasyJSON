@@ -11,6 +11,40 @@ import org.json.easy.serialization.JSONToken;
 public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 {
 	/**
+	 * Prints a line terminator
+	 * 
+	 * @param write Writes a single character
+	 */
+	private static void writeLineTerminator(final Consumer<Character> write)
+	{
+		write.accept('\n');
+	}
+	
+	/**
+	 * Prints a whitespace
+	 * 
+	 * @param write Writes a single character
+	 */
+	private static void writeSpace(final Consumer<Character> write)
+	{
+		write.accept(' ');
+	}
+	
+	/**
+	 * Prints specific amount of tabs
+	 * 
+	 * @param write Writes a single character
+	 * @param amount Amount of tabs to print
+	 */
+	private static void writeTabs(final Consumer<Character> write, final int amount)
+	{
+		for (int i = 0; i < amount; ++i)
+		{
+			write.accept('\t');
+		}
+	}
+	
+	/**
 	 * Prints object start prefix
 	 * 
 	 * @param write Writes a single character
@@ -99,40 +133,6 @@ public class PrettyJSONPrintPolicy implements JSONPrintPolicy
 		if (write != null && previous != JSONToken.SQUARE_OPEN)
 		{
 			writeSpace(write);
-		}
-	}
-	
-	/**
-	 * Prints a line terminator
-	 * 
-	 * @param write Writes a single character
-	 */
-	private void writeLineTerminator(final Consumer<Character> write)
-	{
-		write.accept('\n');
-	}
-	
-	/**
-	 * Prints a whitespace
-	 * 
-	 * @param write Writes a single character
-	 */
-	private void writeSpace(final Consumer<Character> write)
-	{
-		write.accept(' ');
-	}
-	
-	/**
-	 * Prints specific amount of tabs
-	 * 
-	 * @param write Writes a single character
-	 * @param amount Amount of tabs to print
-	 */
-	private void writeTabs(final Consumer<Character> write, final int amount)
-	{
-		for (int i = 0; i < amount; ++i)
-		{
-			write.accept('\t');
 		}
 	}
 }

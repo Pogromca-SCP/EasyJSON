@@ -47,6 +47,7 @@ class JSONWriterTest
 				new JSONArrayValue(inner), empty, JSONBooleanValue.TRUE };
 		
 		final JSONArrayValue comVal = new JSONArrayValue(complex);
+		obj.setField("bad", comVal);
 		testTemplate(empty, "[]");
 		testTemplate(simVal, "[true,null,\"Testing\",null,-34.2]");
 		testTemplate(comVal, "[[true,null,\"Testing\",null,-34.2],null,{\"empty\":\"\",\"text\":\"Test\",\"bool\":false,\"arr\":[true,null,\"Testing\",null,-34.2]},12.0,[\"This\",\"is\",\"inner\",\"array\"],[],true]");
@@ -63,6 +64,7 @@ class JSONWriterTest
 		obj.setField("bool", false);
 		obj.setField("obj", JSONObject.EMPTY);
 		obj.setField("", (JSONValue) null);
+		obj.setField("bad", obj);
 		final JSONObjectValue val = new JSONObjectValue(obj);
 		final JSONObjectValue em = new JSONObjectValue(JSONObject.EMPTY);
 		testTemplate(em, "{}");
@@ -71,6 +73,7 @@ class JSONWriterTest
 		no.setField("text", "Example");
 		no.setField("bottom", "Text");
 		no.setField("test", "Bottom");
+		no.setField("bad", obj);
 		obj.setField("inner", no);
 		testTemplate(val, "{\"empty\":\"\",\"inner\":{\"text\":\"Example\",\"bottom\":\"Text\",\"test\":\"Bottom\"},\"text\":\"Test\",\"obj\":{},\"bool\":false,\"\":null,\"arr\":[true,null,\"Testing\",null,-34.2]}");
 	}

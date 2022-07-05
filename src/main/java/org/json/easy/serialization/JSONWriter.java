@@ -15,7 +15,26 @@ import org.json.easy.dom.JSONNullValue;
  * @since 1.0.0
  */
 public class JSONWriter implements AutoCloseable
-{	
+{
+	/**
+	 * Converts a character into a hex string
+	 * 
+	 * @param ch Character to convert
+	 * @return Result hex string
+	 */
+	private static String toHexString(final char ch)
+	{
+		final StringBuilder sb = new StringBuilder();
+		final String hex = Integer.toHexString(ch);
+		
+		for (int i = hex.length(); i < 4; ++i)
+		{
+			sb.append('0');
+		}
+		
+		return sb.append(hex).toString();
+	}
+	
 	/**
 	 * Contains entire write state in a stack structure
 	 */
@@ -402,19 +421,7 @@ public class JSONWriter implements AutoCloseable
 			writeCommaIfNeeded();
 		}
 		
-		if (isArray)
-		{
-			policy.writeArrayStartPrefix(write, indentLevel, previousToken);
-		}
-		else
-		{
-			policy.writeObjectStartPrefix(write, indentLevel, previousToken);
-		}
-		
-		writeChar(isArray ? '[' : '{');
-		++indentLevel;
-		stack.push(isArray ? JSONType.ARRAY : JSONType.OBJECT);
-		previousToken = isArray ? JSONToken.SQUARE_OPEN : JSONToken.CURLY_OPEN;
+		printStart(isArray);
 	}
 	
 	/**
@@ -431,7 +438,16 @@ public class JSONWriter implements AutoCloseable
 		}
 		
 		writeIdentifier(identifier);
-		
+		printStart(isArray);
+	}
+	
+	/**
+	 * Writes a start of an array or object
+	 * 
+	 * @param isArray Set to true if should write array start
+	 */
+	private void printStart(final boolean isArray)
+	{
 		if (isArray)
 		{
 			policy.writeArrayStartPrefix(write, indentLevel, previousToken);
@@ -646,25 +662,6 @@ public class JSONWriter implements AutoCloseable
 		}
 		
 		writeString(sb.append('\"').toString());
-	}
-	
-	/**
-	 * Converts a character into a hex string
-	 * 
-	 * @param ch Character to convert
-	 * @return Result hex string
-	 */
-	private String toHexString(final char ch)
-	{
-		final StringBuilder sb = new StringBuilder();
-		final String hex = Integer.toHexString(ch);
-		
-		for (int i = hex.length(); i < 4; ++i)
-		{
-			sb.append('0');
-		}
-		
-		return sb.append(hex).toString();
 	}
 	
 	/**
