@@ -13,7 +13,7 @@ import static org.json.easy.serialization.JSONSerializer.serialize;
 /**
  * Helper class for creating JSON objects
  * 
- * @since 1.1.0
+ * @since 1.0.0
  */
 public class JSONObjectBuilder
 {
