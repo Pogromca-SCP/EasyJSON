@@ -2,12 +2,44 @@ package org.json.easy.dom;
 
 import org.junit.jupiter.api.Test;
 import org.json.easy.serialization.JSONType;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class JSONValueTest
 {
+	private static void serializationTest(final JSONValue val)
+	{	
+		try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream("SerializationTest")))
+		{
+			stream.writeObject(val);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		
+		Object res;
+		
+		try (ObjectInputStream stream = new ObjectInputStream(new FileInputStream("SerializationTest")))
+		{
+			res = stream.readObject();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		
+		assertEquals(val, res);
+	}
+	
 	@Test
 	void testValueEquals()
 	{
@@ -40,6 +72,7 @@ class JSONValueTest
 		assertEquals("", val.asString());
 		assertEquals(JSONArray.EMPTY, val.asArray());
 		assertEquals(JSONObject.EMPTY, val.asObject());
+		serializationTest(val);
 	}
 
 	@Test
@@ -67,6 +100,7 @@ class JSONValueTest
 			assertEquals(Boolean.toString(v), val.asString());
 			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
+			serializationTest(val);
 		}
 	}
 	
@@ -95,6 +129,7 @@ class JSONValueTest
 			assertEquals(Double.toString(v), val.asString());
 			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
+			serializationTest(val);
 		}
 	}
 	
@@ -131,6 +166,7 @@ class JSONValueTest
 			assertEquals(v, val.asString());
 			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
+			serializationTest(val);
 		}
 	}
 	
@@ -168,6 +204,7 @@ class JSONValueTest
 			assertEquals("", val.asString());
 			assertEquals(v, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
+			serializationTest(val);
 		}
 	}
 	
@@ -201,6 +238,7 @@ class JSONValueTest
 			assertEquals("", val.asString());
 			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(v, val.asObject());
+			serializationTest(val);
 		}
 	}
 }

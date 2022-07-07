@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JSONReaderTest
 {
-	private void testTemplate(final String file, final String name, final JSONArray expectedArray, final JSONObject expectedObj)
+	private static void testTemplate(final String file, final String name, final JSONArray expectedArray, final JSONObject expectedObj)
 	{
 		String err = null;
 		JSONValue val = null;

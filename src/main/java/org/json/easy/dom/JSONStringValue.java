@@ -10,6 +10,11 @@ import org.json.easy.serialization.JSONType;
 public class JSONStringValue extends JSONValue
 {
 	/**
+	 * Serial version UID
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
 	 * Contains the value
 	 */
 	protected final String value;

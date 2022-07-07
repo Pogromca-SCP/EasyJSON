@@ -1,5 +1,6 @@
 package org.json.easy.dom;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -11,12 +12,17 @@ import org.json.easy.serialization.JSONType;
  * 
  * @since 1.0.0
  */
-public class JSONObject
+public class JSONObject implements Serializable
 {
 	/**
 	 * Contains a reference to global empty object
 	 */
 	public static final JSONObject EMPTY = new JSONObject();
+	
+	/**
+	 * Serial version UID
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	/**
 	 * Contains object values

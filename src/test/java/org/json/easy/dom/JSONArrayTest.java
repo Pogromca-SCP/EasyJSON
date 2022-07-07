@@ -1,5 +1,9 @@
 package org.json.easy.dom;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 
@@ -7,6 +11,33 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JSONArrayTest
 {
+	private static void serializationTest(final JSONArray arr)
+	{	
+		try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream("SerializationTest")))
+		{
+			stream.writeObject(arr);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		
+		Object res;
+		
+		try (ObjectInputStream stream = new ObjectInputStream(new FileInputStream("SerializationTest")))
+		{
+			res = stream.readObject();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		
+		assertEquals(arr, res);
+	}
+	
 	@Test
 	void testArrayConstructors()
 	{
@@ -42,6 +73,7 @@ class JSONArrayTest
 		arr.addElement(true);
 		arr.addNullElement();
 		assertEquals(0, arr.size());
+		serializationTest(arr);
 	}
 	
 	@Test
@@ -51,6 +83,8 @@ class JSONArrayTest
 		assertEquals(false, arr.isIndexValid(0));
 		arr.addElement(JSONBooleanValue.TRUE);
 		assertEquals(true, arr.isIndexValid(0));
+		assertEquals(true, arr.contains(JSONBooleanValue.TRUE));
+		assertEquals(false, arr.contains(JSONBooleanValue.FALSE));
 		assertEquals(false, arr.isIndexValid(1));
 		assertEquals(true, arr.getBooleanElement(0));
 		assertEquals(false, arr.getBooleanElement(1));
@@ -58,17 +92,20 @@ class JSONArrayTest
 		assertEquals(JSONNullValue.NULL, arr.getElement(1));
 		arr.removeElement(0);
 		assertEquals(JSONNullValue.NULL, arr.getElement(0));
+		assertEquals(false, arr.contains(JSONNullValue.NULL));
 		assertEquals(false, arr.isIndexValid(0));
 		arr.addNullElement();
 		assertEquals(1, arr.size());
 		arr.addElement((JSONValue) null);
 		assertEquals(2, arr.size());
+		assertEquals(true, arr.contains(JSONNullValue.NULL));
 		assertEquals(JSONNullValue.NULL, arr.getElement(0));
 		assertEquals(JSONNullValue.NULL, arr.getElement(1));
 		arr.setElement(0, JSONBooleanValue.FALSE);
 		assertEquals(2, arr.size());
 		assertEquals(JSONBooleanValue.FALSE, arr.getElement(0));
 		assertEquals(JSONNullValue.NULL, arr.getElement(1));
+		serializationTest(arr);
 	}
 	
 	@Test
@@ -78,6 +115,8 @@ class JSONArrayTest
 		arr.addNullElement();
 		arr.addElement(3.14);
 		arr.addElement("Test");
+		assertEquals(true, arr.contains(new JSONNumberValue(3.14)));
+		assertEquals(false, arr.contains(new JSONNumberValue(5.25)));
 		final ArrayList<JSONValue> cp = new ArrayList<JSONValue>();
 		arr.forEach(val -> cp.add(val));
 		assertEquals(cp, arr.toList());

@@ -15,6 +15,11 @@ public class JSONNullValue extends JSONValue
 	public static final JSONNullValue NULL = new JSONNullValue();
 	
 	/**
+	 * Serial version UID
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
 	 * Creates new null value
 	 */
 	public JSONNullValue()

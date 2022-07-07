@@ -20,6 +20,11 @@ public class JSONBooleanValue extends JSONValue
 	public static final JSONBooleanValue FALSE = new JSONBooleanValue(false);
 	
 	/**
+	 * Serial version UID
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
 	 * Contains the value
 	 */
 	protected final boolean value;

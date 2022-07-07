@@ -1,5 +1,6 @@
 package org.json.easy.dom;
 
+import java.io.Serializable;
 import org.json.easy.serialization.JSONType;
 
 /**
@@ -7,8 +8,13 @@ import org.json.easy.serialization.JSONType;
  * 
  * @since 1.0.0
  */
-public abstract class JSONValue
+public abstract class JSONValue implements Serializable
 {
+	/**
+	 * Serial version UID
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/**
 	 * Contains this value type
 	 */

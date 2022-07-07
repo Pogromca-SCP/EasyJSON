@@ -1,5 +1,9 @@
 package org.json.easy.dom;
 
+import java.io.ObjectOutputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.FileInputStream;
 import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import org.json.easy.serialization.JSONType;
@@ -8,6 +12,33 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JSONObjectTest
 {
+	private static void serializationTest(final JSONObject obj)
+	{	
+		try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream("SerializationTest")))
+		{
+			stream.writeObject(obj);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		
+		Object res;
+		
+		try (ObjectInputStream stream = new ObjectInputStream(new FileInputStream("SerializationTest")))
+		{
+			res = stream.readObject();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		
+		assertEquals(obj, res);
+	}
+	
 	@Test
 	void testObjectConstructors()
 	{
@@ -44,6 +75,7 @@ class JSONObjectTest
 		assertEquals(false, obj.hasField("test"));
 		assertEquals(false, obj.hasField("true"));
 		assertEquals(false, obj.hasField("null"));
+		serializationTest(obj);
 	}
 	
 	@Test
@@ -71,6 +103,7 @@ class JSONObjectTest
 		assertEquals(JSONNullValue.NULL, obj.getField("null"));
 		obj.setField(null, JSONNullValue.NULL);
 		assertEquals(false, obj.hasField(null));
+		serializationTest(obj);
 	}
 	
 	@Test

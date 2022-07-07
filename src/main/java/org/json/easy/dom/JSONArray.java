@@ -1,5 +1,6 @@
 package org.json.easy.dom;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -10,12 +11,17 @@ import java.util.Map;
  * 
  * @since 1.0.0
  */
-public class JSONArray
+public class JSONArray implements Serializable
 {
 	/**
 	 * Contains a reference to global empty array
 	 */
 	public static final JSONArray EMPTY = new JSONArray();
+	
+	/**
+	 * Serial version UID
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	/**
 	 * Converts a number object to an int value
@@ -237,6 +243,17 @@ public class JSONArray
 	public boolean isIndexValid(final Number index)
 	{
 		return isIndexValid(asInt(index));
+	}
+	
+	/**
+	 * Checks if the array contains specific value
+	 * 
+	 * @param value Value to find
+	 * @return True if array contains the value, false otherwise
+	 */
+	public final boolean contains(final JSONValue value)
+	{
+		return values.contains(value);
 	}
 	
 	/**

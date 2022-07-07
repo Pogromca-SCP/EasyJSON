@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JSONWriterTest
 {
-	private void testTemplate(final JSONValue val, final String expected)
+	private static void testTemplate(final JSONValue val, final String expected)
 	{
 		final StringWriter res = new StringWriter();
 		

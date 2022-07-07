@@ -14,6 +14,7 @@
 *.classpath
 *.project
 doc/
+SerializationTest
 
 # Package Files #
 *.jar
