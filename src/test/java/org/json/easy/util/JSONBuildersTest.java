@@ -45,11 +45,10 @@ class JSONBuildersTest
 		out.println(arr);
 		out.println();
 		assertEquals(expected, arr.asArray());
-		
-		final JSONValue[] second = { JSONBooleanValue.TRUE, null, new JSONNumberValue(34.98), new JSONStringValue("Bottom TEXT"),
-				new JSONObjectValue(JSONObject.EMPTY), new JSONArrayValue(JSONArray.EMPTY) };
-		
-		arr.copyIf(second, val -> false);
-		assertEquals(new JSONArray(second), arr.asArray());
+		expected.addElement(false);
+		expected.addElement(-12.4);
+		expected.addElement("Test");
+		arr.copyIf(expected, val -> !arr.asArray().contains(val));
+		assertEquals(expected, arr.asArray());
 	}
 }
