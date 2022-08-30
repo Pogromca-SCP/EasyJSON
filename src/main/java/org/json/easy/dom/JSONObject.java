@@ -192,8 +192,7 @@ public class JSONObject implements Serializable
 		}
 		else if (res)
 		{
-			final JSONValue val = values.get(fieldName);
-			return fieldType == val.getType();
+			return fieldType == values.get(fieldName).getType();
 		}
 		else
 		{
@@ -291,7 +290,7 @@ public class JSONObject implements Serializable
 	 */
 	public boolean setField(final String fieldName, final Boolean value)
 	{
-		return setField(fieldName, value == null || !value ? JSONBooleanValue.FALSE : JSONBooleanValue.TRUE);
+		return setField(fieldName, value == null ? false : value);
 	}
 	
 	/**

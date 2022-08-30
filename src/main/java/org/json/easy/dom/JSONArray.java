@@ -53,7 +53,7 @@ public class JSONArray implements Serializable
 	 */
 	private static JSONBooleanValue asVal(final Boolean val)
 	{
-		return (val != null && val) ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE;
+		return asVal(val == null ? false : val);
 	}
 	
 	/**
@@ -166,8 +166,7 @@ public class JSONArray implements Serializable
 	 */
 	public final JSONValue[] toArray()
 	{
-		final JSONValue[] tmp = new JSONValue[values.size()];
-		return values.toArray(tmp);
+		return values.toArray(new JSONValue[values.size()]);
 	}
 	
 	/**

@@ -11,7 +11,24 @@ import java.io.IOException;
  * @since 1.0.0
  */
 public class JSONReader implements AutoCloseable
-{	
+{
+	/**
+	 * Defines possible number parse states
+	 */
+	private static enum NumberParseState
+	{
+		NONE,
+		START,
+		ZERO,
+		INT,
+		POINT,
+		LETTER,
+		REAL,
+		SIGN,
+		EXPONENT,
+		ERROR
+	}
+	
 	/**
 	 * Contains a table that converts JSON Token to JSON Notation, provide a token as an index in order to convert it
 	 */
@@ -36,7 +53,7 @@ public class JSONReader implements AutoCloseable
 	 * @param ch Character to check
 	 * @return True if character is a line break, false otherwise
 	 */
-	private static boolean isLineBreak(char ch)
+	private static boolean isLineBreak(final char ch)
 	{
 		return ch == '\n';
 	}
@@ -47,7 +64,7 @@ public class JSONReader implements AutoCloseable
 	 * @param ch Character to check
 	 * @return True if character is whitespace, false otherwise
 	 */
-	private static boolean isWhitespace(char ch)
+	private static boolean isWhitespace(final char ch)
 	{
 		return ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r';
 	}
@@ -58,7 +75,7 @@ public class JSONReader implements AutoCloseable
 	 * @param ch Character to check
 	 * @return True if character is a JSON number, false otherwise
 	 */
-	private static boolean isJSONNumber(char ch)
+	private static boolean isJSONNumber(final char ch)
 	{
 		return isDigit(ch) || ch == '-' || ch == '.' || ch == '+' || ch == 'e' || ch == 'E';
 	}
@@ -69,7 +86,7 @@ public class JSONReader implements AutoCloseable
 	 * @param ch Character to check
 	 * @return True if character is a digit, false otherwise
 	 */
-	private static boolean isDigit(char ch)
+	private static boolean isDigit(final char ch)
 	{
 		return ch >= '0' && ch <= '9';
 	}
@@ -80,7 +97,7 @@ public class JSONReader implements AutoCloseable
 	 * @param ch Character to check
 	 * @return True if character is a non zero digit, false otherwise
 	 */
-	private static boolean isNonZeroDigit(char ch)
+	private static boolean isNonZeroDigit(final char ch)
 	{
 		return ch >= '1' && ch <= '9';
 	}
@@ -91,9 +108,141 @@ public class JSONReader implements AutoCloseable
 	 * @param ch Character to check
 	 * @return True if character is a letter, false otherwise
 	 */
-	private static boolean isLetter(char ch)
+	private static boolean isLetter(final char ch)
 	{
 		return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+	}
+	
+	/**
+	 * Parses number initialization
+	 * 
+	 * @param ch Character to parse
+	 * @return New number parse state
+	 */
+	private static NumberParseState parseNumberInit(final char ch)
+	{
+		return ch == '-' ? NumberParseState.START : parseNumberStart(ch);
+	}
+	
+	/**
+	 * Parses number start
+	 * 
+	 * @param ch Character to parse
+	 * @return New number parse state
+	 */
+	private static NumberParseState parseNumberStart(final char ch)
+	{
+		if (ch == '0')
+		{
+			return NumberParseState.ZERO;
+		}
+		else if (isNonZeroDigit(ch))
+		{
+			return NumberParseState.INT;
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Parses number zero
+	 * 
+	 * @param ch Character to parse
+	 * @return New number parse state
+	 */
+	private static NumberParseState parseNumberZero(final char ch)
+	{
+		if (ch == '.')
+		{
+			return NumberParseState.POINT;
+		}
+		else if (ch == 'e' || ch == 'E')
+		{
+			return NumberParseState.LETTER;
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Parses number's integer part
+	 * 
+	 * @param ch Character to parse
+	 * @return New number parse state
+	 */
+	private static NumberParseState parseNumberInt(final char ch)
+	{
+		return isDigit(ch) ? NumberParseState.INT : parseNumberZero(ch);
+	}
+	
+	/**
+	 * Parses number's point
+	 * 
+	 * @param ch Character to parse
+	 * @return New number parse state
+	 */
+	private static NumberParseState parseNumberPoint(final char ch)
+	{
+		return isDigit(ch) ? NumberParseState.REAL : null;
+	}
+	
+	/**
+	 * Parses number's exponent letter
+	 * 
+	 * @param ch Character to parse
+	 * @return New number parse state
+	 */
+	private static NumberParseState parseNumberLetter(final char ch)
+	{
+		if (ch == '-' || ch == '+')
+		{
+			return NumberParseState.SIGN;
+		}
+		else if (isDigit(ch))
+		{
+			return NumberParseState.EXPONENT;
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Parses number's real part
+	 * 
+	 * @param ch Character to parse
+	 * @return New number parse state
+	 */
+	private static NumberParseState parseNumberReal(final char ch)
+	{
+		if (isDigit(ch))
+		{
+			return NumberParseState.REAL;
+		}
+		else if (ch == 'e' || ch == 'E')
+		{
+			return NumberParseState.LETTER;
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Parses number's exponent part
+	 * 
+	 * @param ch Character to parse
+	 * @return New number parse state
+	 */
+	private static NumberParseState parseNumberExponent(final char ch)
+	{
+		return isDigit(ch) ? NumberParseState.EXPONENT : null;
 	}
 	
 	/**
@@ -265,6 +414,79 @@ public class JSONReader implements AutoCloseable
 	 */
 	public final boolean readNext()
 	{
+		final Boolean err = checkPreReadErrors();
+		
+		if (err != null)
+		{
+			return err;
+		}
+		
+		boolean readWasSuccess = false;
+		identifier = "";
+
+		do
+		{
+			JSONType currentState = JSONType.NONE;
+
+			if (!parseState.isEmpty())
+			{
+				currentState = parseState.peek();
+			}
+
+			switch (currentState)
+			{
+				case ARRAY:
+					readWasSuccess = readNextArrayValue();
+					break;
+				case OBJECT:
+					readWasSuccess = readNextObjectValue();
+					break;
+				default:
+					readWasSuccess = readStart();
+			}
+		}
+		while (readWasSuccess && currentToken == JSONToken.NONE);
+		
+		return checkPostReadErrors(readWasSuccess);
+	}
+	
+	/**
+	 * Skips the object
+	 * 
+	 * @return True if skipped successfully, false otherwise
+	 */
+	public final boolean skipObject()
+	{
+		return readUntilMatching(JSONNotation.OBJECT_END);
+	}
+
+	/**
+	 * Skips the array
+	 * 
+	 * @return True if skipped successfully, false otherwise
+	 */
+	public final boolean skipArray()
+	{
+		return readUntilMatching(JSONNotation.ARRAY_END);
+	}
+	
+	/**
+	 * Sets new error message with line and character numbers
+	 * 
+	 * @param message Message to set
+	 */
+	private void setErrorMessage(final String message)
+	{
+		errorMessage = message + " at Line: " +  lineNumber + " Ch: " + characterNumber;
+	}
+	
+	/**
+	 * Handles errors before reading JSON notation
+	 * 
+	 * @return True if the reading can continue, false otherwise or null if there are no errors
+	 */
+	private Boolean checkPreReadErrors()
+	{
 		if (!errorMessage.isEmpty())
 		{
 			readNotation = JSONNotation.ERROR;
@@ -300,32 +522,17 @@ public class JSONReader implements AutoCloseable
 			return false;
 		}
 		
-		boolean readWasSuccess = false;
-		identifier = "";
-
-		do
-		{
-			JSONType currentState = JSONType.NONE;
-
-			if (!parseState.isEmpty())
-			{
-				currentState = parseState.peek();
-			}
-
-			switch (currentState)
-			{
-				case ARRAY:
-					readWasSuccess = readNextArrayValue();
-					break;
-				case OBJECT:
-					readWasSuccess = readNextObjectValue();
-					break;
-				default:
-					readWasSuccess = readStart();
-			}
-		}
-		while (readWasSuccess && currentToken == JSONToken.NONE);
-		
+		return null;
+	}
+	
+	/**
+	 * Handles errors after reading JSON notation
+	 * 
+	 * @param readWasSuccess Tells whether or not reading was successful
+	 * @return True if the reading can continue, false otherwise
+	 */
+	private boolean checkPostReadErrors(final boolean readWasSuccess)
+	{
 		readNotation = TOKEN_TO_NOTATION_TABLE[currentToken.ordinal()];
 		finishedReadingRootObject = parseState.isEmpty();
 
@@ -347,36 +554,6 @@ public class JSONReader implements AutoCloseable
 		}
 
 		return readWasSuccess;
-	}
-	
-	/**
-	 * Skips the object
-	 * 
-	 * @return True if skipped successfully, false otherwise
-	 */
-	public final boolean skipObject()
-	{
-		return readUntilMatching(JSONNotation.OBJECT_END);
-	}
-
-	/**
-	 * Skips the array
-	 * 
-	 * @return True if skipped successfully, false otherwise
-	 */
-	public final boolean skipArray()
-	{
-		return readUntilMatching(JSONNotation.ARRAY_END);
-	}
-	
-	/**
-	 * Sets new error message with line and character numbers
-	 * 
-	 * @param message Message to set
-	 */
-	private void setErrorMessage(final String message)
-	{
-		errorMessage = message + " at Line: " +  lineNumber + " Ch: " + characterNumber;
 	}
 	
 	/**
@@ -446,33 +623,11 @@ public class JSONReader implements AutoCloseable
 	 */
 	private boolean readNextObjectValue()
 	{
-		final boolean useComma = currentToken != JSONToken.CURLY_OPEN;
-		currentToken = nextToken();
-
-		if (currentToken == JSONToken.NONE)
-		{
-			return false;
-		}
-
-		if (currentToken == JSONToken.CURLY_CLOSE)
-		{
-			return true;
-		}
+		final Boolean val = readNextValue(false);
 		
-		if (useComma)
+		if (val != null)
 		{
-			if (currentToken != JSONToken.COMMA)
-			{
-				setErrorMessage("Comma token expected");
-				return false;
-			}
-
-			currentToken = nextToken();
-
-			if (currentToken == JSONToken.NONE)
-			{
-				return false;
-			}
+			return val;
 		}
 
 		if (currentToken != JSONToken.STRING)
@@ -506,7 +661,19 @@ public class JSONReader implements AutoCloseable
 	 */
 	private boolean readNextArrayValue()
 	{
-		final boolean useComma = currentToken != JSONToken.SQUARE_OPEN;
+		final Boolean res = readNextValue(true);
+		return res == null ? true : res;
+	}
+	
+	/**
+	 * Parses next array or object value
+	 * 
+	 * @param isArray Tells whether or not the next value is an array
+	 * @return True if parsed successfully, false otherwise or null if parsing is not finished
+	 */
+	private Boolean readNextValue(final boolean isArray)
+	{
+		final boolean useComma = currentToken != (isArray ? JSONToken.SQUARE_OPEN : JSONToken.CURLY_OPEN);
 		currentToken = nextToken();
 
 		if (currentToken == JSONToken.NONE)
@@ -514,7 +681,7 @@ public class JSONReader implements AutoCloseable
 			return false;
 		}
 
-		if (currentToken == JSONToken.SQUARE_CLOSE)
+		if (currentToken == (isArray ? JSONToken.SQUARE_CLOSE : JSONToken.CURLY_CLOSE))
 		{
 			return true;
 		}
@@ -534,8 +701,8 @@ public class JSONReader implements AutoCloseable
 				return false;
 			}
 		}
-
-		return true;
+		
+		return null;
 	}
 
 	/**
@@ -547,7 +714,7 @@ public class JSONReader implements AutoCloseable
 	{
 		while (!isAtEnd())
 		{	
-			char ch = read();
+			final char ch = read();
 			++characterNumber;
 
 			if (ch == '\0')
@@ -555,11 +722,7 @@ public class JSONReader implements AutoCloseable
 				break;
 			}
 
-			if (isLineBreak(ch))
-			{
-				++lineNumber;
-				characterNumber = 0;
-			}
+			handleLineBreak(ch);
 
 			if (!isWhitespace(ch))
 			{
@@ -573,93 +736,139 @@ public class JSONReader implements AutoCloseable
 					return JSONToken.NUMBER;
 				}
 
-				switch (ch)
-				{
-					case '{':
-						parseState.push(JSONType.OBJECT);
-						return JSONToken.CURLY_OPEN;
-					case '}':
-						if (!parseState.isEmpty())
-						{
-							parseState.pop();
-						}
-						
-						return JSONToken.CURLY_CLOSE;
-					case '[':
-						parseState.push(JSONType.ARRAY);
-						return JSONToken.SQUARE_OPEN;
-					case ']':
-						if (!parseState.isEmpty())
-						{
-							parseState.pop();
-						}
-						
-						return JSONToken.SQUARE_CLOSE;
-					case ':':
-						return JSONToken.COLON;
-					case ',':
-						return JSONToken.COMMA;
-					case '\"':
-						if (!parseStringToken())
-						{
-							return JSONToken.NONE;
-						}
-
-						return JSONToken.STRING;
-					case 't':
-					case 'T':
-					case 'f':
-					case 'F':
-					case 'n':
-					case 'N':
-						final StringBuilder sb = new StringBuilder().append(ch);
-
-						while (!isAtEnd())
-						{
-							ch = read();
-							
-							if (isLetter(ch))
-							{
-								++characterNumber;
-								sb.append(ch);
-							}
-							else
-							{
-								backtrack(ch);
-								break;
-							}
-						}
-						
-						final String test = sb.toString();
-						
-						if (test.equalsIgnoreCase("false"))
-						{
-							booleanValue = false;
-							return JSONToken.FALSE;
-						}
-
-						if (test.equalsIgnoreCase("true"))
-						{
-							booleanValue = true;
-							return JSONToken.TRUE;
-						}
-
-						if (test.equalsIgnoreCase("null"))
-						{
-							return JSONToken.NULL;
-						}
-
-						setErrorMessage("Invalid JSON token (field name)");
-						return JSONToken.NONE;
-					default: 
-						setErrorMessage("Invalid JSON token");
-						return JSONToken.NONE;
-				}
+				return parseCharacter(ch);
 			}
 		}
 
 		setErrorMessage("Invalid JSON token");
 		return JSONToken.NONE;
+	}
+	
+	/**
+	 * Parses next character token
+	 * 
+	 * @param ch Character to parse
+	 * @return Parsed token type
+	 */
+	private JSONToken parseCharacter(final char ch)
+	{
+		switch (ch)
+		{
+			case '{':
+				return parseStart(false);
+			case '}':
+				return parseEnd(false);
+			case '[':
+				return parseStart(true);
+			case ']':
+				return parseEnd(true);
+			case ':':
+				return JSONToken.COLON;
+			case ',':
+				return JSONToken.COMMA;
+			case '\"':
+				if (!parseStringToken())
+				{
+					return JSONToken.NONE;
+				}
+
+				return JSONToken.STRING;
+			case 't':
+			case 'T':
+			case 'f':
+			case 'F':
+			case 'n':
+			case 'N':
+				return parseLiteral(ch);
+			default: 
+				setErrorMessage("Invalid JSON token");
+				return JSONToken.NONE;
+		}
+	}
+	
+	/**
+	 * Parses a start of an array or object
+	 * 
+	 * @param isArray Tells whether or not this is a start of an array
+	 * @return Parsed token type
+	 */
+	private JSONToken parseStart(final boolean isArray)
+	{
+		parseState.push(isArray ? JSONType.ARRAY : JSONType.OBJECT);
+		return isArray ? JSONToken.SQUARE_OPEN : JSONToken.CURLY_OPEN;
+	}
+	
+	/**
+	 * Parses an end of an array or object
+	 * 
+	 * @param isArray Tells whether or not this is an end of an array
+	 * @return Parsed token type
+	 */
+	private JSONToken parseEnd(final boolean isArray)
+	{
+		if (!parseState.isEmpty())
+		{
+			parseState.pop();
+		}
+		
+		return isArray ? JSONToken.SQUARE_CLOSE : JSONToken.CURLY_CLOSE;
+	}
+	
+	/**
+	 * Parses a JSON literal value
+	 * 
+	 * @param ch First character to parse
+	 * @return Parsed token type
+	 */
+	private JSONToken parseLiteral(final char ch)
+	{
+		final StringBuilder sb = new StringBuilder().append(ch);
+		loadLiteral(sb);
+		final String test = sb.toString();
+		
+		if (test.equalsIgnoreCase("false"))
+		{
+			booleanValue = false;
+			return JSONToken.FALSE;
+		}
+
+		if (test.equalsIgnoreCase("true"))
+		{
+			booleanValue = true;
+			return JSONToken.TRUE;
+		}
+
+		if (test.equalsIgnoreCase("null"))
+		{
+			return JSONToken.NULL;
+		}
+
+		setErrorMessage("Invalid JSON token (field name)");
+		return JSONToken.NONE;
+	}
+	
+	/**
+	 * Loads a literal value into string builder
+	 * 
+	 * @param sb String builder to load into
+	 */
+	private void loadLiteral(final StringBuilder sb)
+	{
+		while (!isAtEnd())
+		{
+			final char ch = read();
+			
+			if (isLetter(ch))
+			{
+				++characterNumber;
+				sb.append(ch);
+			}
+			else
+			{
+				backtrack(ch);
+				return;
+			}
+		}
 	}
 	
 	/**
@@ -679,7 +888,7 @@ public class JSONReader implements AutoCloseable
 				return false;
 			}
 			
-			char ch = read();
+			final char ch = read();
 			++characterNumber;
 
 			if (ch == '\"')
@@ -687,71 +896,93 @@ public class JSONReader implements AutoCloseable
 				break;
 			}
 
-			if (ch == '\\')
+			if (ch == '\\' && !parseEscapedChar(sb))
 			{
-				ch = read();
-				++characterNumber;
-
-				switch (ch)
-				{
-					case '\"':
-					case '\\':
-					case '/':
-						sb.append(ch);
-						break;
-					case 'f':
-						sb.append('\f');
-						break;
-					case 'r':
-						sb.append('\r');
-						break;
-					case 'n':
-						sb.append('\n');
-						break;
-					case 'b':
-						sb.append('\b');
-						break;
-					case 't':
-						sb.append('\t');
-						break;
-					case 'u':
-						int hexNum = 0;
-
-						for (byte radix = 3; radix > -1; --radix)
-						{
-							if (isAtEnd())
-							{
-								setErrorMessage("String token abruptly ended");
-								return false;
-							}
-
-							ch = read();
-							++characterNumber;
-							final int hexDigit = Character.digit(ch, 16);
-
-							if (hexDigit == -1)
-							{
-								setErrorMessage("Invalid hexadecimal digit");
-								return false;
-							}
-
-							hexNum += hexDigit * Math.pow(16, radix);
-						}
-
-						sb.append((char) hexNum);
-						break;
-					default:
-						setErrorMessage("Bad JSON escaped char");
-						return false;
-				}
+				return false;
 			}
-			else
+			else if (ch != '\\')
 			{
 				sb.append(ch);
 			}
 		}
 
 		stringValue = sb.toString();
+		return true;
+	}
+	
+	/**
+	 * Parses an escaped character
+	 * 
+	 * @param sb String builder to parse into
+	 * @return True if parsed successfully, false otherwise
+	 */
+	private boolean parseEscapedChar(final StringBuilder sb)
+	{
+		final char ch = read();
+		++characterNumber;
+
+		switch (ch)
+		{
+			case '\"':
+			case '\\':
+			case '/':
+				sb.append(ch);
+				return true;
+			case 'f':
+				sb.append('\f');
+				return true;
+			case 'r':
+				sb.append('\r');
+				return true;
+			case 'n':
+				sb.append('\n');
+				return true;
+			case 'b':
+				sb.append('\b');
+				return true;
+			case 't':
+				sb.append('\t');
+				return true;
+			case 'u':
+				return parseHexChar(sb);
+			default:
+				setErrorMessage("Bad JSON escaped char");
+				return false;
+		}
+	}
+	
+	/**
+	 * Parses a hex character
+	 * 
+	 * @param sb String builder to parse into
+	 * @return True if parsed successfully, false otherwise
+	 */
+	private boolean parseHexChar(final StringBuilder sb)
+	{
+		int hexNum = 0;
+
+		for (byte radix = 3; radix > -1; --radix)
+		{
+			if (isAtEnd())
+			{
+				setErrorMessage("String token abruptly ended");
+				return false;
+			}
+
+			final char ch = read();
+			++characterNumber;
+			final int hexDigit = Character.digit(ch, 16);
+
+			if (hexDigit == -1)
+			{
+				setErrorMessage("Invalid hexadecimal digit");
+				return false;
+			}
+
+			hexNum += hexDigit * Math.pow(16, radix);
+		}
+
+		sb.append((char) hexNum);
 		return true;
 	}
 
@@ -764,174 +995,90 @@ public class JSONReader implements AutoCloseable
 	private boolean parseNumberToken(final char first)
 	{
 		final StringBuilder sb = new StringBuilder();
-		byte state = 0;
-		boolean useFirstChar = true;
-		boolean error = false;
+		NumberParseState state = NumberParseState.NONE;
+		
+		if (!checkNumberParseError())
+		{
+			return false;
+		}
+		
+		state = parseNumber(first, sb, state);
+		
+		if (state == NumberParseState.ERROR)
+		{
+			return false;
+		}
 
+		state = parseNumber(sb, state);
+		
+		if (state == NumberParseState.ERROR)
+		{
+			return false;
+		}
+
+		if (finishNumberParse(sb, state))
+		{
+			return true;
+		}
+
+		setErrorMessage("Poorly formed JSON number token");
+		return false;
+	}
+	
+	/**
+	 * Parses a single number character
+	 * 
+	 * @param ch Character to parse
+	 * @param sb String builder to parse into
+	 * @param state Current number parse state
+	 * @return New number parse state
+	 */
+	private NumberParseState parseNumber(final char ch, final StringBuilder sb, NumberParseState state)
+	{
+		if (isJSONNumber(ch))
+		{
+			state = parseNumber(ch, state);
+			
+			if (state != null && state != NumberParseState.ERROR)
+			{
+				sb.append(ch);
+			}
+		}
+		else
+		{
+			backtrack(ch);
+			--characterNumber;
+		}
+		
+		return state;
+	}
+	
+	/**
+	 * Parses a number text
+	 * 
+	 * @param sb String builder to parse into
+	 * @param state Current number parse state
+	 * @return New number parse state
+	 */
+	private NumberParseState parseNumber(final StringBuilder sb, NumberParseState state)
+	{
 		while (true)
 		{
-			if (isAtEnd())
+			if (!checkNumberParseError())
 			{
-				setErrorMessage("Number token abruptly ended");
-				return false;
+				return NumberParseState.ERROR;
 			}
 			
-			char ch;
-
-			if (useFirstChar)
-			{
-				ch = first;
-				useFirstChar = false;
-			}
-			else
-			{
-				ch = read();
-				++characterNumber;
-			}
-
+			final char ch = read();
+			++characterNumber;
+			
 			if (isJSONNumber(ch))
 			{
-				switch (state)
-				{
-					case 0:
-						if (ch == '-')
-						{
-							state = 1;
-						}
-						else if (ch == '0')
-						{
-							state = 2;
-						}
-						else if (isNonZeroDigit(ch))
-						{
-							state = 3;
-						}
-						else
-						{
-							error = true;
-						}
-						
-						break;
-					case 1:
-						if (ch == '0')
-						{
-							state = 2;
-						}
-						else if (isNonZeroDigit(ch))
-						{
-							state = 3;
-						}
-						else
-						{
-							error = true;
-						}
-						
-						break;
-					case 2:
-						if (ch == '.')
-						{
-							state = 4;
-						}
-						else if (ch == 'e' || ch == 'E')
-						{
-							state = 5;
-						}
-						else
-						{
-							error = true;
-						}
-						
-						break;
-					case 3:
-						if (isDigit(ch))
-						{
-							state = 3;
-						}
-						else if (ch == '.')
-						{
-							state = 4;
-						}
-						else if (ch == 'e' || ch == 'E')
-						{
-							state = 5;
-						}
-						else
-						{
-							error = true;
-						}
-						
-						break;
-					case 4:
-						if (isDigit(ch))
-						{
-							state = 6;
-						}
-						else
-						{
-							error = true;
-						}
-						
-						break;
-					case 5:
-						if (ch == '-' || ch == '+')
-						{
-							state = 7;
-						}
-						else if (isDigit(ch))
-						{
-							state = 8;
-						}
-						else
-						{
-							error = true;
-						}
-						
-						break;
-					case 6:
-						if (isDigit(ch))
-						{
-							state = 6;
-						}
-						else if (ch == 'e' || ch == 'E')
-						{
-							state = 5;
-						}
-						else
-						{
-							error = true;
-						}
-						
-						break;
-					case 7:
-						if (isDigit(ch))
-						{
-							state = 8;
-						}
-						else
-						{
-							error = true;
-						}
-						
-						break;
-					case 8:
-						if (isDigit(ch))
-						{
-							state = 8;
-						}
-						else
-						{
-							error = true;
-						}
-						
-						break;
-					default:
-						setErrorMessage("Unknown state reached in JSON number token");
-						return false;
-				}
+				state = parseNumber(ch, state);
 
-				if (error)
+				if (state == null || state == NumberParseState.ERROR)
 				{
-					break;
+					return state;
 				}
 
 				sb.append(ch);
@@ -940,11 +1087,71 @@ public class JSONReader implements AutoCloseable
 			{
 				backtrack(ch);
 				--characterNumber;
-				break;
+				return state;
 			}
 		}
-
-		if (!error && (state == 2 || state == 3 || state == 6 || state == 8))
+	}
+	
+	/**
+	 * Checks for number parse end error
+	 * 
+	 * @return True if parsing can continue, false otherwise
+	 */
+	private boolean checkNumberParseError()
+	{
+		if (isAtEnd())
+		{
+			setErrorMessage("Number token abruptly ended");
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Parses a single number element
+	 * 
+	 * @param ch Character to parse
+	 * @param state Current number parse state
+	 * @return New number parse state
+	 */
+	private NumberParseState parseNumber(final char ch, final NumberParseState state)
+	{
+		switch (state)
+		{
+			case NONE:
+				return parseNumberInit(ch);
+			case START:
+				return parseNumberStart(ch);
+			case ZERO:
+				return parseNumberZero(ch);
+			case INT:
+				return parseNumberInt(ch);
+			case POINT:
+				return parseNumberPoint(ch);
+			case LETTER:
+				return parseNumberLetter(ch);
+			case REAL:
+				return parseNumberReal(ch);
+			case SIGN:
+			case EXPONENT:
+				return parseNumberExponent(ch);
+			default:
+				setErrorMessage("Unknown state reached in JSON number token");
+				return NumberParseState.ERROR;
+		}
+	}
+	
+	/**
+	 * Finishes number token parsing
+	 * 
+	 * @param sb String builder to read value from
+	 * @param state Current number parse state
+	 * @return True if parsing completed successfully, false otherwise
+	 */
+	private boolean finishNumberParse(final StringBuilder sb, final NumberParseState state)
+	{
+		if (state == NumberParseState.ZERO || state == NumberParseState.INT || state == NumberParseState.REAL || state == NumberParseState.EXPONENT)
 		{
 			stringValue = sb.toString();
 			
@@ -956,8 +1163,7 @@ public class JSONReader implements AutoCloseable
 			
 			return true;
 		}
-
-		setErrorMessage("Poorly formed JSON number token");
+		
 		return false;
 	}
 	
@@ -970,19 +1176,28 @@ public class JSONReader implements AutoCloseable
 		{
 			final char ch = read();
 			++characterNumber;
-			
-			if (isLineBreak(ch))
-			{
-				++lineNumber;
-				characterNumber = 0;
-			}
+			handleLineBreak(ch);
 			
 			if (!isWhitespace(ch))
 			{
 				backtrack(ch);
 				--characterNumber;
-				break;
+				return;
 			}
+		}
+	}
+	
+	/**
+	 * Checks if the character is a line break and updates line and character numbers accordingly
+	 * 
+	 * @param ch Character to check
+	 */
+	private void handleLineBreak(final char ch)
+	{
+		if (isLineBreak(ch))
+		{
+			++lineNumber;
+			characterNumber = 0;
 		}
 	}
 	

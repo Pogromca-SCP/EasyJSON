@@ -17,6 +17,26 @@ public final class JSONSerializer
 	private static class StackState
 	{
 		/**
+		 * Contains stack state type
+		 */
+		public final JSONType type;
+		
+		/**
+		 * Contains stack state identifier
+		 */
+		public final String identifier;
+		
+		/**
+		 * Contains stack array value
+		 */
+		public final JSONArray array;
+		
+		/**
+		 * Contains stack object value
+		 */
+		public final JSONObject object;
+		
+		/**
 		 * Creates new stack state
 		 * 
 		 * @param id Identifier to set
@@ -38,26 +58,6 @@ public final class JSONSerializer
 				array = null;
 			}
 		}
-		
-		/**
-		 * Contains stack state type
-		 */
-		public final JSONType type;
-		
-		/**
-		 * Contains stack state identifier
-		 */
-		public final String identifier;
-		
-		/**
-		 * Contains stack array value
-		 */
-		public final JSONArray array;
-		
-		/**
-		 * Contains stack object value
-		 */
-		public final JSONObject object;
 	}
 	
 	/**
@@ -65,6 +65,21 @@ public final class JSONSerializer
 	 */
 	private static class Element
 	{
+		/**
+		 * Contains element identifier
+		 */
+		public final String identifier;
+		
+		/**
+		 * Contains element value
+		 */
+		public final JSONValue value;
+		
+		/**
+		 * Tells whether or not the element has been processed
+		 */
+		public boolean isProcessed;
+		
 		/**
 		 * Creates new element with provided value
 		 * 
@@ -137,21 +152,6 @@ public final class JSONSerializer
 			value = val == null ? JSONNullValue.NULL : val;
 			isProcessed = false;
 		}
-		
-		/**
-		 * Contains element identifier
-		 */
-		public final String identifier;
-		
-		/**
-		 * Contains element value
-		 */
-		public final JSONValue value;
-		
-		/**
-		 * Tells whether or not the element has been processed
-		 */
-		public boolean isProcessed;
 	}
 	
 	/**
@@ -352,45 +352,29 @@ public final class JSONSerializer
 	{
 		final Stack<StackState> scopeStack = new Stack<StackState>();
 		StackState currentState = null;
-		JSONValue newValue;
 		
 		while (reader.readNext())
 		{
 			String identifier = reader.getIdentifier();
-			newValue = null;
+			JSONValue newValue = null;
 			
 			switch (reader.getReadNotation())
 			{
 				case OBJECT_START:
-					if (currentState != null)
-					{
-						scopeStack.push(currentState);
-					}
-					
-					currentState = new StackState(identifier, false);
-					break;
-				case OBJECT_END:
-					if (!scopeStack.isEmpty())
-					{
-						identifier = currentState.identifier;
-						newValue = new JSONObjectValue(currentState.object);
-						currentState = scopeStack.pop();
-					}
-					
-					break;
 				case ARRAY_START:
 					if (currentState != null)
 					{
 						scopeStack.push(currentState);
 					}
 					
-					currentState = new StackState(identifier, true);
+					currentState = new StackState(identifier, reader.getReadNotation() == JSONNotation.ARRAY_START);
 					break;
+				case OBJECT_END:
 				case ARRAY_END:
 					if (!scopeStack.isEmpty())
 					{
 						identifier = currentState.identifier;
-						newValue = new JSONArrayValue(currentState.array);
+						newValue = reader.getReadNotation() == JSONNotation.ARRAY_END ? new JSONArrayValue(currentState.array) : new JSONObjectValue(currentState.object);
 						currentState = scopeStack.pop();
 					}
 					
@@ -412,27 +396,33 @@ public final class JSONSerializer
 				default:
 			}
 			
-			if (newValue != null && currentState != null)
-			{
-				if (currentState.type == JSONType.OBJECT)
-				{
-					currentState.object.setField(identifier, newValue);
-				}
-				else
-				{
-					currentState.array.addElement(newValue);
-				}
-			}
+			addNewValue(newValue, currentState, identifier);
 		}
 		
 		final String error = reader.getErrorMessage();
-		
-		if (error != null && !error.isEmpty())
+		return (error != null && !error.isEmpty()) ? null : currentState;
+	}
+	
+	/**
+	 * Adds new value to current array or object
+	 * 
+	 * @param value Value to add
+	 * @param state Current stack state to add into
+	 * @param identifier Identifier for value added to the object
+	 */
+	private static void addNewValue(final JSONValue value, final StackState state, final String identifier)
+	{
+		if (value != null && state != null)
 		{
-			return null;
+			if (state.type == JSONType.OBJECT)
+			{
+				state.object.setField(identifier, value);
+			}
+			else
+			{
+				state.array.addElement(value);
+			}
 		}
-		
-		return currentState;
 	}
 	
 	/**
@@ -453,55 +443,10 @@ public final class JSONSerializer
 			switch (elem.value.getType())
 			{
 				case ARRAY:
-					if (elem.isProcessed)
-					{
-						writer.writeArrayEnd();
-					}
-					else if (canBeProcessed(elementStack, elem.value.asArray()))
-					{
-						elem.isProcessed = true;
-						elementStack.push(elem);
-
-						if (elem.identifier == null)
-						{
-							writer.writeArrayStart();
-						}
-						else
-						{
-							writer.writeArrayStart(elem.identifier);
-						}
-
-						final JSONValue[] values = elem.value.asArray().toArray();
-
-						for (int i = values.length - 1; i > -1; --i)
-						{
-							elementStack.push(new Element(values[i]));
-						}
-					}
-					
+					writeArray(elementStack, elem, writer);
 					break;
 				case OBJECT:
-					if (elem.isProcessed)
-					{
-						writer.writeObjectEnd();
-					}
-					else if (canBeProcessed(elementStack, elem.value.asObject()))
-					{
-						elem.isProcessed = true;
-						elementStack.push(elem);
-						
-						if (elem.identifier == null)
-						{
-							writer.writeObjectStart();
-						}
-						else
-						{
-							writer.writeObjectStart(elem.identifier);
-						}
-						
-						elem.value.asObject().forEach(ent -> elementStack.push(new Element(ent.getKey(), ent.getValue())));
-					}
-					
+					writeObject(elementStack, elem, writer);
 					break;
 				default:
 					if (elem.identifier == null)
@@ -513,6 +458,73 @@ public final class JSONSerializer
 						writer.writeValue(elem.identifier, elem.value);
 					}
 			}
+		}
+	}
+	
+	/**
+	 * Writes an array
+	 * 
+	 * @param stack Current serialization stack
+	 * @param elem Element to write
+	 * @param writer JSON writer to use
+	 */
+	private static void writeArray(final Stack<Element> stack, final Element elem, final JSONWriter writer)
+	{
+		if (elem.isProcessed)
+		{
+			writer.writeArrayEnd();
+		}
+		else if (canBeProcessed(stack, elem.value.asArray()))
+		{
+			elem.isProcessed = true;
+			stack.push(elem);
+
+			if (elem.identifier == null)
+			{
+				writer.writeArrayStart();
+			}
+			else
+			{
+				writer.writeArrayStart(elem.identifier);
+			}
+
+			final JSONValue[] values = elem.value.asArray().toArray();
+
+			for (int i = values.length - 1; i > -1; --i)
+			{
+				stack.push(new Element(values[i]));
+			}
+		}
+	}
+	
+	/**
+	 * Writes an object
+	 * 
+	 * @param stack Current serialization stack
+	 * @param elem Element to write
+	 * @param writer JSON writer to use
+	 */
+	private static void writeObject(final Stack<Element> stack, final Element elem, final JSONWriter writer)
+	{
+		if (elem.isProcessed)
+		{
+			writer.writeObjectEnd();
+		}
+		else if (canBeProcessed(stack, elem.value.asObject()))
+		{
+			elem.isProcessed = true;
+			stack.push(elem);
+			
+			if (elem.identifier == null)
+			{
+				writer.writeObjectStart();
+			}
+			else
+			{
+				writer.writeObjectStart(elem.identifier);
+			}
+			
+			elem.value.asObject().forEach(ent -> stack.push(new Element(ent.getKey(), ent.getValue())));
 		}
 	}
 	

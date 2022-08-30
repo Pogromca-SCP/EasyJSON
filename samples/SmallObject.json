@@ -1,5 +1,6 @@
 {
 	"boolean": true,
 	"string": "Example Text",
-	"none": null
+	"none": null,
+	"num": 1.0E+3
 }

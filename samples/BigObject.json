@@ -2,7 +2,7 @@
 	"arr": [ {
 		"nope": null
 	}, {}, {
-		"text": "Example",
+		"text": "Examp\\e",
 		"inner": {
 			"inner": {},
 			"arr": []
@@ -11,7 +11,8 @@
 	"text": "Hello\u7684 there\n!",
 	"obj": {
 		"num": 34,
-		"num2": -44,
+		"num2": 1.2E-2,
+		"num3": -1.2e2,
 		"inner": {},
 		"nulls": [ null, null, true ]
 	}

@@ -87,6 +87,7 @@ class JSONReaderTest
 		expected.setField("boolean", true);
 		expected.setNullField("none");
 		expected.setField("string", "Example Text");
+		expected.setField("num", 1.0E+3);
 		testTemplate("samples/SmallObject.json", "SmallObjectTest", JSONArray.EMPTY, expected);
 	}
 	
@@ -112,6 +113,7 @@ class JSONReaderTest
 		expected.addElement(obj);
 		expected.addElement(0e45);
 		expected.addElement(false);
+		expected.addElement(0);
 		testTemplate("samples/BigArray.json", "BigArrayTest", expected, JSONObject.EMPTY);
 	}
 	
@@ -124,13 +126,14 @@ class JSONReaderTest
 		sup.setField("inner", JSONObject.EMPTY);
 		sup.setField("arr", JSONArray.EMPTY);
 		final JSONObject last = new JSONObject();
-		last.setField("text", "Example");
+		last.setField("text", "Examp\\e");
 		last.setField("inner", sup);
 		final JSONValue[] arr = { new JSONObjectValue(empty), new JSONObjectValue(JSONObject.EMPTY), new JSONObjectValue(last) };
 		final JSONValue[] nulls = { JSONNullValue.NULL, JSONNullValue.NULL, JSONBooleanValue.TRUE };
 		final JSONObject inner = new JSONObject();
 		inner.setField("num", 34);
-		inner.setField("num2", -44);
+		inner.setField("num2", 1.2E-2);
+		inner.setField("num3", -1.2e2);
 		inner.setField("inner", JSONObject.EMPTY);
 		inner.setField("nulls", nulls);
 		final JSONObject expected = new JSONObject();

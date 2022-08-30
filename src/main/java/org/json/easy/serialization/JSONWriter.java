@@ -629,25 +629,25 @@ public class JSONWriter implements AutoCloseable
 			switch (ch)
 			{
 				case '\\':
-					sb.append("\\").append('\\');
+					sb.append('\\').append('\\');
 					break;
 				case '\n':
-					sb.append("\\").append('n');
+					sb.append('\\').append('n');
 					break;
 				case '\t':
-					sb.append("\\").append('t');
+					sb.append('\\').append('t');
 					break;
 				case '\b':
-					sb.append("\\").append('b');
+					sb.append('\\').append('b');
 					break;
 				case '\f':
-					sb.append("\\").append('f');
+					sb.append('\\').append('f');
 					break;
 				case '\r':
-					sb.append("\\").append('r');
+					sb.append('\\').append('r');
 					break;
 				case '\"':
-					sb.append("\\").append('\"');
+					sb.append('\\').append('\"');
 					break;
 				default:
 					if (ch > 31)
@@ -656,7 +656,7 @@ public class JSONWriter implements AutoCloseable
 					}
 					else
 					{
-						sb.append("\\").append('u').append(toHexString(ch));
+						sb.append('\\').append('u').append(toHexString(ch));
 					}
 			}
 		}
