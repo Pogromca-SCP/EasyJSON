@@ -90,6 +90,17 @@ public class JSONWriter implements AutoCloseable
 	 * Creates new JSON writer and wraps provided writer
 	 * 
 	 * @param writer Writer to wrap
+	 * @param initIndent Initial indentation level
+	 */
+	public JSONWriter(final Writer writer, final Number initIndent)
+	{
+		this(writer, initIndent == null ? 0 : initIndent.intValue(), null);
+	}
+	
+	/**
+	 * Creates new JSON writer and wraps provided writer
+	 * 
+	 * @param writer Writer to wrap
 	 * @param pol JSON printing policy to use
 	 */
 	public JSONWriter(final Writer writer, final JSONPrintPolicy pol)
@@ -118,6 +129,18 @@ public class JSONWriter implements AutoCloseable
 				writeChar(ch);
 			}
 		}; 
+	}
+	
+	/**
+	 * Creates new JSON writer and wraps provided writer
+	 * 
+	 * @param writer Writer to wrap
+	 * @param initIndent Initial indentation level
+	 * @param pol JSON printing policy to use
+	 */
+	public JSONWriter(final Writer writer, final Number initIndent, final JSONPrintPolicy pol)
+	{
+		this(writer, initIndent == null ? 0 : initIndent.intValue(), pol);
 	}
 	
 	/**

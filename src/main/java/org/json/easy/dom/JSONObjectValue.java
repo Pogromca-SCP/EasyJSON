@@ -36,9 +36,19 @@ public class JSONObjectValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONObjectValue(final Map<String, JSONValue> val)
+	public JSONObjectValue(final Map<String, ? extends JSONValue> val)
 	{
 		this(new JSONObject(val));
+	}
+	
+	/**
+	 * Creates new object value
+	 * 
+	 * @param val Value to set
+	 */
+	public JSONObjectValue(final JSONValue val)
+	{
+		this(val == null ? null : val.asObject());
 	}
 	
 	/**

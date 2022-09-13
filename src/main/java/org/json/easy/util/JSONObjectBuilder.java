@@ -118,11 +118,12 @@ public class JSONObjectBuilder
 	/**
 	 * Sets the value of the field with the specified name
 	 * 
+	 * @param <T> Type of new values
 	 * @param key Name of the field to set, null string are not allowed
 	 * @param value Value to set
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONObjectBuilder set(final String key, final JSONValue[] value)
+	public <T extends JSONValue> JSONObjectBuilder set(final String key, final T[] value)
 	{
 		object.setField(key, value);
 		return this;
@@ -135,7 +136,7 @@ public class JSONObjectBuilder
 	 * @param value Value to set
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONObjectBuilder set(final String key, final Iterable<JSONValue> value)
+	public JSONObjectBuilder set(final String key, final Iterable<? extends JSONValue> value)
 	{
 		object.setField(key, value);
 		return this;
@@ -174,7 +175,7 @@ public class JSONObjectBuilder
 	 * @param value Value to set
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONObjectBuilder set(final String key, final Map<String, JSONValue> value)
+	public JSONObjectBuilder set(final String key, final Map<String, ? extends JSONValue> value)
 	{
 		object.setField(key, value);
 		return this;
@@ -298,27 +299,28 @@ public class JSONObjectBuilder
 	/**
 	 * Copies elements from provided map into this object if condition is met
 	 * 
+	 * @param <T> Type of copied values
 	 * @param src Map to copy elements from
 	 * @param pred Condition that elements must meet in order to be copied
 	 * @return Reference to this object to allow method chaining
 	 */
-	public final JSONObjectBuilder copyIf(final Map<String, JSONValue> src, final BiPredicate<String, JSONValue> pred)
+	public final <T extends JSONValue> JSONObjectBuilder copyIf(final Map<String, T> src, final BiPredicate<String, T> pred)
 	{
 		if (src != null && pred != null)
 		{
-			Set<Map.Entry<String, JSONValue>> entries = src.entrySet();
+			Set<Map.Entry<String, T>> entries = src.entrySet();
 			
 			if (entries == null)
 			{
 				return this;
 			}
 			
-			for (final Map.Entry<String, JSONValue> ent : entries)
+			for (final Map.Entry<String, T> ent : entries)
 			{
 				if (ent != null)
 				{
 					final String key = ent.getKey();
-					final JSONValue val = ent.getValue();
+					final T val = ent.getValue();
 					
 					if (pred.test(key, val))
 					{

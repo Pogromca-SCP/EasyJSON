@@ -115,10 +115,11 @@ public class JSONArrayBuilder
 	/**
 	 * Adds a new value into this array
 	 * 
+	 * @param <T> Type of new values
 	 * @param value Value to add
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONArrayBuilder add(final JSONValue[] value)
+	public <T extends JSONValue> JSONArrayBuilder add(final T[] value)
 	{
 		array.addElement(value);
 		return this;
@@ -130,7 +131,7 @@ public class JSONArrayBuilder
 	 * @param value Value to add
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONArrayBuilder add(final Iterable<JSONValue> value)
+	public JSONArrayBuilder add(final Iterable<? extends JSONValue> value)
 	{
 		array.addElement(value);
 		return this;
@@ -166,7 +167,7 @@ public class JSONArrayBuilder
 	 * @param value Value to add
 	 * @return Reference to this object to allow method chaining
 	 */
-	public JSONArrayBuilder add(final Map<String, JSONValue> value)
+	public JSONArrayBuilder add(final Map<String, ? extends JSONValue> value)
 	{
 		array.addElement(value);
 		return this;
@@ -280,15 +281,16 @@ public class JSONArrayBuilder
 	/**
 	 * Copies elements from provided collection into this array if condition is met
 	 * 
+	 * @param <T> Type of copied values
 	 * @param src Collection to copy elements from
 	 * @param pred Condition that elements must meet in order to be copied
 	 * @return Reference to this object to allow method chaining
 	 */
-	public final JSONArrayBuilder copyIf(final Iterable<JSONValue> src, final Predicate<JSONValue> pred)
+	public final <T extends JSONValue> JSONArrayBuilder copyIf(final Iterable<T> src, final Predicate<T> pred)
 	{
 		if (src != null && pred != null)
 		{
-			for (final JSONValue val : src)
+			for (final T val : src)
 			{
 				if (pred.test(val))
 				{
@@ -303,15 +305,16 @@ public class JSONArrayBuilder
 	/**
 	 * Copies elements from provided array into this array if condition is met
 	 * 
+	 * @param <T> Type of copied values
 	 * @param src Array to copy elements from
 	 * @param pred Condition that elements must meet in order to be copied
 	 * @return Reference to this object to allow method chaining
 	 */
-	public final JSONArrayBuilder copyIf(final JSONValue[] src, final Predicate<JSONValue> pred)
+	public final <T extends JSONValue> JSONArrayBuilder copyIf(final T[] src, final Predicate<T> pred)
 	{
 		if (src != null && pred != null)
 		{
-			for (final JSONValue val : src)
+			for (final T val : src)
 			{
 				if (pred.test(val))
 				{

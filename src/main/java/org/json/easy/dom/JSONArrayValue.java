@@ -33,9 +33,10 @@ public class JSONArrayValue extends JSONValue
 	/**
 	 * Creates new array value
 	 * 
+	 * @param <T> Type of values in array
 	 * @param val Value to set
 	 */
-	public JSONArrayValue(final JSONValue[] val)
+	public <T extends JSONValue> JSONArrayValue(final T[] val)
 	{
 		this(new JSONArray(val));
 	}
@@ -45,9 +46,19 @@ public class JSONArrayValue extends JSONValue
 	 * 
 	 * @param val Value to set
 	 */
-	public JSONArrayValue(final Iterable<JSONValue> val)
+	public JSONArrayValue(final Iterable<? extends JSONValue> val)
 	{
 		this(new JSONArray(val));
+	}
+	
+	/**
+	 * Creates new array value
+	 * 
+	 * @param val Value to set
+	 */
+	public JSONArrayValue(final JSONValue val)
+	{
+		this(val == null ? null : val.asArray());
 	}
 	
 	/**

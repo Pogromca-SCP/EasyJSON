@@ -31,6 +31,16 @@ public class JSONStringValue extends JSONValue
 	}
 	
 	/**
+	 * Creates new string value
+	 * 
+	 * @param val Value to set
+	 */
+	public JSONStringValue(final JSONValue val)
+	{
+		this(val == null ? null : val.asString());
+	}
+	
+	/**
 	 * Generates a hash code for this object
 	 * 
 	 * @return Hash code for this object

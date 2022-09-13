@@ -47,6 +47,7 @@ class JSONObjectTest
 		map.put("bool", JSONBooleanValue.TRUE);
 		map.put("null", JSONNullValue.NULL);
 		map.put("test", new JSONStringValue("testing"));
+		
 		final JSONObject obj = new JSONObject(map);
 		final JSONObject emptyObj = JSONObject.EMPTY;
 		assertEquals(map.hashCode(), obj.hashCode());
@@ -55,6 +56,7 @@ class JSONObjectTest
 		assertEquals(empty.toString(), emptyObj.toString());
 		assertEquals(map.size(), obj.size());
 		assertEquals(empty.size(), emptyObj.size());
+		
 		final JSONObject copy = new JSONObject(obj);
 		assertEquals(copy.equals(obj), obj.equals(copy));
 		assertEquals(obj.size(), copy.size());
@@ -71,6 +73,7 @@ class JSONObjectTest
 		obj.setField("test", true);
 		obj.setField("true", true);
 		obj.setField("null", true);
+		obj.setField("one", 1);
 		assertEquals(0, obj.size());
 		assertEquals(false, obj.hasField("test"));
 		assertEquals(false, obj.hasField("true"));
@@ -92,6 +95,7 @@ class JSONObjectTest
 		assertEquals(JSONBooleanValue.TRUE, obj.getField("true"));
 		assertEquals(JSONNullValue.NULL, obj.getField("true", JSONType.NUMBER));
 		assertEquals(JSONNullValue.NULL, obj.getField("bruh"));
+		
 		obj.removeField("true");
 		assertEquals(JSONNullValue.NULL, obj.getField("true"));
 		assertEquals(false, obj.hasField("true"));
@@ -103,7 +107,10 @@ class JSONObjectTest
 		assertEquals(JSONNullValue.NULL, obj.getField("null"));
 		obj.setField(null, JSONNullValue.NULL);
 		assertEquals(false, obj.hasField(null));
+		
 		serializationTest(obj);
+		obj.clear();
+		assertEquals(JSONObject.EMPTY, obj);
 	}
 	
 	@Test
@@ -113,6 +120,7 @@ class JSONObjectTest
 		obj.setNullField("null");
 		obj.setField("num", 3.14);
 		obj.setField("text", "Test");
+		
 		final HashMap<String, JSONValue> cp = new HashMap<String, JSONValue>();
 		obj.forEach(ent -> cp.put(ent.getKey(), ent.getValue()));
 		assertEquals(cp, obj.toMap());

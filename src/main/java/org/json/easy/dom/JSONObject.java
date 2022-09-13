@@ -42,20 +42,20 @@ public class JSONObject implements Serializable
 	 * 
 	 * @param src Map to copy, null or blank keys are not copied
 	 */
-	public JSONObject(final Map<String, JSONValue> src)
+	public JSONObject(final Map<String, ? extends JSONValue> src)
 	{
 		this();
 		
 		if (src != null)
 		{
-			final Set<Map.Entry<String, JSONValue>> set = src.entrySet();
+			final Set<? extends Map.Entry<String, ? extends JSONValue>> set = src.entrySet();
 			
 			if (set == null)
 			{
 				return;
 			}
 			
-			for (final Map.Entry<String, JSONValue> ent : set)
+			for (final Map.Entry<String, ? extends JSONValue> ent : set)
 			{
 				if (ent != null)
 				{
@@ -215,7 +215,7 @@ public class JSONObject implements Serializable
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set, null will be converted to JSON null value. Recursive values are not allowed
+	 * @param value Value to set, null will be converted to JSON null value
 	 * @return True if set successfully, false otherwise
 	 */
 	public final boolean setField(final String fieldName, final JSONValue value)
@@ -368,7 +368,7 @@ public class JSONObject implements Serializable
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setField(final String fieldName, final JSONArray value)
@@ -378,12 +378,13 @@ public class JSONObject implements Serializable
 	
 	/**
 	 * Sets the value of the field with the specified name
-	 *
+	 * 
+	 * @param <T> Type of new values
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(final String fieldName, final JSONValue[] value)
+	public <T extends JSONValue> boolean setField(final String fieldName, final T[] value)
 	{
 		return setField(fieldName, new JSONArrayValue(value));
 	}
@@ -392,10 +393,10 @@ public class JSONObject implements Serializable
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(final String fieldName, final Iterable<JSONValue> value)
+	public boolean setField(final String fieldName, final Iterable<? extends JSONValue> value)
 	{
 		return setField(fieldName, new JSONArrayValue(value));
 	}
@@ -416,7 +417,7 @@ public class JSONObject implements Serializable
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setField(final String fieldName, final JSONObject value)
@@ -428,10 +429,10 @@ public class JSONObject implements Serializable
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setField(final String fieldName, final Map<String, JSONValue> value)
+	public boolean setField(final String fieldName, final Map<String, ? extends JSONValue> value)
 	{
 		return setField(fieldName, new JSONObjectValue(value));
 	}

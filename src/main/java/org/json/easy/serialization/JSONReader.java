@@ -490,14 +490,14 @@ public class JSONReader implements AutoCloseable
 		if (!errorMessage.isEmpty())
 		{
 			readNotation = JSONNotation.ERROR;
-			return false;
+			return Boolean.FALSE;
 		}
 
 		if (stream == null)
 		{
 			setErrorMessage("Null stream error");
 			readNotation = JSONNotation.ERROR;
-			return true;
+			return Boolean.TRUE;
 		}
 
 		final boolean atEndOfStream = isAtEnd();
@@ -506,20 +506,20 @@ public class JSONReader implements AutoCloseable
 		{
 			setErrorMessage("Improperly formatted input");
 			readNotation = JSONNotation.ERROR;
-			return true;
+			return Boolean.TRUE;
 		}
 
 		if (finishedReadingRootObject && !atEndOfStream)
 		{
 			setErrorMessage("Unexpected additional input");
 			readNotation = JSONNotation.ERROR;
-			return true;
+			return Boolean.TRUE;
 		}
 
 		if (atEndOfStream)
 		{
 			readNotation = null;
-			return false;
+			return Boolean.FALSE;
 		}
 		
 		return null;
@@ -678,12 +678,12 @@ public class JSONReader implements AutoCloseable
 
 		if (currentToken == JSONToken.NONE)
 		{
-			return false;
+			return Boolean.FALSE;
 		}
 
 		if (currentToken == (isArray ? JSONToken.SQUARE_CLOSE : JSONToken.CURLY_CLOSE))
 		{
-			return true;
+			return Boolean.TRUE;
 		}
 		
 		if (useComma)
@@ -691,14 +691,14 @@ public class JSONReader implements AutoCloseable
 			if (currentToken != JSONToken.COMMA)
 			{
 				setErrorMessage("Comma token expected");
-				return false;
+				return Boolean.FALSE;
 			}
 
 			currentToken = nextToken();
 
 			if (currentToken == JSONToken.NONE)
 			{
-				return false;
+				return Boolean.FALSE;
 			}
 		}
 		
@@ -843,7 +843,7 @@ public class JSONReader implements AutoCloseable
 			return JSONToken.NULL;
 		}
 
-		setErrorMessage("Invalid JSON token (field name)");
+		setErrorMessage("Invalid JSON token");
 		return JSONToken.NONE;
 	}
 	

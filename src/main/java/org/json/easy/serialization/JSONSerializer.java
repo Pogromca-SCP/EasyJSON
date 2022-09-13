@@ -46,17 +46,8 @@ public final class JSONSerializer
 		{
 			identifier = id;
 			type = isArray ? JSONType.ARRAY : JSONType.OBJECT;
-			
-			if (isArray)
-			{
-				array = new JSONArray();
-				object = null;
-			}
-			else
-			{
-				object = new JSONObject();
-				array = null;
-			}
+			array = isArray ? new JSONArray() : null;
+			object = isArray ? null : new JSONObject();
 		}
 	}
 	
@@ -103,9 +94,10 @@ public final class JSONSerializer
 		/**
 		 * Creates new element with provided value
 		 * 
+		 * @param <T> Type of values in array
 		 * @param val Value to set
 		 */
-		public Element(final JSONValue[] val)
+		public <T extends JSONValue> Element(final T[] val)
 		{
 			this(null, new JSONArrayValue(val));
 		}
@@ -115,7 +107,7 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
-		public Element(final Iterable<JSONValue> val)
+		public Element(final Iterable<? extends JSONValue> val)
 		{
 			this(null, new JSONArrayValue(val));
 		}
@@ -135,7 +127,7 @@ public final class JSONSerializer
 		 * 
 		 * @param val Value to set
 		 */
-		public Element(final Map<String, JSONValue> val)
+		public Element(final Map<String, ? extends JSONValue> val)
 		{
 			this(null, new JSONObjectValue(val));
 		}
@@ -240,7 +232,7 @@ public final class JSONSerializer
 	 * @param writer JSON writer to write data into
 	 * @return True if data serialized successfully, false otherwise
 	 */
-	public static boolean serialize(final Iterable<JSONValue> col, final JSONWriter writer)
+	public static boolean serialize(final Iterable<? extends JSONValue> col, final JSONWriter writer)
 	{
 		if (writer == null)
 		{
@@ -272,11 +264,12 @@ public final class JSONSerializer
 	/**
 	 * Serializes JSON data
 	 * 
+	 * @param <T> Type of values in array
 	 * @param array Array to serialize
 	 * @param writer JSON writer to write data into
 	 * @return True if data serialized successfully, false otherwise
 	 */
-	public static boolean serialize(final JSONValue[] array, final JSONWriter writer)
+	public static <T extends JSONValue> boolean serialize(final T[] array, final JSONWriter writer)
 	{
 		if (writer == null)
 		{
@@ -294,7 +287,7 @@ public final class JSONSerializer
 	 * @param writer JSON writer to write data into
 	 * @return True if data serialized successfully, false otherwise
 	 */
-	public static boolean serialize(final Map<String, JSONValue> map, final JSONWriter writer)
+	public static boolean serialize(final Map<String, ? extends JSONValue> map, final JSONWriter writer)
 	{
 		if (writer == null)
 		{

@@ -100,6 +100,7 @@ class JSONValueTest
 			assertEquals(Boolean.toString(v), val.asString());
 			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
+			assertEquals(val, new JSONBooleanValue(val));
 			serializationTest(val);
 		}
 	}
@@ -129,6 +130,7 @@ class JSONValueTest
 			assertEquals(Double.toString(v), val.asString());
 			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
+			assertEquals(val, new JSONNumberValue(val));
 			serializationTest(val);
 		}
 	}
@@ -166,6 +168,7 @@ class JSONValueTest
 			assertEquals(v, val.asString());
 			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
+			assertEquals(val, new JSONStringValue(val));
 			serializationTest(val);
 		}
 	}
@@ -204,6 +207,7 @@ class JSONValueTest
 			assertEquals("", val.asString());
 			assertEquals(v, val.asArray());
 			assertEquals(JSONObject.EMPTY, val.asObject());
+			assertEquals(val, new JSONArrayValue(val));
 			serializationTest(val);
 		}
 	}
@@ -238,6 +242,7 @@ class JSONValueTest
 			assertEquals("", val.asString());
 			assertEquals(JSONArray.EMPTY, val.asArray());
 			assertEquals(v, val.asObject());
+			assertEquals(val, new JSONObjectValue(val));
 			serializationTest(val);
 		}
 	}

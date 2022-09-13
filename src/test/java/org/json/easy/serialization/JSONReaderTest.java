@@ -4,6 +4,7 @@ import org.json.easy.dom.*;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
 import org.junit.jupiter.api.Test;
+import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,6 +56,14 @@ class JSONReaderTest
 		assertEquals(expectedObj, obj);
 	}
 	
+	private static void readNextNTimes(final JSONReader reader, final int n)
+	{
+		for (int i = 0; i < n; ++i)
+		{
+			reader.readNext();
+		}
+	}
+	
 	@Test
 	void testEmptyArrayFile()
 	{
@@ -100,11 +109,13 @@ class JSONReaderTest
 		inner.addElement("an");
 		inner.addElement("inner");
 		inner.addElement("array");
+		
 		final JSONValue[] last = { new JSONStringValue("InnerArray"), new JSONStringValue("") };
 		final JSONObject obj = new JSONObject();
 		obj.setField("inner", JSONObject.EMPTY);
 		obj.setField("arr", last);
 		obj.setField("number", 15);
+		
 		final JSONArray expected = new JSONArray();
 		expected.addElement(-34.2);
 		expected.addNullElement();
@@ -114,6 +125,7 @@ class JSONReaderTest
 		expected.addElement(0e45);
 		expected.addElement(false);
 		expected.addElement(0);
+		
 		testTemplate("samples/BigArray.json", "BigArrayTest", expected, JSONObject.EMPTY);
 	}
 	
@@ -125,9 +137,11 @@ class JSONReaderTest
 		final JSONObject sup = new JSONObject();
 		sup.setField("inner", JSONObject.EMPTY);
 		sup.setField("arr", JSONArray.EMPTY);
+		
 		final JSONObject last = new JSONObject();
 		last.setField("text", "Examp\\e");
 		last.setField("inner", sup);
+		
 		final JSONValue[] arr = { new JSONObjectValue(empty), new JSONObjectValue(JSONObject.EMPTY), new JSONObjectValue(last) };
 		final JSONValue[] nulls = { JSONNullValue.NULL, JSONNullValue.NULL, JSONBooleanValue.TRUE };
 		final JSONObject inner = new JSONObject();
@@ -136,6 +150,7 @@ class JSONReaderTest
 		inner.setField("num3", -1.2e2);
 		inner.setField("inner", JSONObject.EMPTY);
 		inner.setField("nulls", nulls);
+		
 		final JSONObject expected = new JSONObject();
 		expected.setField("text", "Hello\u7684 there\n!");
 		expected.setField("obj", inner);
@@ -147,5 +162,23 @@ class JSONReaderTest
 	void testIncorrectFile()
 	{
 		testTemplate("samples/Incorrect.json", "IncorrectTest", JSONArray.EMPTY, JSONObject.EMPTY);
+	}
+	
+	@Test
+	void testSkipMethods()
+	{
+		JSONNotation res;
+		
+		try (JSONReader reader = new JSONReader(new StringReader("[{\"empty\":{},\"arr\":[]},[{},[[],[]]],{\"good\":null}]")))
+		{
+			readNextNTimes(reader, 2);
+			reader.skipObject();
+			readNextNTimes(reader, 2);
+			reader.skipArray();
+			readNextNTimes(reader, 3);
+			res = reader.getReadNotation();
+		}
+		
+		assertEquals(JSONNotation.NULL, res);
 	}
 }

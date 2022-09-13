@@ -51,6 +51,16 @@ public class JSONBooleanValue extends JSONValue
 	}
 	
 	/**
+	 * Creates new boolean value
+	 * 
+	 * @param val Value to set
+	 */
+	public JSONBooleanValue(final JSONValue val)
+	{
+		this(val == null ? false : val.asBoolean());
+	}
+	
+	/**
 	 * Generates a hash code for this object
 	 * 
 	 * @return Hash code for this object

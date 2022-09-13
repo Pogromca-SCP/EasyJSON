@@ -41,6 +41,16 @@ public class JSONNumberValue extends JSONValue
 	}
 	
 	/**
+	 * Creates new number value
+	 * 
+	 * @param val Value to set
+	 */
+	public JSONNumberValue(final JSONValue val)
+	{
+		this(val == null ? 0.0 : val.asNumber());
+	}
+	
+	/**
 	 * Generates a hash code for this object
 	 * 
 	 * @return Hash code for this object

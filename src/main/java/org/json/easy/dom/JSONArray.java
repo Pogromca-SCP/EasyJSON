@@ -72,9 +72,10 @@ public class JSONArray implements Serializable
 	/**
 	 * Creates new JSON array based on an array
 	 * 
+	 * @param <T> Type of values in array
 	 * @param src Array to copy
 	 */
-	public JSONArray(final JSONValue[] src)
+	public <T extends JSONValue> JSONArray(final T[] src)
 	{
 		this();
 		
@@ -92,7 +93,7 @@ public class JSONArray implements Serializable
 	 * 
 	 * @param src Iterable object to copy
 	 */
-	public JSONArray(final Iterable<JSONValue> src)
+	public JSONArray(final Iterable<? extends JSONValue> src)
 	{
 		this();
 		
@@ -258,7 +259,7 @@ public class JSONArray implements Serializable
 	/**
 	 * Adds new element to this array
 	 * 
-	 * @param value Value to add, null will be converted to JSON null value. Recursive values are not allowed
+	 * @param value Value to add, null will be converted to JSON null value
 	 * @return True if added successfully, false otherwise
 	 */
 	public final boolean addElement(final JSONValue value)
@@ -275,7 +276,7 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set
-	 * @param value Value to set, null will be converted to JSON null value. Recursive values are not allowed
+	 * @param value Value to set, null will be converted to JSON null value
 	 * @return True if set successfully, false otherwise
 	 */
 	public final boolean setElement(final int index, final JSONValue value)
@@ -293,7 +294,7 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set, null is interpreted as 0
-	 * @param value Value to set, null will be converted to JSON null value. Recursive values are not allowed
+	 * @param value Value to set, null will be converted to JSON null value
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setElement(final Number index, final JSONValue value)
@@ -634,7 +635,7 @@ public class JSONArray implements Serializable
 	/**
 	 * Adds new element to this array
 	 * 
-	 * @param value Value to add. Recursive values are not allowed
+	 * @param value Value to add
 	 * @return True if added successfully, false otherwise
 	 */
 	public boolean addElement(final JSONArray value)
@@ -645,10 +646,11 @@ public class JSONArray implements Serializable
 	/**
 	 * Adds new element to this array
 	 * 
-	 * @param value Value to add. Recursive values are not allowed
+	 * @param <T> Type of new values
+	 * @param value Value to add
 	 * @return True if added successfully, false otherwise
 	 */
-	public boolean addElement(final JSONValue[] value)
+	public <T extends JSONValue> boolean addElement(final T[] value)
 	{
 		return addElement(new JSONArrayValue(value));
 	}
@@ -656,10 +658,10 @@ public class JSONArray implements Serializable
 	/**
 	 * Adds new element to this array
 	 * 
-	 * @param value Value to add. Recursive values are not allowed
+	 * @param value Value to add
 	 * @return True if added successfully, false otherwise
 	 */
-	public boolean addElement(final Iterable<JSONValue> value)
+	public boolean addElement(final Iterable<? extends JSONValue> value)
 	{
 		return addElement(new JSONArrayValue(value));
 	}
@@ -668,7 +670,7 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setElement(final int index, final JSONArray value)
@@ -678,12 +680,13 @@ public class JSONArray implements Serializable
 	
 	/**
 	 * Sets the value of the element on the specified index
-	 *
+	 * 
+	 * @param <T> Type of new values
 	 * @param index Index of the element to set
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setElement(final int index, final JSONValue[] value)
+	public <T extends JSONValue> boolean setElement(final int index, final T[] value)
 	{
 		return setElement(index, new JSONArrayValue(value));
 	}
@@ -692,10 +695,10 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setElement(final int index, final Iterable<JSONValue> value)
+	public boolean setElement(final int index, final Iterable<? extends JSONValue> value)
 	{
 		return setElement(index, new JSONArrayValue(value));
 	}
@@ -704,7 +707,7 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set, null is interpreted as 0
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setElement(final Number index, final JSONArray value)
@@ -714,12 +717,13 @@ public class JSONArray implements Serializable
 	
 	/**
 	 * Sets the value of the element on the specified index
-	 *
+	 * 
+	 * @param <T> Type of new values
 	 * @param index Index of the element to set, null is interpreted as 0
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setElement(final Number index, final JSONValue[] value)
+	public <T extends JSONValue> boolean setElement(final Number index, final T[] value)
 	{
 		return setElement(asInt(index), new JSONArrayValue(value));
 	}
@@ -728,10 +732,10 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set, null is interpreted as 0
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setElement(final Number index, final Iterable<JSONValue> value)
+	public boolean setElement(final Number index, final Iterable<? extends JSONValue> value)
 	{
 		return setElement(asInt(index), new JSONArrayValue(value));
 	}
@@ -763,7 +767,7 @@ public class JSONArray implements Serializable
 	/**
 	 * Adds new element to this array
 	 * 
-	 * @param value Value to add. Recursive values are not allowed
+	 * @param value Value to add
 	 * @return True if added successfully, false otherwise
 	 */
 	public boolean addElement(final JSONObject value)
@@ -774,10 +778,10 @@ public class JSONArray implements Serializable
 	/**
 	 * Adds new element to this array
 	 * 
-	 * @param value Value to add. Recursive values are not allowed
+	 * @param value Value to add
 	 * @return True if added successfully, false otherwise
 	 */
-	public boolean addElement(final Map<String, JSONValue> value)
+	public boolean addElement(final Map<String, ? extends JSONValue> value)
 	{
 		return addElement(new JSONObjectValue(value));
 	}
@@ -786,7 +790,7 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setElement(final int index, final JSONObject value)
@@ -798,10 +802,10 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setElement(final int index, final Map<String, JSONValue> value)
+	public boolean setElement(final int index, final Map<String, ? extends JSONValue> value)
 	{
 		return setElement(index, new JSONObjectValue(value));
 	}
@@ -810,7 +814,7 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set, null is interpreted as 0
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
 	public boolean setElement(final Number index, final JSONObject value)
@@ -822,10 +826,10 @@ public class JSONArray implements Serializable
 	 * Sets the value of the element on the specified index
 	 *
 	 * @param index Index of the element to set, null is interpreted as 0
-	 * @param value Value to set. Recursive values are not allowed
+	 * @param value Value to set
 	 * @return True if set successfully, false otherwise
 	 */
-	public boolean setElement(final Number index, final Map<String, JSONValue> value)
+	public boolean setElement(final Number index, final Map<String, ? extends JSONValue> value)
 	{
 		return setElement(asInt(index), new JSONObjectValue(value));
 	}
