@@ -191,4 +191,40 @@ class JSONArrayTest
 		final JSONValue[] exp = { new JSONNumberValue(-34), new JSONNumberValue(21), new JSONNumberValue(24), new JSONNumberValue(78), new JSONNumberValue(90) };
 		assertArrayEquals(exp, arr.toArray());
 	}
+	
+	@Test
+	void testSubArrays()
+	{
+		final JSONArray arr = new JSONArray();
+		arr.addElement(false);
+		arr.addElement("second");
+		arr.addElement(2.1);
+		arr.addElement(false);
+		arr.addNullElement();
+		arr.addElement(1.1);
+		arr.addElement(true);
+		arr.addNullElement();
+		arr.addElement("almost there");
+		arr.addElement("last");
+		
+		assertEquals(arr.subArray(0, 4), arr.subArray(Integer.valueOf(0), 4));
+		assertEquals(arr.subArray(0, 4), arr.subArray(0, Integer.valueOf(4)));
+		assertEquals(arr.subArray(0, 4), arr.subArray(Integer.valueOf(0), Integer.valueOf(4)));
+		assertEquals(JSONArray.EMPTY, arr.subArray(-2, 4));
+		assertEquals(JSONArray.EMPTY, arr.subArray(1, 1));
+		assertEquals(JSONArray.EMPTY, arr.subArray(0, arr.size() + 1));
+		
+		final JSONArray sub = arr.subArray(0, 4);
+		assertEquals(true, sub.contains(false));
+		assertEquals(true, sub.contains(2.1));
+		assertEquals(false, sub.containsNull());
+		assertEquals(false, sub.contains(1.1));
+		
+		final JSONArray sub2 = arr.subArray(6, arr.size());
+		assertEquals(true, sub2.contains(true));
+		assertEquals(true, sub2.containsNull());
+		assertEquals(true, sub2.contains("last"));
+		assertEquals(false, sub2.contains(false));
+		assertEquals(false, sub2.contains(1.1));
+	}
 }
