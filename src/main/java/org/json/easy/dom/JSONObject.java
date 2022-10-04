@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import org.json.easy.serialization.JSONType;
+import java.util.stream.Stream;
 
 /**
  * Represents JSON object
@@ -23,6 +25,28 @@ public class JSONObject implements Serializable
 	 * Serial version UID
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * Converts a boolean to a JSON value
+	 * 
+	 * @param val Value to convert
+	 * @return Converted value
+	 */
+	private static JSONBooleanValue asVal(final boolean val)
+	{
+		return val ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE;
+	}
+	
+	/**
+	 * Converts a boolean to a JSON value
+	 * 
+	 * @param val Value to convert
+	 * @return Converted value
+	 */
+	private static JSONBooleanValue asVal(final Boolean val)
+	{
+		return asVal(val == null ? false : val);
+	}
 	
 	/**
 	 * Contains object values
@@ -120,6 +144,17 @@ public class JSONObject implements Serializable
 	}
 	
 	/**
+	 * Checks if this object is empty
+	 * 
+	 * @return True if object is empty, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean isEmpty()
+	{
+		return values.isEmpty();
+	}
+	
+	/**
 	 * Creates a copy of this object and returns it as a map
 	 * 
 	 * @return Copy of this object as a map
@@ -146,33 +181,54 @@ public class JSONObject implements Serializable
 	}
 	
 	/**
-	 * Attempts to get the field with the specified name and type
-	 *
-	 * @param fieldName The name of the field to get
-	 * @param fieldType The type of the field to get, use null or JSONType.None value if type doesn't matter
-	 * @return Field value, or null JSON value if the field doesn't exist or has different type
+	 * Performs an action on every field in this object
+	 * 
+	 * @param action Action to perform
+	 * @since 1.1.0
 	 */
-	public final JSONValue getField(final String fieldName, final JSONType fieldType)
+	public final void forEach(final BiConsumer<String, JSONValue> action)
 	{
-		final JSONValue val = values.get(fieldName);
-		
-		if (val != null && (fieldType == null || fieldType == JSONType.NONE || fieldType == val.getType()))
+		if (action != null)
 		{
-			return val;
+			for (final Map.Entry<String, JSONValue> ent : values.entrySet())
+			{
+				action.accept(ent.getKey(), ent.getValue());
+			}
 		}
-		
-		return JSONNullValue.NULL;
 	}
 	
 	/**
-	 * Attempts to get the field with the specified name
-	 *
-	 * @param fieldName The name of the field to get
-	 * @return Field value, or null JSON value if the field doesn't exist
+	 * Performs an action on every key in this object
+	 * 
+	 * @param action Action to perform
+	 * @since 1.1.0
 	 */
-	public JSONValue getField(final String fieldName)
+	public final void forEachKey(final Consumer<String> action)
 	{
-		return getField(fieldName, null);
+		if (action != null)
+		{
+			for (final String str : values.keySet())
+			{
+				action.accept(str);
+			}
+		}
+	}
+	
+	/**
+	 * Performs an action on every value in this object
+	 * 
+	 * @param action Action to perform
+	 * @since 1.1.0
+	 */
+	public final void forEachValue(final Consumer<JSONValue> action)
+	{
+		if (action != null)
+		{
+			for (final JSONValue val : values.values())
+			{
+				action.accept(val);
+			}
+		}
 	}
 	
 	/**
@@ -212,24 +268,6 @@ public class JSONObject implements Serializable
 	}
 	
 	/**
-	 * Sets the value of the field with the specified name
-	 *
-	 * @param fieldName Name of the field to set, null strings are not allowed
-	 * @param value Value to set, null will be converted to JSON null value
-	 * @return True if set successfully, false otherwise
-	 */
-	public final boolean setField(final String fieldName, final JSONValue value)
-	{
-		if (fieldName == null || this == EMPTY)
-		{
-			return false;
-		}
-		
-		values.put(fieldName, value == null ? JSONNullValue.NULL : value);
-		return true;
-	}
-	
-	/**
 	 * Removes the field with the specified name
 	 *
 	 * @param fieldName Name of the field to remove
@@ -248,6 +286,128 @@ public class JSONObject implements Serializable
 	}
 	
 	/**
+	 * Returns a sequential stream object for this object
+	 * 
+	 * @return Sequential stream over the entries in this object
+	 * @since 1.1.0
+	 */
+	public final Stream<Map.Entry<String, JSONValue>> stream()
+	{
+		return values.entrySet().stream();
+	}
+	
+	/**
+	 * Returns a sequential stream object for keys in this object
+	 * 
+	 * @return Sequential stream over the keys in this object
+	 * @since 1.1.0
+	 */
+	public final Stream<String> keysStream()
+	{
+		return values.keySet().stream();
+	}
+	
+	/**
+	 * Returns a sequential stream object for values in this object
+	 * 
+	 * @return Sequential stream over the values in this object
+	 * @since 1.1.0
+	 */
+	public final Stream<JSONValue> valuesStream()
+	{
+		return values.values().stream();
+	}
+	
+	/**
+	 * Attempts to get the field with the specified name and type
+	 *
+	 * @param fieldName The name of the field to get
+	 * @param fieldType The type of the field to get, use null or JSONType.None value if type doesn't matter
+	 * @return Field value, or null JSON value if the field doesn't exist or has different type
+	 */
+	public final JSONValue getField(final String fieldName, final JSONType fieldType)
+	{
+		final JSONValue val = values.get(fieldName);
+		
+		if (val != null && (fieldType == null || fieldType == JSONType.NONE || fieldType == val.getType()))
+		{
+			return val;
+		}
+		
+		return JSONNullValue.NULL;
+	}
+	
+	/**
+	 * Attempts to get the field with the specified name
+	 *
+	 * @param fieldName The name of the field to get
+	 * @return Field value, or null JSON value if the field doesn't exist
+	 */
+	public JSONValue getField(final String fieldName)
+	{
+		return getField(fieldName, null);
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public final boolean hasValue(final JSONValue value)
+	{
+		return values.containsValue(value);
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set, null will be converted to JSON null value
+	 * @return True if set successfully, false otherwise
+	 */
+	public final boolean setField(final String fieldName, final JSONValue value)
+	{
+		if (fieldName == null || this == EMPTY)
+		{
+			return false;
+		}
+		
+		values.put(fieldName, value == null ? JSONNullValue.NULL : value);
+		return true;
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set, null will be converted to JSON null value
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public final boolean setFieldIfAbsent(final String fieldName, final JSONValue value)
+	{
+		if (hasField(fieldName))
+		{
+			return false;
+		}
+		
+		return setField(fieldName, value);
+	}
+	
+	/**
+	 * Checks whether a field with the null value exists in the object
+	 *
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasNullValue()
+	{
+		return hasValue(JSONNullValue.NULL);
+	}
+	
+	/**
 	 * Sets the value of the field with the specified name to null
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
@@ -256,6 +416,18 @@ public class JSONObject implements Serializable
 	public boolean setNullField(final String fieldName)
 	{
 		return setField(fieldName, JSONNullValue.NULL);
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name to null if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setNullFieldIfAbsent(final String fieldName)
+	{
+		return setFieldIfAbsent(fieldName, JSONNullValue.NULL);
 	}
 	
 	/**
@@ -270,6 +442,30 @@ public class JSONObject implements Serializable
 	}
 	
 	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasValue(final boolean value)
+	{
+		return hasValue(asVal(value));
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasValue(final Boolean value)
+	{
+		return hasValue(asVal(value));
+	}
+	
+	/**
 	 * Sets the value of the field with the specified name
 	 *
 	 * @param fieldName Name of the field to set, null strings are not allowed
@@ -278,7 +474,7 @@ public class JSONObject implements Serializable
 	 */
 	public boolean setField(final String fieldName, final boolean value)
 	{
-		return setField(fieldName, value ? JSONBooleanValue.TRUE : JSONBooleanValue.FALSE);
+		return setField(fieldName, asVal(value));
 	}
 	
 	/**
@@ -290,7 +486,33 @@ public class JSONObject implements Serializable
 	 */
 	public boolean setField(final String fieldName, final Boolean value)
 	{
-		return setField(fieldName, value == null ? false : value);
+		return setField(fieldName, asVal(value));
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setFieldIfAbsent(final String fieldName, final boolean value)
+	{
+		return setFieldIfAbsent(fieldName, asVal(value));
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setFieldIfAbsent(final String fieldName, final Boolean value)
+	{
+		return setFieldIfAbsent(fieldName, asVal(value));
 	}
 	
 	/**
@@ -302,6 +524,30 @@ public class JSONObject implements Serializable
 	public double getNumberField(final String fieldName)
 	{
 		return getField(fieldName, JSONType.NUMBER).asNumber();
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasValue(final double value)
+	{
+		return hasValue(new JSONNumberValue(value));
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasValue(final Number value)
+	{
+		return hasValue(new JSONNumberValue(value));
 	}
 	
 	/**
@@ -329,6 +575,32 @@ public class JSONObject implements Serializable
 	}
 	
 	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setFieldIfAbsent(final String fieldName, final double value)
+	{
+		return setFieldIfAbsent(fieldName, new JSONNumberValue(value));
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setFieldIfAbsent(final String fieldName, final Number value)
+	{
+		return setFieldIfAbsent(fieldName, new JSONNumberValue(value));
+	}
+	
+	/**
 	 * Attempts to get the field with the specified name as a string
 	 *
 	 * @param fieldName The name of the field to get
@@ -338,6 +610,18 @@ public class JSONObject implements Serializable
 	{
 		final String res = getField(fieldName, JSONType.STRING).asString();
 		return res == null ? "" : res;
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasValue(final String value)
+	{
+		return hasValue(new JSONStringValue(value));
 	}
 	
 	/**
@@ -353,6 +637,19 @@ public class JSONObject implements Serializable
 	}
 	
 	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setFieldIfAbsent(final String fieldName, final String value)
+	{
+		return setFieldIfAbsent(fieldName, new JSONStringValue(value));
+	}
+	
+	/**
 	 * Attempts to get the field with the specified name as an array
 	 *
 	 * @param fieldName The name of the field to get
@@ -362,6 +659,43 @@ public class JSONObject implements Serializable
 	{
 		final JSONArray res = getField(fieldName, JSONType.ARRAY).asArray();
 		return res == null ? JSONArray.EMPTY : res;
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasValue(final JSONArray value)
+	{
+		return hasValue(new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param <T> Type of array values
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public <T extends JSONValue> boolean hasValue(final T[] value)
+	{
+		return hasValue(new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasValue(final Iterable<? extends JSONValue> value)
+	{
+		return hasValue(new JSONArrayValue(value));
 	}
 	
 	/**
@@ -402,6 +736,46 @@ public class JSONObject implements Serializable
 	}
 	
 	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setFieldIfAbsent(final String fieldName, final JSONArray value)
+	{
+		return setFieldIfAbsent(fieldName, new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param <T> Type of new values
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public <T extends JSONValue> boolean setFieldIfAbsent(final String fieldName, final T[] value)
+	{
+		return setFieldIfAbsent(fieldName, new JSONArrayValue(value));
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setFieldIfAbsent(final String fieldName, final Iterable<? extends JSONValue> value)
+	{
+		return setFieldIfAbsent(fieldName, new JSONArrayValue(value));
+	}
+	
+	/**
 	 * Attempts to get the field with the specified name as an object
 	 *
 	 * @param fieldName The name of the field to get
@@ -411,6 +785,30 @@ public class JSONObject implements Serializable
 	{
 		final JSONObject res = getField(fieldName, JSONType.OBJECT).asObject();
 		return res == null ? EMPTY : res;
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasValue(final JSONObject value)
+	{
+		return hasValue(new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Checks whether a field with the specified value exists in the object
+	 *
+	 * @param value Value of the field to find
+	 * @return True if the field exists, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean hasValue(final Map<String, ? extends JSONValue> value)
+	{
+		return hasValue(new JSONObjectValue(value));
 	}
 	
 	/**
@@ -435,5 +833,31 @@ public class JSONObject implements Serializable
 	public boolean setField(final String fieldName, final Map<String, ? extends JSONValue> value)
 	{
 		return setField(fieldName, new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setFieldIfAbsent(final String fieldName, final JSONObject value)
+	{
+		return setFieldIfAbsent(fieldName, new JSONObjectValue(value));
+	}
+	
+	/**
+	 * Sets the value of the field with the specified name if the field is absent
+	 *
+	 * @param fieldName Name of the field to set, null strings are not allowed
+	 * @param value Value to set
+	 * @return True if set successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public boolean setFieldIfAbsent(final String fieldName, final Map<String, ? extends JSONValue> value)
+	{
+		return setFieldIfAbsent(fieldName, new JSONObjectValue(value));
 	}
 }

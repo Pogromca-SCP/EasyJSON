@@ -257,6 +257,89 @@ public class JSONArrayBuilder
 	}
 	
 	/**
+	 * Copies elements from provided array into this array
+	 * 
+	 * @param src Array to copy elements from
+	 * @return Reference to this object to allow method chaining
+	 * @since 1.1.0
+	 */
+	public final JSONArrayBuilder copyAll(final JSONArrayBuilder src)
+	{
+		return src == null ? this : copyAll(src.asArray());
+	}
+	
+	/**
+	 * Copies elements from provided array into this array
+	 * 
+	 * @param src Array to copy elements from
+	 * @return Reference to this object to allow method chaining
+	 * @since 1.1.0
+	 */
+	public final JSONArrayBuilder copyAll(final JSONArray src)
+	{
+		if (src != null)
+		{
+			src.forEach(val -> array.addElement(val));
+		}
+		
+		return this;
+	}
+	
+	/**
+	 * Copies elements from provided collection into this array
+	 * 
+	 * @param src Collection to copy elements from
+	 * @return Reference to this object to allow method chaining
+	 * @since 1.1.0
+	 */
+	public final JSONArrayBuilder copyAll(final Iterable<? extends JSONValue> src)
+	{
+		if (src != null)
+		{
+			for (final JSONValue val : src)
+			{
+				array.addElement(val);
+			}
+		}
+		
+		return this;
+	}
+	
+	/**
+	 * Copies elements from provided array into this array
+	 * 
+	 * @param <T> Type of copied values
+	 * @param src Array to copy elements from
+	 * @return Reference to this object to allow method chaining
+	 * @since 1.1.0
+	 */
+	public final <T extends JSONValue> JSONArrayBuilder copyAll(final T[] src)
+	{
+		if (src != null)
+		{
+			for (final JSONValue val : src)
+			{
+				array.addElement(val);
+			}
+		}
+		
+		return this;
+	}
+	
+	/**
+	 * Copies elements from provided array into this array if condition is met
+	 * 
+	 * @param src Array to copy elements from
+	 * @param pred Condition that elements must meet in order to be copied
+	 * @return Reference to this object to allow method chaining
+	 * @since 1.1.0
+	 */
+	public final JSONArrayBuilder copyIf(final JSONArrayBuilder src, final Predicate<JSONValue> pred)
+	{
+		return src == null ? this : copyIf(src.asArray(), pred);
+	}
+	
+	/**
 	 * Copies elements from provided array into this array if condition is met
 	 * 
 	 * @param src Array to copy elements from

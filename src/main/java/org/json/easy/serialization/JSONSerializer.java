@@ -234,13 +234,7 @@ public final class JSONSerializer
 	 */
 	public static boolean serialize(final Iterable<? extends JSONValue> col, final JSONWriter writer)
 	{
-		if (writer == null)
-		{
-			return false;
-		}
-		
-		serialize(new Element(col), writer);
-		return true;
+		return serialize(new Element(col), writer);
 	}
 	
 	/**
@@ -252,13 +246,7 @@ public final class JSONSerializer
 	 */
 	public static boolean serialize(final JSONArray array, final JSONWriter writer)
 	{
-		if (writer == null)
-		{
-			return false;
-		}
-		
-		serialize(new Element(array), writer);
-		return true;
+		return serialize(new Element(array), writer);
 	}
 	
 	/**
@@ -271,13 +259,7 @@ public final class JSONSerializer
 	 */
 	public static <T extends JSONValue> boolean serialize(final T[] array, final JSONWriter writer)
 	{
-		if (writer == null)
-		{
-			return false;
-		}
-		
-		serialize(new Element(array), writer);
-		return true;
+		return serialize(new Element(array), writer);
 	}
 	
 	/**
@@ -289,13 +271,7 @@ public final class JSONSerializer
 	 */
 	public static boolean serialize(final Map<String, ? extends JSONValue> map, final JSONWriter writer)
 	{
-		if (writer == null)
-		{
-			return false;
-		}
-		
-		serialize(new Element(map), writer);
-		return true;
+		return serialize(new Element(map), writer);
 	}
 	
 	/**
@@ -307,13 +283,7 @@ public final class JSONSerializer
 	 */
 	public static boolean serialize(final JSONObject object, final JSONWriter writer)
 	{
-		if (writer == null)
-		{
-			return false;
-		}
-		
-		serialize(new Element(object), writer);
-		return true;
+		return serialize(new Element(object), writer);
 	}
 	
 	/**
@@ -326,13 +296,20 @@ public final class JSONSerializer
 	 */
 	public static boolean serialize(final JSONValue value, final String identifier, final JSONWriter writer)
 	{
-		if (writer == null)
-		{
-			return false;
-		}
-		
-		serialize(new Element(identifier, value), writer);
-		return true;
+		return serialize(new Element(identifier, value), writer);
+	}
+	
+	/**
+	 * Serializes JSON data
+	 * 
+	 * @param value Value to serialize
+	 * @param writer JSON writer to write data into
+	 * @return True if data serialized successfully, false otherwise
+	 * @since 1.1.0
+	 */
+	public static boolean serialize(final JSONValue value, final JSONWriter writer)
+	{
+		return serialize(new Element(value), writer);
 	}
 	
 	/**
@@ -423,12 +400,29 @@ public final class JSONSerializer
 	 * 
 	 * @param element Element to serialize
 	 * @param writer JSON writer to use
+	 * @return True if data serialized successfully, false otherwise
 	 */
-	private static void serialize(final Element element, final JSONWriter writer)
+	private static boolean serialize(final Element element, final JSONWriter writer)
 	{
+		if (writer == null)
+		{
+			return false;
+		}
+		
 		final Stack<Element> elementStack = new Stack<Element>();
 		elementStack.push(element);
-		
+		serialize(elementStack, writer);
+		return true;
+	}
+	
+	/**
+	 * Serializes JSON data from element stack
+	 * 
+	 * @param elementStack Stack to serialize
+	 * @param writer JSON writer to use
+	 */
+	private static void serialize(final Stack<Element> elementStack, final JSONWriter writer)
+	{
 		while (!elementStack.isEmpty())
 		{
 			final Element elem = elementStack.pop();

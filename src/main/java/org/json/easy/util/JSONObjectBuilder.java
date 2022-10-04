@@ -272,6 +272,78 @@ public class JSONObjectBuilder
 	}
 	
 	/**
+	 * Copies elements from provided object into this object
+	 * 
+	 * @param src Object to copy elements from
+	 * @return Reference to this object to allow method chaining
+	 * @since 1.1.0
+	 */
+	public final JSONObjectBuilder copyAll(final JSONObjectBuilder src)
+	{
+		return src == null ? this : copyAll(src.asObject());
+	}
+	
+	/**
+	 * Copies elements from provided object into this object
+	 * 
+	 * @param src Object to copy elements from
+	 * @return Reference to this object to allow method chaining
+	 * @since 1.1.0
+	 */
+	public final JSONObjectBuilder copyAll(final JSONObject src)
+	{
+		if (src != null)
+		{
+			src.forEach(ent -> object.setField(ent.getKey(), ent.getValue()));
+		}
+		
+		return this;
+	}
+	
+	/**
+	 * Copies elements from provided map into this object
+	 * 
+	 * @param src Map to copy elements from
+	 * @return Reference to this object to allow method chaining
+	 * @since 1.1.0
+	 */
+	public final JSONObjectBuilder copyAll(final Map<String, ? extends JSONValue> src)
+	{
+		if (src != null)
+		{
+			Set<? extends Map.Entry<String, ? extends JSONValue>> entries = src.entrySet();
+			
+			if (entries == null)
+			{
+				return this;
+			}
+			
+			for (final Map.Entry<String, ? extends JSONValue> ent : entries)
+			{
+				if (ent != null)
+				{
+					object.setField(ent.getKey(), ent.getValue());
+				}
+			}
+		}
+		
+		return this;
+	}
+	
+	/**
+	 * Copies elements from provided object into this object if condition is met
+	 * 
+	 * @param src Object to copy elements from
+	 * @param pred Condition that elements must meet in order to be copied
+	 * @return Reference to this object to allow method chaining
+	 * @since 1.1.0
+	 */
+	public final JSONObjectBuilder copyIf(final JSONObjectBuilder src, final BiPredicate<String, JSONValue> pred)
+	{
+		return src == null ? this : copyIf(src.asObject(), pred);
+	}
+	
+	/**
 	 * Copies elements from provided object into this object if condition is met
 	 * 
 	 * @param src Object to copy elements from

@@ -47,6 +47,7 @@ class JSONBuildersTest
 		map.copyIf(expected.toMap(), (key, val) -> !map.asObject().hasField(key));
 		assertEquals(expected, map.asObject());
 		assertEquals(expected.size(), map.size());
+		assertEquals(expected, new JSONObjectBuilder().copyAll(expected).asObject());
 	}
 	
 	@Test
@@ -101,5 +102,6 @@ class JSONBuildersTest
 		list.copyIf(expected.toList(), val -> !list.asArray().contains(val));
 		assertEquals(expected, list.asArray());
 		assertEquals(expected.size(), list.size());
+		assertEquals(expected, new JSONArrayBuilder().copyAll(expected).asArray());
 	}
 }

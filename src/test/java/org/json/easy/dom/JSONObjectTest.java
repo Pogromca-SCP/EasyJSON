@@ -78,6 +78,7 @@ class JSONObjectTest
 		assertEquals(false, obj.hasField("test"));
 		assertEquals(false, obj.hasField("true"));
 		assertEquals(false, obj.hasField("null"));
+		assertEquals(true, obj.isEmpty());
 		serializationTest(obj);
 	}
 	
@@ -91,10 +92,13 @@ class JSONObjectTest
 		assertEquals(false, obj.hasField("true", JSONType.OBJECT));
 		assertEquals(true, obj.getBooleanField("true"));
 		assertEquals(false, obj.getBooleanField("bruh"));
+		assertEquals(true, obj.hasValue(true));
+		assertEquals(false, obj.hasValue(false));
 		assertEquals(JSONBooleanValue.TRUE, obj.getField("true", JSONType.BOOLEAN));
 		assertEquals(JSONBooleanValue.TRUE, obj.getField("true"));
 		assertEquals(JSONNullValue.NULL, obj.getField("true", JSONType.NUMBER));
 		assertEquals(JSONNullValue.NULL, obj.getField("bruh"));
+		assertEquals(false, obj.isEmpty());
 		
 		obj.removeField("true");
 		assertEquals(JSONNullValue.NULL, obj.getField("true"));
@@ -114,7 +118,7 @@ class JSONObjectTest
 	}
 	
 	@Test
-	void testObjectIterator()
+	void testObjectIterators()
 	{
 		final JSONObject obj = new JSONObject();
 		obj.setNullField("null");
@@ -124,5 +128,27 @@ class JSONObjectTest
 		final HashMap<String, JSONValue> cp = new HashMap<String, JSONValue>();
 		obj.forEach(ent -> cp.put(ent.getKey(), ent.getValue()));
 		assertEquals(cp, obj.toMap());
+		final HashMap<String, JSONValue> cp2 = new HashMap<String, JSONValue>();
+		obj.forEach((key, val) -> cp2.put(key, val));
+		assertEquals(cp2, obj.toMap());
+		
+		final JSONObject cp3 = new JSONObject(obj);
+		obj.forEachKey(key -> cp3.removeField(key));
+		obj.forEachValue(val -> cp3.setField(val.asString(), val));
+		assertEquals(3, cp3.size());
+	}
+	
+	@Test
+	void testObjectStreams()
+	{
+		final JSONObject obj = new JSONObject();
+		obj.setField("bool", true);
+		obj.setNullField("null");
+		obj.setField("num", -3.14);
+		obj.setField("str", "test");
+		
+		assertEquals(1, obj.stream().filter(ent -> ent.getKey().equals("bool") && ent.getValue().asBoolean()).count());
+		assertEquals(2, obj.keysStream().filter(key -> key.contains("nu")).count());
+		assertEquals(1, obj.valuesStream().filter(val -> val.asNumber() < 0).count());
 	}
 }
